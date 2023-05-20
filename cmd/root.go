@@ -34,13 +34,16 @@ var cfgFile string
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
 	Use:   "soft-ver-man",
-	Short: "A brief description of your application",
-	Long: `A longer description that spans multiple lines and likely contains
-examples and usage of using your application. For example:
+	Short: "Install supported software in a transparent way and easily switch between versions",
+	Long: `Install supported software in a transparent way and easily switch between different versions of it.
 
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+The app can download or copy supported software in many versions to specified folder on disk.
+Operating only with environment variables it can switch between different versions of given software.
+
+Additional documentation can be found in https://github.com/pkk82/soft-ver-man
+
+To start just run: soft-ver-man init`,
+
 	// Uncomment the following line if your bare application
 	// has an action associated with it:
 	// Run: func(cmd *cobra.Command, args []string) { },

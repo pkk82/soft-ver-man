@@ -31,7 +31,7 @@ import (
 )
 
 // rootCmd represents the base command when called without any subcommands
-var rootCmd = &cobra.Command{
+var RootCmd = &cobra.Command{
 	Use:   "soft-ver-man",
 	Short: "Install supported software in a transparent way and easily switch between versions",
 	Long: `Install supported software in a transparent way and easily switch between different versions of it.
@@ -51,28 +51,33 @@ To start just run: soft-ver-man init`,
 // Execute adds all child commands to the root command and sets flags appropriately.
 // This is called by main.main(). It only needs to happen once to the rootCmd.
 func Execute() {
-	err := rootCmd.Execute()
+	err := RootCmd.Execute()
 	if err != nil {
 		os.Exit(1)
 	}
 }
 
+const ConfigDir = "config-directory"
+
 func init() {
 	cobra.OnInitialize(initConfig)
 	// Cobra also supports local flags, which will only run
 	// when this action is called directly.
-	rootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	RootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }
 
 // initConfig reads in config file and ENV variables if set.
 func initConfig() {
+	// find config directory
+	configDir := viper.GetString(ConfigDir)
+	if configDir == "" {
+		homeDir, err := os.UserHomeDir()
+		cobra.CheckErr(err)
+		configDir = homeDir
+	}
 
-	// find home directory
-	home, err := os.UserHomeDir()
-	cobra.CheckErr(err)
-
-	configPath := filepath.Join(home, ".soft-ver-man")
-	err = os.Mkdir(configPath, 0700)
+	configPath := filepath.Join(configDir, ".soft-ver-man")
+	err := os.Mkdir(configPath, 0700)
 	if err != nil && !os.IsExist(err) {
 		displayError(err)
 	}

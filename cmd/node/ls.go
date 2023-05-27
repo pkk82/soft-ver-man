@@ -22,7 +22,7 @@ THE SOFTWARE.
 package node
 
 import (
-	"fmt"
+	"github.com/pkk82/soft-ver-man/node"
 	"github.com/spf13/cobra"
 )
 
@@ -32,7 +32,7 @@ var lsCmd = &cobra.Command{
 	Short: "Display available version of node",
 	Long:  `Display available versions of node.js using https://nodejs.org/dist/index.json.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("ls called")
+		node.ListVersions("https://nodejs.org/dist/index.json")
 	},
 }
 

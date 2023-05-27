@@ -38,3 +38,6 @@ venv/
 # symlinks
 .--external
 .--external-dropbox
+
+# the app
+svm

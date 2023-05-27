@@ -19,10 +19,11 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
-package cmd
+package node
 
 import (
 	"fmt"
+	"github.com/pkk82/soft-ver-man/cmd"
 
 	"github.com/spf13/cobra"
 )
@@ -30,7 +31,7 @@ import (
 // NodeCmd represents the node command
 var NodeCmd = &cobra.Command{
 	Use:     "node",
-	Short:   "node.js category",
+	Short:   "Software: node.js",
 	Long:    `Download and configure node.js`,
 	Aliases: []string{"node.js", "nodejs"},
 	Run: func(cmd *cobra.Command, args []string) {
@@ -39,7 +40,7 @@ var NodeCmd = &cobra.Command{
 }
 
 func init() {
-	RootCmd.AddCommand(NodeCmd)
+	cmd.RootCmd.AddCommand(NodeCmd)
 
 	// Here you will define your flags and configuration settings.
 

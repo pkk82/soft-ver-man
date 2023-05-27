@@ -21,7 +21,10 @@ THE SOFTWARE.
 */
 package main
 
-import "github.com/pkk82/soft-ver-man/cmd"
+import (
+	"github.com/pkk82/soft-ver-man/cmd"
+	_ "github.com/pkk82/soft-ver-man/cmd/node"
+)
 
 func main() {
 	cmd.Execute()

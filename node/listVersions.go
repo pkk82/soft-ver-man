@@ -52,13 +52,21 @@ func ListVersions(jsonFileUrl string) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	supportedFile := supportedFile()
-	for _, version := range versions {
-		files := version.Files
-		if includes(files, supportedFile) {
-			println(version.Id)
+	supportedVersions := supportedVersions(&versions, runtime.GOOS, runtime.GOARCH)
+	for _, version := range supportedVersions {
+		println(version.Id)
+	}
+}
+
+func supportedVersions(versions *[]Version, goOpSystem, goarch string) []Version {
+	result := make([]Version, 0)
+	expectedFile := supportedFile(goOpSystem, goarch)
+	for _, version := range *versions {
+		if includes(version.Files, expectedFile) {
+			result = append(result, version)
 		}
 	}
+	return result
 }
 
 func includes(c []string, term string) bool {
@@ -70,36 +78,35 @@ func includes(c []string, term string) bool {
 	return false
 }
 
-func supportedFile() string {
-	os := os()
+func supportedFile(goOpSystem, goArch string) string {
 	var supportedFile string
+	os := toFilesOs(goOpSystem)
+	arch := toFilesArch(goArch)
 	switch os {
 	case "win":
-		supportedFile = fmt.Sprintf("%s-%s-zip", os, arch())
+		supportedFile = fmt.Sprintf("%s-%s-zip", os, arch)
 	case "osx":
-		supportedFile = fmt.Sprintf("%s-%s-tar", os, arch())
+		supportedFile = fmt.Sprintf("%s-%s-tar", os, arch)
 	default:
-		supportedFile = fmt.Sprintf("%s-%s", os, arch())
+		supportedFile = fmt.Sprintf("%s-%s", os, arch)
 	}
 	return supportedFile
 }
 
-func os() string {
-	goOS := runtime.GOOS
+func toFilesOs(goOpSystem string) string {
 	var os string
-	switch goOS {
+	switch goOpSystem {
 	case "darwin":
 		os = "osx"
 	case "windows":
 		os = "win"
 	default:
-		os = goOS
+		os = goOpSystem
 	}
 	return os
 }
 
-func arch() string {
-	goArch := runtime.GOARCH
+func toFilesArch(goArch string) string {
 	var arch string
 	switch goArch {
 	case "amd64":

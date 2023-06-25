@@ -19,11 +19,11 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
-package validators_test
+package version_test
 
 import (
 	"fmt"
-	"github.com/pkk82/soft-ver-man/validators"
+	ver "github.com/pkk82/soft-ver-man/version"
 	"testing"
 )
 
@@ -32,7 +32,7 @@ func TestCorrectVersions(t *testing.T) {
 		"v10.11.", "10.11.", "v10.", "10.",
 	}
 	for _, v := range versions {
-		err := validators.ValidateVersion(v)
+		err := ver.ValidateVersion(v)
 		if err != nil {
 			t.Errorf("Validate should pass, but got exception: %v", err)
 		}
@@ -42,7 +42,7 @@ func TestCorrectVersions(t *testing.T) {
 func TestIncorrectVersions(t *testing.T) {
 	versions := []string{"a.b.c", "1.2.a", "x1.2.3"}
 	for _, v := range versions {
-		err := validators.ValidateVersion(v)
+		err := ver.ValidateVersion(v)
 		expectedErr := fmt.Sprintf("%s is not a valid version", v)
 		if err.Error() != expectedErr {
 			t.Errorf("Got unexpected error: %v, expected: %v", err, expectedErr)

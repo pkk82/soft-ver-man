@@ -6,10 +6,10 @@ import (
 )
 
 func TestSupportedFiles(t *testing.T) {
-	versions := []Version{
-		{Id: "v0.1.14", Date: "2011-08-26", Files: []string{"src"}},
-		{Id: "v0.6.12", Date: "2012-03-02", Files: []string{"osx-x64-pkg", "src", "win-x86-exe"}},
-		{Id: "v0.8.6", Date: "2012-08-06", Files: []string{"linux-x64",
+	filesPerVersions := []FilesPerVersion{
+		{Version: "v0.1.14", Date: "2011-08-26", Files: []string{"src"}},
+		{Version: "v0.6.12", Date: "2012-03-02", Files: []string{"osx-x64-pkg", "src", "win-x86-exe"}},
+		{Version: "v0.8.6", Date: "2012-08-06", Files: []string{"linux-x64",
 			"linux-x86",
 			"osx-x64-pkg",
 			"osx-x64-tar",
@@ -20,7 +20,7 @@ func TestSupportedFiles(t *testing.T) {
 			"win-x64-exe",
 			"win-x86-exe",
 			"win-x86-msi"}},
-		{Id: "v20.2.0", Date: "2023-05-16", Files: []string{"aix-ppc64",
+		{Version: "v20.2.0", Date: "2023-05-16", Files: []string{"aix-ppc64",
 			"headers",
 			"linux-arm64",
 			"linux-armv7l",
@@ -66,23 +66,37 @@ func TestSupportedFiles(t *testing.T) {
 	   "mips64le": Indicates the little-endian 64-bit MIPS architecture.
 	*/
 
-	supported := supportedVersions(&versions, "linux", "amd64")
-	if !reflect.DeepEqual(supported, []Version{versions[2], versions[3]}) {
-		t.Errorf("Expected %v, got %v", []Version{versions[2], versions[3]}, supported)
+	actual := supportedVersions(&filesPerVersions, "linux", "amd64")
+	expected := []Version{
+		{Id: "v0.8.6", File: "linux-x64", DownloadLink: "https://nodejs.org/dist/v0.8.6/node-v0.8.6-linux-x64.tar.gz"},
+		{Id: "v20.2.0", File: "linux-x64", DownloadLink: "https://nodejs.org/dist/v20.2.0/node-v20.2.0-linux-x64.tar.gz"},
+	}
+	if !reflect.DeepEqual(actual, expected) {
+		t.Errorf("Expected: %v, got: %v", expected, actual)
 	}
 
-	supported = supportedVersions(&versions, "windows", "amd64")
-	if !reflect.DeepEqual(supported, []Version{versions[3]}) {
-		t.Errorf("Expected %v, got %v", []Version{versions[3]}, supported)
+	actual = supportedVersions(&filesPerVersions, "windows", "amd64")
+	expected = []Version{
+		{Id: "v20.2.0", File: "win-x64-zip", DownloadLink: "https://nodejs.org/dist/v20.2.0/node-v20.2.0-win-x64.zip"},
+	}
+	if !reflect.DeepEqual(actual, expected) {
+		t.Errorf("Expected: %v, got: %v", expected, actual)
 	}
 
-	supported = supportedVersions(&versions, "darwin", "amd64")
-	if !reflect.DeepEqual(supported, []Version{versions[2], versions[3]}) {
-		t.Errorf("Expected %v, got %v", []Version{versions[2], versions[3]}, supported)
+	actual = supportedVersions(&filesPerVersions, "darwin", "amd64")
+	expected = []Version{
+		{Id: "v0.8.6", File: "osx-x64-tar", DownloadLink: "https://nodejs.org/dist/v0.8.6/node-v0.8.6-darwin-x64.tar.gz"},
+		{Id: "v20.2.0", File: "osx-x64-tar", DownloadLink: "https://nodejs.org/dist/v20.2.0/node-v20.2.0-darwin-x64.tar.gz"},
+	}
+	if !reflect.DeepEqual(actual, expected) {
+		t.Errorf("Expected: %v, got: %v", expected, actual)
 	}
 
-	supported = supportedVersions(&versions, "darwin", "arm64")
-	if !reflect.DeepEqual(supported, []Version{versions[3]}) {
-		t.Errorf("Expected %v, got %v", []Version{versions[3]}, supported)
+	actual = supportedVersions(&filesPerVersions, "darwin", "arm64")
+	expected = []Version{
+		{Id: "v20.2.0", File: "osx-arm64-tar", DownloadLink: "https://nodejs.org/dist/v20.2.0/node-v20.2.0-darwin-arm64.tar.gz"},
+	}
+	if !reflect.DeepEqual(actual, expected) {
+		t.Errorf("Expected: %v, got: %v", expected, actual)
 	}
 }

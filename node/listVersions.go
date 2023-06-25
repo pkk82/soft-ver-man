@@ -30,10 +30,16 @@ import (
 	"runtime"
 )
 
+type FilesPerVersion struct {
+	Version string   `json:"version"`
+	Date    string   `json:"date"`
+	Files   []string `json:"files"`
+}
+
 type Version struct {
-	Id    string   `json:"version"`
-	Date  string   `json:"date"`
-	Files []string `json:"files"`
+	Id           string
+	File         string
+	DownloadLink string
 }
 
 func ListVersions(jsonFileUrl string) {
@@ -47,26 +53,42 @@ func ListVersions(jsonFileUrl string) {
 			log.Fatal(err)
 		}
 	}(resp.Body)
-	var versions []Version
-	err = json.NewDecoder(resp.Body).Decode(&versions)
+	var filesPerVersions []FilesPerVersion
+	err = json.NewDecoder(resp.Body).Decode(&filesPerVersions)
 	if err != nil {
 		log.Fatal(err)
 	}
-	supportedVersions := supportedVersions(&versions, runtime.GOOS, runtime.GOARCH)
+	supportedVersions := supportedVersions(&filesPerVersions, runtime.GOOS, runtime.GOARCH)
 	for _, version := range supportedVersions {
 		println(version.Id)
 	}
 }
 
-func supportedVersions(versions *[]Version, goOpSystem, goarch string) []Version {
+func supportedVersions(filesPerVersions *[]FilesPerVersion, goOpSystem, goarch string) []Version {
 	result := make([]Version, 0)
 	expectedFile := supportedFile(goOpSystem, goarch)
-	for _, version := range *versions {
-		if includes(version.Files, expectedFile) {
+	for _, filesPerVersion := range *filesPerVersions {
+		if includes(filesPerVersion.Files, expectedFile) {
+			version := Version{
+				Id:           filesPerVersion.Version,
+				File:         expectedFile,
+				DownloadLink: calculateLink(filesPerVersion.Version, goOpSystem, goarch),
+			}
 			result = append(result, version)
 		}
 	}
 	return result
+}
+
+func calculateLink(version, goOpSystem, goArch string) string {
+	// https://nodejs.org/dist/v20.3.1/node-v20.3.1-win-x64.zip
+	// https://nodejs.org/dist/v20.3.1/node-v20.3.1-darwin-arm64.tar.gz
+	// https://nodejs.org/dist/v20.3.1/node-v20.3.1-darwin-x64.tar.gz
+	// https://nodejs.org/dist/v20.3.1/node-v20.3.1-linux-x64.tar.gz
+	arch := toFilesArch(goArch)
+	extension := toExtension(goOpSystem)
+	opSys := toLinkOs(goOpSystem)
+	return fmt.Sprintf("https://nodejs.org/dist/%s/node-%s-%s-%s.%s", version, version, opSys, arch, extension)
 }
 
 func includes(c []string, term string) bool {
@@ -104,6 +126,28 @@ func toFilesOs(goOpSystem string) string {
 		os = goOpSystem
 	}
 	return os
+}
+
+func toLinkOs(goOpSystem string) string {
+	var os string
+	switch goOpSystem {
+	case "windows":
+		os = "win"
+	default:
+		os = goOpSystem
+	}
+	return os
+}
+
+func toExtension(goOpSystem string) string {
+	var extension string
+	switch goOpSystem {
+	case "windows":
+		extension = "zip"
+	default:
+		extension = "tar.gz"
+	}
+	return extension
 }
 
 func toFilesArch(goArch string) string {

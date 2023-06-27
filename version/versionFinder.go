@@ -35,10 +35,10 @@ type Version struct {
 	patch int
 }
 
-func FindVersion(version string, versions []string) (string, error) {
+func FindVersion(version string, versions []string) (string, int, error) {
 	parsedVersions, err := parseVersions(versions)
 	if err != nil {
-		return "", err
+		return "", -1, err
 	}
 	sort.Slice(parsedVersions, func(i, j int) bool {
 		return parsedVersions[i].major > parsedVersions[j].major ||
@@ -47,16 +47,25 @@ func FindVersion(version string, versions []string) (string, error) {
 	})
 	parsedVersion, err := parseVersion(version)
 	if err != nil {
-		return "", err
+		return "", -1, err
 	}
+
+	matchingValue := ""
 	for _, v := range parsedVersions {
 		if (v.major == parsedVersion.major || parsedVersion.major == -1) &&
 			(v.minor == parsedVersion.minor || parsedVersion.minor == -1) &&
 			(v.patch == parsedVersion.patch || parsedVersion.patch == -1) {
-			return v.value, nil
+			matchingValue = v.value
+			break
 		}
 	}
-	return "", errors.New("No version found for: " + version)
+	for i, v := range versions {
+		if v == matchingValue {
+			return v, i, nil
+		}
+
+	}
+	return "", -1, errors.New("No version found for: " + version)
 
 }
 

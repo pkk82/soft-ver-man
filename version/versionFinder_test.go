@@ -76,7 +76,7 @@ func TestFindVersion(t *testing.T) {
 		"20.0.1":  "v20.0.1",
 	}
 	for version, expected := range terms {
-		actual, err := ver.FindVersion(version, versions)
+		actual, _, err := ver.FindVersion(version, versions)
 		if err != nil {
 			t.Errorf("Error: %v", err)
 		}
@@ -100,13 +100,35 @@ func TestFindNoVersion(t *testing.T) {
 		"v20.0.10",
 	}
 	for _, version := range terms {
-		actual, err := ver.FindVersion(version, versions)
+		actual, _, err := ver.FindVersion(version, versions)
 		if err == nil {
 			t.Errorf("Expected error, but got response: %v", actual)
 		}
 		expectedError := fmt.Sprintf("No version found for: %v", version)
 		if err.Error() != expectedError {
 			t.Errorf("Expected: %v,. but got: %v", expectedError, err.Error())
+		}
+	}
+}
+
+func TestFindIndex(t *testing.T) {
+	versions := []string{
+		"v20.0.9",
+		"v20.1.9",
+		"v20.2.9",
+	}
+	terms := []string{
+		"v20.0",
+		"v20.1",
+		"v20.2",
+	}
+	for index, version := range terms {
+		_, actualIndex, err := ver.FindVersion(version, versions)
+		if err != nil {
+			t.Errorf("Error: %v", err)
+		}
+		if index != actualIndex {
+			t.Errorf("Expected: %v, but got: %v", index, actualIndex)
 		}
 	}
 }

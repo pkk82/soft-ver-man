@@ -38,11 +38,18 @@ type FilesPerVersion struct {
 
 type Version struct {
 	Id           string
-	File         string
+	FileName     string
 	DownloadLink string
 }
 
 func ListVersions() {
+	versions := getSupportedVersions()
+	for _, version := range versions {
+		println(version.Id)
+	}
+}
+
+func getSupportedVersions() []Version {
 	resp, err := http.Get(JsonFileURL)
 	if err != nil {
 		log.Fatal(err)
@@ -58,10 +65,7 @@ func ListVersions() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	supportedVersions := supportedVersions(&filesPerVersions, runtime.GOOS, runtime.GOARCH)
-	for _, version := range supportedVersions {
-		println(version.Id)
-	}
+	return supportedVersions(&filesPerVersions, runtime.GOOS, runtime.GOARCH)
 }
 
 func supportedVersions(filesPerVersions *[]FilesPerVersion, goOpSystem, goarch string) []Version {
@@ -69,10 +73,11 @@ func supportedVersions(filesPerVersions *[]FilesPerVersion, goOpSystem, goarch s
 	expectedFile := supportedFile(goOpSystem, goarch)
 	for _, filesPerVersion := range *filesPerVersions {
 		if includes(filesPerVersion.Files, expectedFile) {
+			fileName := calculateFileName(filesPerVersion.Version, goOpSystem, goarch)
 			version := Version{
 				Id:           filesPerVersion.Version,
-				File:         expectedFile,
-				DownloadLink: calculateLink(filesPerVersion.Version, goOpSystem, goarch),
+				FileName:     fileName,
+				DownloadLink: fmt.Sprintf("%s/%s/%s", DistURL, filesPerVersion.Version, fileName),
 			}
 			result = append(result, version)
 		}
@@ -80,15 +85,15 @@ func supportedVersions(filesPerVersions *[]FilesPerVersion, goOpSystem, goarch s
 	return result
 }
 
-func calculateLink(version, goOpSystem, goArch string) string {
-	// https://nodejs.org/dist/v20.3.1/node-v20.3.1-win-x64.zip
-	// https://nodejs.org/dist/v20.3.1/node-v20.3.1-darwin-arm64.tar.gz
-	// https://nodejs.org/dist/v20.3.1/node-v20.3.1-darwin-x64.tar.gz
-	// https://nodejs.org/dist/v20.3.1/node-v20.3.1-linux-x64.tar.gz
+// https://nodejs.org/dist/v20.3.1/node-v20.3.1-win-x64.zip
+// https://nodejs.org/dist/v20.3.1/node-v20.3.1-darwin-arm64.tar.gz
+// https://nodejs.org/dist/v20.3.1/node-v20.3.1-darwin-x64.tar.gz
+// https://nodejs.org/dist/v20.3.1/node-v20.3.1-linux-x64.tar.gz
+func calculateFileName(version, goOpSystem, goArch string) string {
 	arch := toFilesArch(goArch)
 	extension := toExtension(goOpSystem)
 	opSys := toLinkOs(goOpSystem)
-	return fmt.Sprintf("%s/%s/node-%s-%s-%s.%s", DistURL, version, version, opSys, arch, extension)
+	return fmt.Sprintf("node-%s-%s-%s.%s", version, opSys, arch, extension)
 }
 
 func includes(c []string, term string) bool {

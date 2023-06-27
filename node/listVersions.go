@@ -42,8 +42,8 @@ type Version struct {
 	DownloadLink string
 }
 
-func ListVersions(jsonFileUrl string) {
-	resp, err := http.Get(jsonFileUrl)
+func ListVersions() {
+	resp, err := http.Get(JsonFileURL)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -88,7 +88,7 @@ func calculateLink(version, goOpSystem, goArch string) string {
 	arch := toFilesArch(goArch)
 	extension := toExtension(goOpSystem)
 	opSys := toLinkOs(goOpSystem)
-	return fmt.Sprintf("https://nodejs.org/dist/%s/node-%s-%s-%s.%s", version, version, opSys, arch, extension)
+	return fmt.Sprintf("%s/%s/node-%s-%s-%s.%s", DistURL, version, version, opSys, arch, extension)
 }
 
 func includes(c []string, term string) bool {

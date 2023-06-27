@@ -22,15 +22,9 @@ THE SOFTWARE.
 package cmd
 
 import (
-	"bufio"
+	"github.com/pkk82/soft-ver-man/config"
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
-	"os"
-	"path/filepath"
-	"strings"
 )
-
-const SoftwareDirKey = "software-directory"
 
 func InitCommand() *cobra.Command {
 	return &cobra.Command{
@@ -38,31 +32,8 @@ func InitCommand() *cobra.Command {
 		Short: "Init soft-ver-man",
 		Long:  `Init soft-ver-man by defining directory where software is to be installed and install itself there`,
 		Run: func(cmd *cobra.Command, args []string) {
-			if !viper.IsSet(SoftwareDirKey) {
-				homeDir, err := os.UserHomeDir()
-				if err != nil {
-					homeDir = ""
-				}
-				if homeDir == "" {
-					cmd.Printf("Where to install software: ")
-				} else {
-					cmd.Printf("Where to install software [%v]: ", filepath.Join(homeDir, "pf"))
-				}
-				reader := bufio.NewReader(cmd.InOrStdin())
-				softwareDirInput, err := reader.ReadString('\n')
-				if err != nil {
-					cmd.PrintErr(err)
-				}
-				if strings.TrimSpace(softwareDirInput) == "" && homeDir != "" {
-					viper.Set(SoftwareDirKey, filepath.Join(homeDir, "pf"))
-				} else if strings.TrimSpace(softwareDirInput) != "" {
-					viper.Set(SoftwareDirKey, softwareDirInput)
-				} else {
-					cobra.CheckErr("Software directory not set")
-				}
-				err = viper.WriteConfig()
-				cobra.CheckErr(err)
-			}
+			config.InitSoftwareDownloadDir(cmd)
+			config.InitSoftwareDir(cmd)
 		},
 	}
 }

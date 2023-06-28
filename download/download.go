@@ -2,6 +2,7 @@ package download
 
 import (
 	"fmt"
+	"github.com/schollz/progressbar/v3"
 	"io"
 	"net/http"
 	"os"
@@ -36,7 +37,9 @@ func FetchFile(url, downloadDir, fileName string) error {
 		}
 	}(file)
 
-	_, err = io.Copy(file, response.Body)
+	bar := progressbar.DefaultBytes(response.ContentLength, "Downloading "+fileName)
+
+	_, err = io.Copy(io.MultiWriter(file, bar), response.Body)
 	if err != nil {
 		return err
 	}

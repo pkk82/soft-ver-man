@@ -22,13 +22,15 @@ THE SOFTWARE.
 package node
 
 import (
+	"fmt"
 	"github.com/pkk82/soft-ver-man/download"
 	"github.com/pkk82/soft-ver-man/version"
 	"log"
 	"path/filepath"
 )
 
-func FetchVersion(inputVersion, softwareDownloadDir string) {
+func FetchVersion(inputVersion, softwareDownloadDir string, verify bool) {
+	fmt.Println(verify)
 	versions := getSupportedVersions()
 	versionIds := make([]string, len(versions))
 	for i, v := range versions {

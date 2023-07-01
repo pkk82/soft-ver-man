@@ -30,6 +30,8 @@ import (
 	"github.com/spf13/cobra"
 )
 
+var verify bool
+
 // fetchCmd represents the fetch command
 var fetchCmd = &cobra.Command{
 	Use:   "fetch [version]",
@@ -43,12 +45,13 @@ var fetchCmd = &cobra.Command{
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 		softwareDownloadDir := config.InitSoftwareDownloadDir(cmd)
-		node.FetchVersion(args[0], softwareDownloadDir)
+		node.FetchVersion(args[0], softwareDownloadDir, verify)
 	},
 }
 
 func init() {
 	NodeCmd.AddCommand(fetchCmd)
+	fetchCmd.Flags().BoolVarP(&verify, "verify", "", false, "Verify checksum of downloaded file")
 
 	// Here you will define your flags and configuration settings.
 

@@ -5,12 +5,12 @@ import (
 	"strings"
 )
 
-func fetchPGPKeys(softwareDownloadDir string) {
-
+func fetchPGPKeys(softwareDownloadDir string) []string {
+	var paths = make([]string, 0)
 	for _, fingerprint := range getFingerprints() {
-		download.FetchFileSilently("https://keys.openpgp.org/vks/v1/by-fingerprint/"+fingerprint, softwareDownloadDir+"/node-pgp-keys", fingerprint)
+		paths = append(paths, download.FetchFileSilently("https://keys.openpgp.org/vks/v1/by-fingerprint/"+fingerprint, softwareDownloadDir+"/node-pgp-keys", fingerprint))
 	}
-
+	return paths
 }
 
 func getFingerprints() []string {

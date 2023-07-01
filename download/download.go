@@ -10,15 +10,15 @@ import (
 	"path/filepath"
 )
 
-func FetchFile(url, downloadDir, fileName string) {
-	fetchFile(url, downloadDir, fileName, true)
+func FetchFile(url, downloadDir, fileName string) string {
+	return fetchFile(url, downloadDir, fileName, true)
 }
 
-func FetchFileSilently(url, downloadDir, fileName string) {
-	fetchFile(url, downloadDir, fileName, false)
+func FetchFileSilently(url, downloadDir, fileName string) string {
+	return fetchFile(url, downloadDir, fileName, false)
 }
 
-func fetchFile(url, downloadDir, fileName string, useProgressBar bool) {
+func fetchFile(url, downloadDir, fileName string, useProgressBar bool) string {
 	response, err := http.Get(url)
 	if err != nil {
 		console.Fatal(err)
@@ -56,4 +56,6 @@ func fetchFile(url, downloadDir, fileName string, useProgressBar bool) {
 	if err != nil {
 		console.Fatal(err)
 	}
+
+	return filepath.Join(downloadDir, fileName)
 }

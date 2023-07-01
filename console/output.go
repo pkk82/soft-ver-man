@@ -7,6 +7,10 @@ func Info(message string) {
 }
 
 func Fatal(error error) {
-	println(error)
+	println(error.Error())
 	os.Exit(1)
+}
+
+func Error(error error) {
+	println(error.Error())
 }

@@ -25,6 +25,7 @@ import (
 	"fmt"
 	"github.com/pkk82/soft-ver-man/console"
 	"github.com/pkk82/soft-ver-man/download"
+	"github.com/pkk82/soft-ver-man/pgp"
 	"github.com/pkk82/soft-ver-man/version"
 	"path/filepath"
 )
@@ -44,11 +45,12 @@ func FetchVersion(inputVersion, softwareDownloadDir string, verify bool) {
 	download.FetchFile(matchingVersion.DownloadLink(), nodeDir, matchingVersion.FileName)
 
 	if verify {
-		fetchPGPKeys(softwareDownloadDir)
-		shaSumFile := fmt.Sprintf("node-%v-%v", foundVersion, ShaSumFileName)
-		download.FetchFileSilently(matchingVersion.SumsLink(), nodeDir, shaSumFile)
-		shaSumSigFile := fmt.Sprintf("node-%v-%v", foundVersion, ShaSumSigFileName)
-		download.FetchFileSilently(matchingVersion.SumsSigLink(), nodeDir, shaSumSigFile)
+		publicKeyPaths := fetchPGPKeys(softwareDownloadDir)
+		shaSumFileName := fmt.Sprintf("node-%v-%v", foundVersion, ShaSumFileName)
+		shaSumFilePath := download.FetchFileSilently(matchingVersion.SumsLink(), nodeDir, shaSumFileName)
+		shaSumSigFileName := fmt.Sprintf("node-%v-%v", foundVersion, ShaSumSigFileName)
+		shaSumSigFilePath := download.FetchFileSilently(matchingVersion.SumsSigLink(), nodeDir, shaSumSigFileName)
+		pgp.VerifySignature(shaSumFilePath, shaSumSigFilePath, publicKeyPaths)
 	}
 
 }

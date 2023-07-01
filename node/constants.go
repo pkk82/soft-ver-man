@@ -2,6 +2,8 @@ package node
 
 const DistURL = "https://nodejs.org/dist"
 const JsonFileURL = "https://nodejs.org/dist/index.json"
+const ShaSumFileName = "SHASUMS256.txt"
+const ShaSumSigFileName = "SHASUMS256.txt.sig"
 const gpgKeys = `
 Beth Griggs <bethanyngriggs@gmail.com> 4ED778F539E3634C779C87C6D7062848A1AB005C
 Bryan English <bryan@bryanenglish.com> 141F07595B7B3FFE74309A937405533BE57C7D57

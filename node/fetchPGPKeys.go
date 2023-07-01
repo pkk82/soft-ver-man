@@ -8,7 +8,7 @@ import (
 func fetchPGPKeys(softwareDownloadDir string) {
 
 	for _, fingerprint := range getFingerprints() {
-		download.FetchFile("https://keys.openpgp.org/vks/v1/by-fingerprint/"+fingerprint, softwareDownloadDir+"/node-pgp-keys", fingerprint)
+		download.FetchFileSilently("https://keys.openpgp.org/vks/v1/by-fingerprint/"+fingerprint, softwareDownloadDir+"/node-pgp-keys", fingerprint)
 	}
 
 }

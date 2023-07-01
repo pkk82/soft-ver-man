@@ -22,6 +22,7 @@ THE SOFTWARE.
 package node
 
 import (
+	"fmt"
 	"github.com/pkk82/soft-ver-man/console"
 	"github.com/pkk82/soft-ver-man/download"
 	"github.com/pkk82/soft-ver-man/version"
@@ -34,15 +35,20 @@ func FetchVersion(inputVersion, softwareDownloadDir string, verify bool) {
 	for i, v := range versions {
 		versionIds[i] = v.Id
 	}
-	_, index, err := version.FindVersion(inputVersion, versionIds)
+	foundVersion, index, err := version.FindVersion(inputVersion, versionIds)
 	if err != nil {
 		console.Fatal(err)
 	}
 	matchingVersion := versions[index]
-	download.FetchFile(matchingVersion.DownloadLink, filepath.Join(softwareDownloadDir, "node"), matchingVersion.FileName)
+	nodeDir := filepath.Join(softwareDownloadDir, "node")
+	download.FetchFile(matchingVersion.DownloadLink(), nodeDir, matchingVersion.FileName)
 
 	if verify {
 		fetchPGPKeys(softwareDownloadDir)
+		shaSumFile := fmt.Sprintf("node-%v-%v", foundVersion, ShaSumFileName)
+		download.FetchFileSilently(matchingVersion.SumsLink(), nodeDir, shaSumFile)
+		shaSumSigFile := fmt.Sprintf("node-%v-%v", foundVersion, ShaSumSigFileName)
+		download.FetchFileSilently(matchingVersion.SumsSigLink(), nodeDir, shaSumSigFile)
 	}
 
 }

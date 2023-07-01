@@ -11,6 +11,14 @@ import (
 )
 
 func FetchFile(url, downloadDir, fileName string) {
+	fetchFile(url, downloadDir, fileName, true)
+}
+
+func FetchFileSilently(url, downloadDir, fileName string) {
+	fetchFile(url, downloadDir, fileName, false)
+}
+
+func fetchFile(url, downloadDir, fileName string, useProgressBar bool) {
 	response, err := http.Get(url)
 	if err != nil {
 		console.Fatal(err)
@@ -38,9 +46,13 @@ func FetchFile(url, downloadDir, fileName string) {
 		}
 	}(file)
 
-	bar := progressbar.DefaultBytes(response.ContentLength, "Downloading "+fileName)
+	if useProgressBar {
+		bar := progressbar.DefaultBytes(response.ContentLength, "Downloading "+fileName)
+		_, err = io.Copy(io.MultiWriter(file, bar), response.Body)
+	} else {
+		_, err = io.Copy(file, response.Body)
+	}
 
-	_, err = io.Copy(io.MultiWriter(file, bar), response.Body)
 	if err != nil {
 		console.Fatal(err)
 	}

@@ -37,9 +37,19 @@ type FilesPerVersion struct {
 }
 
 type Version struct {
-	Id           string
-	FileName     string
-	DownloadLink string
+	Id       string
+	FileName string
+}
+
+func (v Version) DownloadLink() string {
+	return fmt.Sprintf("%s/%s/%s", DistURL, v.Id, v.FileName)
+}
+func (v Version) SumsLink() string {
+	return fmt.Sprintf("%s/%s/%s", DistURL, v.Id, ShaSumFileName)
+}
+
+func (v Version) SumsSigLink() string {
+	return fmt.Sprintf("%s/%s/%s", DistURL, v.Id, ShaSumSigFileName)
 }
 
 func ListVersions() {
@@ -75,9 +85,8 @@ func supportedVersions(filesPerVersions *[]FilesPerVersion, goOpSystem, goarch s
 		if includes(filesPerVersion.Files, expectedFile) {
 			fileName := calculateFileName(filesPerVersion.Version, goOpSystem, goarch)
 			version := Version{
-				Id:           filesPerVersion.Version,
-				FileName:     fileName,
-				DownloadLink: fmt.Sprintf("%s/%s/%s", DistURL, filesPerVersion.Version, fileName),
+				Id:       filesPerVersion.Version,
+				FileName: fileName,
 			}
 			result = append(result, version)
 		}

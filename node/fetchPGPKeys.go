@@ -1,21 +1,14 @@
 package node
 
 import (
-	"fmt"
 	"github.com/pkk82/soft-ver-man/download"
-	"os"
 	"strings"
 )
 
 func fetchPGPKeys(softwareDownloadDir string) {
 
 	for _, fingerprint := range getFingerprints() {
-
-		err := download.FetchFile("https://keys.openpgp.org/vks/v1/by-fingerprint/"+fingerprint, softwareDownloadDir+"/node-pgp-keys", fingerprint)
-		if err != nil {
-			fmt.Println(err)
-			os.Exit(1)
-		}
+		download.FetchFile("https://keys.openpgp.org/vks/v1/by-fingerprint/"+fingerprint, softwareDownloadDir+"/node-pgp-keys", fingerprint)
 	}
 
 }

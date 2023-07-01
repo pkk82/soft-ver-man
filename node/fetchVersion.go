@@ -39,10 +39,8 @@ func FetchVersion(inputVersion, softwareDownloadDir string, verify bool) {
 		console.Fatal(err)
 	}
 	matchingVersion := versions[index]
-	err = download.FetchFile(matchingVersion.DownloadLink, filepath.Join(softwareDownloadDir, "node"), matchingVersion.FileName)
-	if err != nil {
-		console.Fatal(err)
-	}
+	download.FetchFile(matchingVersion.DownloadLink, filepath.Join(softwareDownloadDir, "node"), matchingVersion.FileName)
+
 	if verify {
 		fetchPGPKeys(softwareDownloadDir)
 	}

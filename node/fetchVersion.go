@@ -22,9 +22,9 @@ THE SOFTWARE.
 package node
 
 import (
+	"github.com/pkk82/soft-ver-man/console"
 	"github.com/pkk82/soft-ver-man/download"
 	"github.com/pkk82/soft-ver-man/version"
-	"log"
 	"path/filepath"
 )
 
@@ -36,12 +36,12 @@ func FetchVersion(inputVersion, softwareDownloadDir string, verify bool) {
 	}
 	_, index, err := version.FindVersion(inputVersion, versionIds)
 	if err != nil {
-		log.Fatal(err)
+		console.Fatal(err)
 	}
 	matchingVersion := versions[index]
 	err = download.FetchFile(matchingVersion.DownloadLink, filepath.Join(softwareDownloadDir, "node"), matchingVersion.FileName)
 	if err != nil {
-		log.Fatal(err)
+		console.Fatal(err)
 	}
 	if verify {
 		fetchPGPKeys(softwareDownloadDir)

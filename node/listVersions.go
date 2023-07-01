@@ -24,8 +24,8 @@ package node
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/pkk82/soft-ver-man/console"
 	"io"
-	"log"
 	"net/http"
 	"runtime"
 )
@@ -45,25 +45,25 @@ type Version struct {
 func ListVersions() {
 	versions := getSupportedVersions()
 	for _, version := range versions {
-		println(version.Id)
+		console.Info(version.Id)
 	}
 }
 
 func getSupportedVersions() []Version {
 	resp, err := http.Get(JsonFileURL)
 	if err != nil {
-		log.Fatal(err)
+		console.Fatal(err)
 	}
 	defer func(Body io.ReadCloser) {
 		err := Body.Close()
 		if err != nil {
-			log.Fatal(err)
+			console.Fatal(err)
 		}
 	}(resp.Body)
 	var filesPerVersions []FilesPerVersion
 	err = json.NewDecoder(resp.Body).Decode(&filesPerVersions)
 	if err != nil {
-		log.Fatal(err)
+		console.Fatal(err)
 	}
 	return supportedVersions(&filesPerVersions, runtime.GOOS, runtime.GOARCH)
 }

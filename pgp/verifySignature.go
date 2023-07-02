@@ -2,6 +2,7 @@ package pgp
 
 import (
 	"bytes"
+	"context"
 	"errors"
 	"github.com/pkk82/soft-ver-man/console"
 	"golang.org/x/crypto/openpgp"
@@ -13,11 +14,13 @@ func VerifySignature(filePath, signatureFilePath string, publicKeyFilePaths []st
 	errs := make(chan error)
 	resultCh := make(chan bool)
 
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
 	go func() {
 		for i := 0; i < len(publicKeyFilePaths); i++ {
 			err := <-errs
 			if err == nil {
-				close(errs)
 				resultCh <- true
 				return
 			}
@@ -27,7 +30,20 @@ func VerifySignature(filePath, signatureFilePath string, publicKeyFilePaths []st
 
 	go func() {
 		for _, publicKeyFilePath := range publicKeyFilePaths {
-			go verifySignatureAsync(filePath, signatureFilePath, publicKeyFilePath, errs)
+			go func(pkFilePath string) {
+				select {
+				case <-ctx.Done():
+					return
+				default:
+				}
+				err := verifySignature(filePath, signatureFilePath, pkFilePath)
+				if err == nil {
+					errs <- nil
+					cancel()
+				} else {
+					errs <- err
+				}
+			}(publicKeyFilePath)
 		}
 	}()
 
@@ -39,11 +55,6 @@ func VerifySignature(filePath, signatureFilePath string, publicKeyFilePaths []st
 		console.Fatal(errors.New(filePath + " is corrupted file"))
 	}
 
-}
-
-func verifySignatureAsync(filePath, signatureFilePath, publicKeyFilePath string, ch chan<- error) {
-	err := verifySignature(filePath, signatureFilePath, publicKeyFilePath)
-	ch <- err
 }
 
 func verifySignature(filePath, signatureFilePath, publicKeyFilePath string) error {

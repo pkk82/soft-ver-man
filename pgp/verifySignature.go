@@ -60,7 +60,6 @@ func verifySignature(filePath, signatureFilePath, publicKeyFilePath string) erro
 
 	file, err := os.Open(filePath)
 	if err != nil {
-
 		return err
 	}
 	signatureFile, err := os.Open(signatureFilePath)

@@ -3,10 +3,9 @@ package pgp
 import (
 	"bytes"
 	"errors"
-	"fmt"
 	"github.com/pkk82/soft-ver-man/console"
-	"golang.org/x/crypto/openpgp/armor"
-	"golang.org/x/crypto/openpgp/packet"
+	"golang.org/x/crypto/openpgp"
+	"io"
 	"os"
 )
 
@@ -49,68 +48,26 @@ func verifySignatureAsync(filePath, signatureFilePath, publicKeyFilePath string,
 
 func verifySignature(filePath, signatureFilePath, publicKeyFilePath string) error {
 
-	fileContent, err := os.ReadFile(filePath)
-	if err != nil {
-		return err
-	}
-
-	signatureFile, err := os.Open(signatureFilePath)
-	if err != nil {
-		return err
-	}
-
-	defer func() {
-		if err := signatureFile.Close(); err != nil {
-			console.Error(err)
-		}
-	}()
-
-	pack, err := packet.Read(signatureFile)
-	if err != nil {
-		return err
-	}
-
-	signature, ok := pack.(*packet.Signature)
-	if !ok {
-		return errors.New(signatureFilePath + " is not a valid signature file")
-	}
-
 	publicKeyContent, err := os.ReadFile(publicKeyFilePath)
 	if err != nil {
 		return err
 	}
 
-	block, err := armor.Decode(bytes.NewReader(publicKeyContent))
-	if err != nil {
-		return fmt.Errorf("error decoding public key: %s", err)
-	}
-	if block.Type != "PGP PUBLIC KEY BLOCK" {
-		return errors.New(publicKeyFilePath + " not an armored public key")
-	}
-
-	pack, err = packet.Read(block.Body)
-	if err != nil {
-		return fmt.Errorf("error reading public key: %s", err)
-	}
-
-	publicKey, ok := pack.(*packet.PublicKey)
-	if !ok {
-		return errors.New("invalid public key")
-	}
-
-	println(publicKey)
-
-	hash := signature.Hash.New()
-
-	_, err = hash.Write(fileContent)
+	entityList, err := openpgp.ReadArmoredKeyRing(bytes.NewReader(publicKeyContent))
 	if err != nil {
 		return err
 	}
 
-	err = publicKey.VerifySignature(hash, signature)
+	file, err := os.Open(filePath)
+	if err != nil {
+
+		return err
+	}
+	signatureFile, err := os.Open(signatureFilePath)
 	if err != nil {
 		return err
 	}
 
-	return nil
+	_, err = openpgp.CheckDetachedSignature(entityList, io.Reader(file), io.Reader(signatureFile))
+	return err
 }

@@ -42,14 +42,14 @@ func Fetch(inputVersion, softwareDownloadDir string, verify bool) fetch.FetchedP
 		console.Fatal(err)
 	}
 	matchingVersion := versions[index]
-	nodeDir := filepath.Join(softwareDownloadDir, "node")
+	nodeDir := filepath.Join(softwareDownloadDir, Name)
 	nodeFilePath := download.FetchFile(matchingVersion.DownloadLink(), nodeDir, matchingVersion.FileName)
 
 	if verify {
 		publicKeyPaths := fetchPGPKeys(softwareDownloadDir)
-		shaSumFileName := fmt.Sprintf("node-%v-%v", foundVersion, ShaSumFileName)
+		shaSumFileName := fmt.Sprintf("%v-%v-%v", Name, foundVersion, ShaSumFileName)
 		shaSumFilePath := download.FetchFileSilently(matchingVersion.SumsLink(), nodeDir, shaSumFileName)
-		shaSumSigFileName := fmt.Sprintf("node-%v-%v", foundVersion, ShaSumSigFileName)
+		shaSumSigFileName := fmt.Sprintf("%v-%v-%v", Name, foundVersion, ShaSumSigFileName)
 		shaSumSigFilePath := download.FetchFileSilently(matchingVersion.SumsSigLink(), nodeDir, shaSumSigFileName)
 		pgp.VerifySignature(shaSumFilePath, shaSumSigFilePath, publicKeyPaths)
 		verifySha(nodeFilePath, shaSumFilePath)

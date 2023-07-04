@@ -102,7 +102,7 @@ func calculateFileName(version, goOpSystem, goArch string) string {
 	arch := toFilesArch(goArch)
 	extension := toExtension(goOpSystem)
 	opSys := toLinkOs(goOpSystem)
-	return fmt.Sprintf("node-%s-%s-%s.%s", version, opSys, arch, extension)
+	return fmt.Sprintf("%s-%s-%s-%s.%s", Name, version, opSys, arch, extension)
 }
 
 func includes(c []string, term string) bool {

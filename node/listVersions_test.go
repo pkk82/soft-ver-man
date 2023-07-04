@@ -6,7 +6,7 @@ import (
 )
 
 func TestSupportedFiles(t *testing.T) {
-	filesPerVersions := []FilesPerVersion{
+	filesPerVersions := []PackagesPerVersion{
 		{Version: "v0.1.14", Date: "2011-08-26", Files: []string{"src"}},
 		{Version: "v0.6.12", Date: "2012-03-02", Files: []string{"osx-x64-pkg", "src", "win-x86-exe"}},
 		{Version: "v0.8.6", Date: "2012-08-06", Files: []string{"linux-x64",
@@ -66,35 +66,35 @@ func TestSupportedFiles(t *testing.T) {
 	   "mips64le": Indicates the little-endian 64-bit MIPS architecture.
 	*/
 
-	actual := supportedVersions(&filesPerVersions, "linux", "amd64")
-	expected := []Version{
-		{Id: "v0.8.6", FileName: "node-v0.8.6-linux-x64.tar.gz"},
-		{Id: "v20.2.0", FileName: "node-v20.2.0-linux-x64.tar.gz"},
+	actual := supportedPackages(&filesPerVersions, "linux", "amd64")
+	expected := []Package{
+		{Version: "v0.8.6", FileName: "node-v0.8.6-linux-x64.tar.gz"},
+		{Version: "v20.2.0", FileName: "node-v20.2.0-linux-x64.tar.gz"},
 	}
 	if !reflect.DeepEqual(actual, expected) {
 		t.Errorf("Expected: %v, got: %v", expected, actual)
 	}
 
-	actual = supportedVersions(&filesPerVersions, "windows", "amd64")
-	expected = []Version{
-		{Id: "v20.2.0", FileName: "node-v20.2.0-win-x64.zip"},
+	actual = supportedPackages(&filesPerVersions, "windows", "amd64")
+	expected = []Package{
+		{Version: "v20.2.0", FileName: "node-v20.2.0-win-x64.zip"},
 	}
 	if !reflect.DeepEqual(actual, expected) {
 		t.Errorf("Expected: %v, got: %v", expected, actual)
 	}
 
-	actual = supportedVersions(&filesPerVersions, "darwin", "amd64")
-	expected = []Version{
-		{Id: "v0.8.6", FileName: "node-v0.8.6-darwin-x64.tar.gz"},
-		{Id: "v20.2.0", FileName: "node-v20.2.0-darwin-x64.tar.gz"},
+	actual = supportedPackages(&filesPerVersions, "darwin", "amd64")
+	expected = []Package{
+		{Version: "v0.8.6", FileName: "node-v0.8.6-darwin-x64.tar.gz"},
+		{Version: "v20.2.0", FileName: "node-v20.2.0-darwin-x64.tar.gz"},
 	}
 	if !reflect.DeepEqual(actual, expected) {
 		t.Errorf("Expected: %v, got: %v", expected, actual)
 	}
 
-	actual = supportedVersions(&filesPerVersions, "darwin", "arm64")
-	expected = []Version{
-		{Id: "v20.2.0", FileName: "node-v20.2.0-darwin-arm64.tar.gz"},
+	actual = supportedPackages(&filesPerVersions, "darwin", "arm64")
+	expected = []Package{
+		{Version: "v20.2.0", FileName: "node-v20.2.0-darwin-arm64.tar.gz"},
 	}
 	if !reflect.DeepEqual(actual, expected) {
 		t.Errorf("Expected: %v, got: %v", expected, actual)
@@ -102,10 +102,10 @@ func TestSupportedFiles(t *testing.T) {
 }
 
 func TestDownloadLink(t *testing.T) {
-	versions := []Version{
-		{Id: "v0.8.6", FileName: "node-v0.8.6-darwin-x64.tar.gz"},
-		{Id: "v20.2.0", FileName: "node-v20.2.0-darwin-arm64.tar.gz"},
-		{Id: "v20.2.0", FileName: "node-v20.2.0-win-x64.zip"},
+	versions := []Package{
+		{Version: "v0.8.6", FileName: "node-v0.8.6-darwin-x64.tar.gz"},
+		{Version: "v20.2.0", FileName: "node-v20.2.0-darwin-arm64.tar.gz"},
+		{Version: "v20.2.0", FileName: "node-v20.2.0-win-x64.zip"},
 	}
 	expected := []string{
 		"https://nodejs.org/dist/v0.8.6/node-v0.8.6-darwin-x64.tar.gz",

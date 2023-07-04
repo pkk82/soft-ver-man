@@ -31,10 +31,10 @@ import (
 )
 
 func FetchVersion(inputVersion, softwareDownloadDir string, verify bool) {
-	versions := getSupportedVersions()
+	versions := getSupportedPackages()
 	versionIds := make([]string, len(versions))
 	for i, v := range versions {
-		versionIds[i] = v.Id
+		versionIds[i] = v.Version
 	}
 	foundVersion, index, err := version.FindVersion(inputVersion, versionIds)
 	if err != nil {

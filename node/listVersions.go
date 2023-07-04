@@ -30,36 +30,36 @@ import (
 	"runtime"
 )
 
-type FilesPerVersion struct {
+type PackagesPerVersion struct {
 	Version string   `json:"version"`
 	Date    string   `json:"date"`
 	Files   []string `json:"files"`
 }
 
-type Version struct {
-	Id       string
+type Package struct {
+	Version  string
 	FileName string
 }
 
-func (v Version) DownloadLink() string {
-	return fmt.Sprintf("%s/%s/%s", DistURL, v.Id, v.FileName)
+func (v Package) DownloadLink() string {
+	return fmt.Sprintf("%s/%s/%s", DistURL, v.Version, v.FileName)
 }
-func (v Version) SumsLink() string {
-	return fmt.Sprintf("%s/%s/%s", DistURL, v.Id, ShaSumFileName)
+func (v Package) SumsLink() string {
+	return fmt.Sprintf("%s/%s/%s", DistURL, v.Version, ShaSumFileName)
 }
 
-func (v Version) SumsSigLink() string {
-	return fmt.Sprintf("%s/%s/%s", DistURL, v.Id, ShaSumSigFileName)
+func (v Package) SumsSigLink() string {
+	return fmt.Sprintf("%s/%s/%s", DistURL, v.Version, ShaSumSigFileName)
 }
 
 func ListVersions() {
-	versions := getSupportedVersions()
-	for _, version := range versions {
-		console.Info(version.Id)
+	packages := getSupportedPackages()
+	for _, pack := range packages {
+		console.Info(pack.Version)
 	}
 }
 
-func getSupportedVersions() []Version {
+func getSupportedPackages() []Package {
 	resp, err := http.Get(JsonFileURL)
 	if err != nil {
 		console.Fatal(err)
@@ -70,22 +70,22 @@ func getSupportedVersions() []Version {
 			console.Fatal(err)
 		}
 	}(resp.Body)
-	var filesPerVersions []FilesPerVersion
+	var filesPerVersions []PackagesPerVersion
 	err = json.NewDecoder(resp.Body).Decode(&filesPerVersions)
 	if err != nil {
 		console.Fatal(err)
 	}
-	return supportedVersions(&filesPerVersions, runtime.GOOS, runtime.GOARCH)
+	return supportedPackages(&filesPerVersions, runtime.GOOS, runtime.GOARCH)
 }
 
-func supportedVersions(filesPerVersions *[]FilesPerVersion, goOpSystem, goarch string) []Version {
-	result := make([]Version, 0)
+func supportedPackages(packagesPerVersions *[]PackagesPerVersion, goOpSystem, goarch string) []Package {
+	result := make([]Package, 0)
 	expectedFile := supportedFile(goOpSystem, goarch)
-	for _, filesPerVersion := range *filesPerVersions {
-		if includes(filesPerVersion.Files, expectedFile) {
-			fileName := calculateFileName(filesPerVersion.Version, goOpSystem, goarch)
-			version := Version{
-				Id:       filesPerVersion.Version,
+	for _, packagePerVersion := range *packagesPerVersions {
+		if includes(packagePerVersion.Files, expectedFile) {
+			fileName := calculateFileName(packagePerVersion.Version, goOpSystem, goarch)
+			version := Package{
+				Version:  packagePerVersion.Version,
 				FileName: fileName,
 			}
 			result = append(result, version)

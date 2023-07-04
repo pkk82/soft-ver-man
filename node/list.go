@@ -52,7 +52,7 @@ func (v Package) SumsSigLink() string {
 	return fmt.Sprintf("%s/%s/%s", DistURL, v.Version, ShaSumSigFileName)
 }
 
-func ListVersions() {
+func List() {
 	packages := getSupportedPackages()
 	for _, pack := range packages {
 		console.Info(pack.Version)

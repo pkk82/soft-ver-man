@@ -33,7 +33,7 @@ var lsCmd = &cobra.Command{
 	Short: "Display available version of node",
 	Long:  fmt.Sprintf("Display available versions of node.js using %v.", node.JsonFileURL),
 	Run: func(cmd *cobra.Command, args []string) {
-		node.ListVersions()
+		node.List()
 	},
 }
 

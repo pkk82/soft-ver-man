@@ -45,7 +45,7 @@ var fetchCmd = &cobra.Command{
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 		softwareDownloadDir := config.InitSoftwareDownloadDir(cmd)
-		node.FetchVersion(args[0], softwareDownloadDir, verify)
+		node.Fetch(args[0], softwareDownloadDir, verify)
 	},
 }
 

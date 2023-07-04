@@ -29,16 +29,16 @@ import (
 )
 
 type Version struct {
-	value string
+	Value string
 	major int
 	minor int
 	patch int
 }
 
-func FindVersion(version string, versions []string) (string, int, error) {
+func FindVersion(version string, versions []string) (Version, int, error) {
 	parsedVersions, err := parseVersions(versions)
 	if err != nil {
-		return "", -1, err
+		return Version{}, -1, err
 	}
 	sort.Slice(parsedVersions, func(i, j int) bool {
 		return parsedVersions[i].major > parsedVersions[j].major ||
@@ -47,25 +47,25 @@ func FindVersion(version string, versions []string) (string, int, error) {
 	})
 	parsedVersion, err := parseVersion(version)
 	if err != nil {
-		return "", -1, err
+		return Version{}, -1, err
 	}
 
-	matchingValue := ""
+	matchingVersion := Version{}
 	for _, v := range parsedVersions {
 		if (v.major == parsedVersion.major || parsedVersion.major == -1) &&
 			(v.minor == parsedVersion.minor || parsedVersion.minor == -1) &&
 			(v.patch == parsedVersion.patch || parsedVersion.patch == -1) {
-			matchingValue = v.value
+			matchingVersion = v
 			break
 		}
 	}
 	for i, v := range versions {
-		if v == matchingValue {
-			return v, i, nil
+		if v == matchingVersion.Value {
+			return matchingVersion, i, nil
 		}
 
 	}
-	return "", -1, errors.New("No version found for: " + version)
+	return Version{}, -1, errors.New("No version found for: " + version)
 
 }
 
@@ -91,7 +91,7 @@ func parseVersion(version string) (Version, error) {
 
 	splitVersion := strings.Split(versionWithoutV, ".")
 	var major, minor, patch = -1, -1, -1
-	var errVersion = Version{value: version, major: major, minor: minor, patch: patch}
+	var errVersion = Version{Value: version, major: major, minor: minor, patch: patch}
 	var err error
 	if len(splitVersion) > 0 && splitVersion[0] != "" {
 		major, err = strconv.Atoi(splitVersion[0])
@@ -112,5 +112,5 @@ func parseVersion(version string) (Version, error) {
 		return errVersion, err
 	}
 
-	return Version{value: version, major: major, minor: minor, patch: patch}, nil
+	return Version{Value: version, major: major, minor: minor, patch: patch}, nil
 }

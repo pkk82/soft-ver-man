@@ -25,12 +25,13 @@ import (
 	"fmt"
 	"github.com/pkk82/soft-ver-man/console"
 	"github.com/pkk82/soft-ver-man/download"
+	"github.com/pkk82/soft-ver-man/fetch"
 	"github.com/pkk82/soft-ver-man/pgp"
 	"github.com/pkk82/soft-ver-man/version"
 	"path/filepath"
 )
 
-func FetchVersion(inputVersion, softwareDownloadDir string, verify bool) {
+func Fetch(inputVersion, softwareDownloadDir string, verify bool) fetch.FetchedPackage {
 	versions := getSupportedPackages()
 	versionIds := make([]string, len(versions))
 	for i, v := range versions {
@@ -53,5 +54,7 @@ func FetchVersion(inputVersion, softwareDownloadDir string, verify bool) {
 		pgp.VerifySignature(shaSumFilePath, shaSumSigFilePath, publicKeyPaths)
 		verifySha(nodeFilePath, shaSumFilePath)
 	}
+
+	return fetch.FetchedPackage{Version: foundVersion, FilePath: nodeFilePath}
 
 }

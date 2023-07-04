@@ -80,7 +80,7 @@ func TestFindVersion(t *testing.T) {
 		if err != nil {
 			t.Errorf("Error: %v", err)
 		}
-		if actual != expected {
+		if actual.Value != expected {
 			t.Errorf("Expected: %v,. but got: %v", expected, actual)
 		}
 	}

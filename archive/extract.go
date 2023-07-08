@@ -77,18 +77,7 @@ func extractZip(zipPath string, dir string) error {
 }
 
 func extractZipFile(targetFilePath string, file *zip.File) error {
-	targetFile, err := os.OpenFile(targetFilePath, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, file.Mode())
-	if err != nil {
-		return err
-	}
-	defer func(targetFile *os.File) {
-		err := targetFile.Close()
-		if err != nil {
-			console.Error(err)
-		}
-	}(targetFile)
 
-	// Open the zip file entry
 	zipEntry, err := file.Open()
 	if err != nil {
 		return err
@@ -99,6 +88,30 @@ func extractZipFile(targetFilePath string, file *zip.File) error {
 			console.Error(err)
 		}
 	}(zipEntry)
+
+	if file.Mode()&os.ModeSymlink != 0 {
+		link, err := io.ReadAll(zipEntry)
+
+		if err != nil {
+			return err
+		}
+
+		if err := os.Symlink(string(link), targetFilePath); err != nil {
+			return err
+		}
+		return nil
+	}
+
+	targetFile, err := os.OpenFile(targetFilePath, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, file.Mode())
+	if err != nil {
+		return err
+	}
+	defer func(targetFile *os.File) {
+		err := targetFile.Close()
+		if err != nil {
+			console.Error(err)
+		}
+	}(targetFile)
 
 	_, err = io.Copy(targetFile, zipEntry)
 	if err != nil {
@@ -159,6 +172,11 @@ func extractTarGz(tarGzFilePath, dir string) error {
 			}
 			err = outFile.Close()
 			if err != nil {
+				return err
+			}
+		case tar.TypeSymlink:
+			if err := os.Symlink(header.Linkname, filepath.Join(dir, header.Name)); err != nil {
+				console.Fatal(err)
 				return err
 			}
 

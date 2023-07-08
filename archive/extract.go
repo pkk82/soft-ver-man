@@ -117,6 +117,15 @@ func extractZipFile(targetFilePath string, file *zip.File) error {
 	if err != nil {
 		return err
 	}
+
+	fileMode := file.Mode()
+	if fileMode&0111 != 0 {
+		err := os.Chmod(targetFilePath, fileMode|0100)
+		if err != nil {
+			return errors.New(fmt.Sprintf("ExtractTarGz: Chmod() failed: %s", err.Error()))
+		}
+	}
+
 	return nil
 }
 
@@ -179,8 +188,7 @@ func extractTarGz(tarGzFilePath, dir string) error {
 			if fileMode&0111 != 0 {
 				err := os.Chmod(path.Join(dir, header.Name), fileMode|0100)
 				if err != nil {
-					fmt.Println("Failed to set executable permissions:", err)
-					continue
+					return errors.New(fmt.Sprintf("ExtractTarGz: Chmod() failed: %s", err.Error()))
 				}
 			}
 

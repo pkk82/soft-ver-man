@@ -1,6 +1,7 @@
 package node
 
 import (
+	"github.com/pkk82/soft-ver-man/pack"
 	"reflect"
 	"testing"
 )
@@ -68,8 +69,8 @@ func TestSupportedFiles(t *testing.T) {
 
 	actual := supportedPackages(&filesPerVersions, "linux", "amd64")
 	expected := []Package{
-		{Version: "v0.8.6", FileName: "node-v0.8.6-linux-x64.tar.gz"},
-		{Version: "v20.2.0", FileName: "node-v20.2.0-linux-x64.tar.gz"},
+		{Version: "v0.8.6", FileName: "node-v0.8.6-linux-x64.tar.gz", Type: pack.TAR_GZ},
+		{Version: "v20.2.0", FileName: "node-v20.2.0-linux-x64.tar.gz", Type: pack.TAR_GZ},
 	}
 	if !reflect.DeepEqual(actual, expected) {
 		t.Errorf("Expected: %v, got: %v", expected, actual)
@@ -77,7 +78,7 @@ func TestSupportedFiles(t *testing.T) {
 
 	actual = supportedPackages(&filesPerVersions, "windows", "amd64")
 	expected = []Package{
-		{Version: "v20.2.0", FileName: "node-v20.2.0-win-x64.zip"},
+		{Version: "v20.2.0", FileName: "node-v20.2.0-win-x64.zip", Type: pack.ZIP},
 	}
 	if !reflect.DeepEqual(actual, expected) {
 		t.Errorf("Expected: %v, got: %v", expected, actual)
@@ -85,8 +86,8 @@ func TestSupportedFiles(t *testing.T) {
 
 	actual = supportedPackages(&filesPerVersions, "darwin", "amd64")
 	expected = []Package{
-		{Version: "v0.8.6", FileName: "node-v0.8.6-darwin-x64.tar.gz"},
-		{Version: "v20.2.0", FileName: "node-v20.2.0-darwin-x64.tar.gz"},
+		{Version: "v0.8.6", FileName: "node-v0.8.6-darwin-x64.tar.gz", Type: pack.TAR_GZ},
+		{Version: "v20.2.0", FileName: "node-v20.2.0-darwin-x64.tar.gz", Type: pack.TAR_GZ},
 	}
 	if !reflect.DeepEqual(actual, expected) {
 		t.Errorf("Expected: %v, got: %v", expected, actual)
@@ -94,7 +95,7 @@ func TestSupportedFiles(t *testing.T) {
 
 	actual = supportedPackages(&filesPerVersions, "darwin", "arm64")
 	expected = []Package{
-		{Version: "v20.2.0", FileName: "node-v20.2.0-darwin-arm64.tar.gz"},
+		{Version: "v20.2.0", FileName: "node-v20.2.0-darwin-arm64.tar.gz", Type: pack.TAR_GZ},
 	}
 	if !reflect.DeepEqual(actual, expected) {
 		t.Errorf("Expected: %v, got: %v", expected, actual)

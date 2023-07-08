@@ -25,6 +25,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/pkk82/soft-ver-man/console"
+	"github.com/pkk82/soft-ver-man/pack"
 	"io"
 	"net/http"
 	"runtime"
@@ -39,6 +40,7 @@ type PackagesPerVersion struct {
 type Package struct {
 	Version  string
 	FileName string
+	Type     pack.Type
 }
 
 func (v Package) DownloadLink() string {
@@ -54,8 +56,8 @@ func (v Package) SumsSigLink() string {
 
 func List() {
 	packages := getSupportedPackages()
-	for _, pack := range packages {
-		console.Info(pack.Version)
+	for _, p := range packages {
+		console.Info(p.Version)
 	}
 }
 
@@ -80,13 +82,14 @@ func getSupportedPackages() []Package {
 
 func supportedPackages(packagesPerVersions *[]PackagesPerVersion, goOpSystem, goarch string) []Package {
 	result := make([]Package, 0)
-	expectedFile := supportedFile(goOpSystem, goarch)
+	supportedFile, supportedType := calculateSupportedFile(goOpSystem, goarch)
 	for _, packagePerVersion := range *packagesPerVersions {
-		if includes(packagePerVersion.Files, expectedFile) {
+		if includes(packagePerVersion.Files, supportedFile) {
 			fileName := calculateFileName(packagePerVersion.Version, goOpSystem, goarch)
 			version := Package{
 				Version:  packagePerVersion.Version,
 				FileName: fileName,
+				Type:     supportedType,
 			}
 			result = append(result, version)
 		}
@@ -114,19 +117,23 @@ func includes(c []string, term string) bool {
 	return false
 }
 
-func supportedFile(goOpSystem, goArch string) string {
+func calculateSupportedFile(goOpSystem, goArch string) (string, pack.Type) {
 	var supportedFile string
+	var supportedType pack.Type
 	os := toFilesOs(goOpSystem)
 	arch := toFilesArch(goArch)
 	switch os {
 	case "win":
 		supportedFile = fmt.Sprintf("%s-%s-zip", os, arch)
+		supportedType = pack.ZIP
 	case "osx":
 		supportedFile = fmt.Sprintf("%s-%s-tar", os, arch)
+		supportedType = pack.TAR_GZ
 	default:
 		supportedFile = fmt.Sprintf("%s-%s", os, arch)
+		supportedType = pack.TAR_GZ
 	}
-	return supportedFile
+	return supportedFile, supportedType
 }
 
 func toFilesOs(goOpSystem string) string {

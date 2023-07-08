@@ -23,6 +23,7 @@ package archive
 
 import (
 	"archive/tar"
+	"archive/zip"
 	"compress/gzip"
 	"errors"
 	"fmt"
@@ -31,11 +32,84 @@ import (
 	"io"
 	"os"
 	"path"
+	"path/filepath"
 )
 
 func Extract(fetchedPackage pack.FetchedPackage, softwareDir string) error {
 
-	file, err := os.Open(fetchedPackage.FilePath)
+	if fetchedPackage.Type == pack.TAR_GZ {
+		return extractTarGz(fetchedPackage.FilePath, softwareDir)
+	} else if fetchedPackage.Type == pack.ZIP {
+		return extractZip(fetchedPackage.FilePath, softwareDir)
+	}
+	return errors.New("Unknown archive type: " + string(fetchedPackage.Type))
+
+}
+
+func extractZip(zipPath string, dir string) error {
+	reader, err := zip.OpenReader(zipPath)
+	if err != nil {
+		return err
+	}
+	defer func(reader *zip.ReadCloser) {
+		err := reader.Close()
+		if err != nil {
+			console.Error(err)
+		}
+	}(reader)
+
+	for _, file := range reader.File {
+		targetFilePath := filepath.Join(dir, file.Name)
+		if file.FileInfo().IsDir() {
+			err := os.MkdirAll(targetFilePath, file.Mode())
+			if err != nil {
+				return err
+			}
+			continue
+		}
+		err = extractZipFile(targetFilePath, file)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func extractZipFile(targetFilePath string, file *zip.File) error {
+	targetFile, err := os.OpenFile(targetFilePath, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, file.Mode())
+	if err != nil {
+		return err
+	}
+	defer func(targetFile *os.File) {
+		err := targetFile.Close()
+		if err != nil {
+			console.Error(err)
+		}
+	}(targetFile)
+
+	// Open the zip file entry
+	zipEntry, err := file.Open()
+	if err != nil {
+		return err
+	}
+	defer func(zipEntry io.ReadCloser) {
+		err := zipEntry.Close()
+		if err != nil {
+			console.Error(err)
+		}
+	}(zipEntry)
+
+	_, err = io.Copy(targetFile, zipEntry)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func extractTarGz(tarGzFilePath, dir string) error {
+
+	tarGzFile, err := os.Open(tarGzFilePath)
 	if err != nil {
 		return err
 	}
@@ -44,23 +118,9 @@ func Extract(fetchedPackage pack.FetchedPackage, softwareDir string) error {
 		if err != nil {
 			console.Error(err)
 		}
-	}(file)
+	}(tarGzFile)
 
-	if fetchedPackage.Type == pack.TAR_GZ {
-		return extractTarGz(file, softwareDir)
-	} else if fetchedPackage.Type == pack.ZIP {
-		return extractZip(file, softwareDir)
-	}
-	return errors.New("Unknown archive type: " + string(fetchedPackage.Type))
-
-}
-
-func extractZip(file *os.File, dir string) error {
-	return nil
-}
-
-func extractTarGz(file *os.File, dir string) error {
-	reader, err := gzip.NewReader(file)
+	gzReader, err := gzip.NewReader(tarGzFile)
 	if err != nil {
 		return err
 	}
@@ -69,9 +129,9 @@ func extractTarGz(file *os.File, dir string) error {
 		if err != nil {
 			console.Error(err)
 		}
-	}(reader)
+	}(gzReader)
 
-	tarReader := tar.NewReader(reader)
+	tarReader := tar.NewReader(gzReader)
 
 	for true {
 		header, err := tarReader.Next()

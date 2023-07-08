@@ -34,6 +34,8 @@ func TestExtractTarGZ(t *testing.T) {
 	assertFileContent(t, filepath.Join(testDir, "dir", "dir-2", "file-21.txt"), "file-21")
 	assertFileContent(t, filepath.Join(testDir, "dir", "dir-2", "file-22.txt"), "file-22")
 	assertFileContent(t, filepath.Join(testDir, "dir", "file-1.txt"), "file-1")
+	assertFileContent(t, filepath.Join(testDir, "dir", "exec"), "echo \"Hello, world\"\n")
+	assertFileMode(t, filepath.Join(testDir, "dir", "exec"), 0764)
 	assertLink(t, filepath.Join(testDir, "dir", "file-11.txt"), filepath.Join("dir-1", "file-11.txt"))
 }
 
@@ -60,6 +62,8 @@ func TestExtractZip(t *testing.T) {
 	assertFileContent(t, filepath.Join(testDir, "dir", "dir-2", "file-21.txt"), "file-21")
 	assertFileContent(t, filepath.Join(testDir, "dir", "dir-2", "file-22.txt"), "file-22")
 	assertFileContent(t, filepath.Join(testDir, "dir", "file-1.txt"), "file-1")
+	assertFileContent(t, filepath.Join(testDir, "dir", "exec"), "echo \"Hello, world\"\n")
+	assertFileMode(t, filepath.Join(testDir, "dir", "exec"), 0764)
 	assertLink(t, filepath.Join(testDir, "dir", "file-11.txt"), filepath.Join("dir-1", "file-11.txt"))
 
 }
@@ -113,7 +117,20 @@ func assertLink(t *testing.T, linkPath, filePath string) {
 		t.Errorf("Symlink target (%s) is not as expected (%s)", target, filePath)
 		return
 	}
+}
 
+func assertFileMode(t *testing.T, filePath string, mode os.FileMode) {
+
+	lstat, err := os.Lstat(filePath)
+	if err != nil {
+		t.Errorf("Error: %s", err)
+		return
+	}
+
+	if lstat.Mode() != mode {
+		t.Errorf("File mode (%s) is not as expected (%s)", lstat.Mode(), mode)
+		return
+	}
 }
 
 func isSymlink(path string) (bool, error) {

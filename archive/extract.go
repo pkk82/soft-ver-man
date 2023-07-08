@@ -174,6 +174,16 @@ func extractTarGz(tarGzFilePath, dir string) error {
 			if err != nil {
 				return err
 			}
+
+			fileMode := header.FileInfo().Mode()
+			if fileMode&0111 != 0 {
+				err := os.Chmod(path.Join(dir, header.Name), fileMode|0100)
+				if err != nil {
+					fmt.Println("Failed to set executable permissions:", err)
+					continue
+				}
+			}
+
 		case tar.TypeSymlink:
 			if err := os.Symlink(header.Linkname, filepath.Join(dir, header.Name)); err != nil {
 				console.Fatal(err)

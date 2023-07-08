@@ -25,13 +25,13 @@ import (
 	"fmt"
 	"github.com/pkk82/soft-ver-man/console"
 	"github.com/pkk82/soft-ver-man/download"
-	"github.com/pkk82/soft-ver-man/fetch"
+	"github.com/pkk82/soft-ver-man/pack"
 	"github.com/pkk82/soft-ver-man/pgp"
 	"github.com/pkk82/soft-ver-man/version"
 	"path/filepath"
 )
 
-func Fetch(inputVersion, softwareDownloadDir string, verify bool) fetch.FetchedPackage {
+func Fetch(inputVersion, softwareDownloadDir string, verify bool) pack.FetchedPackage {
 	versions := getSupportedPackages()
 	versionIds := make([]string, len(versions))
 	for i, v := range versions {
@@ -47,14 +47,14 @@ func Fetch(inputVersion, softwareDownloadDir string, verify bool) fetch.FetchedP
 
 	if verify {
 		publicKeyPaths := fetchPGPKeys(softwareDownloadDir)
-		shaSumFileName := fmt.Sprintf("%v-%v-%v", Name, foundVersion, ShaSumFileName)
+		shaSumFileName := fmt.Sprintf("%v-%v-%v", Name, foundVersion.Value, ShaSumFileName)
 		shaSumFilePath := download.FetchFileSilently(matchingVersion.SumsLink(), nodeDir, shaSumFileName)
-		shaSumSigFileName := fmt.Sprintf("%v-%v-%v", Name, foundVersion, ShaSumSigFileName)
+		shaSumSigFileName := fmt.Sprintf("%v-%v-%v", Name, foundVersion.Value, ShaSumSigFileName)
 		shaSumSigFilePath := download.FetchFileSilently(matchingVersion.SumsSigLink(), nodeDir, shaSumSigFileName)
 		pgp.VerifySignature(shaSumFilePath, shaSumSigFilePath, publicKeyPaths)
 		verifySha(nodeFilePath, shaSumFilePath)
 	}
 
-	return fetch.FetchedPackage{Version: foundVersion, FilePath: nodeFilePath}
+	return pack.FetchedPackage{Version: foundVersion, FilePath: nodeFilePath, Type: matchingVersion.Type}
 
 }

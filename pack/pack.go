@@ -47,3 +47,8 @@ func (fp FetchedPackage) getDirName() string {
 	}
 	return strings.TrimSuffix(base, filepath.Ext(base))
 }
+
+type InstalledPackage struct {
+	Version version.Version
+	Path    string
+}

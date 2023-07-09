@@ -24,9 +24,13 @@ func TestExtractTarGZ(t *testing.T) {
 		Type:     pack.TAR_GZ,
 	}
 
-	err = Extract(fetchedPackage, testDir)
+	installedPackage, err := Extract(fetchedPackage, testDir)
 	if err != nil {
 		t.Errorf("Failed to extract tar.gz: %s", err)
+	}
+
+	if installedPackage.Path != filepath.Join(testDir, fetchedPackage.FilePath) {
+		t.Errorf("Failed to set installed package path: %s", err)
 	}
 
 	assertFileContent(t, filepath.Join(testDir, "dir", "dir-1", "file-11.txt"), "file-11")
@@ -52,9 +56,13 @@ func TestExtractZip(t *testing.T) {
 		Type:     pack.ZIP,
 	}
 
-	err = Extract(fetchedPackage, testDir)
+	installedPackage, err := Extract(fetchedPackage, testDir)
 	if err != nil {
 		t.Errorf("Failed to extract zip: %s", err)
+	}
+
+	if installedPackage.Path != filepath.Join(testDir, fetchedPackage.FilePath) {
+		t.Errorf("Failed to set installed package path: %s", err)
 	}
 
 	assertFileContent(t, filepath.Join(testDir, "dir", "dir-1", "file-11.txt"), "file-11")

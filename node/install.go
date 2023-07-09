@@ -28,5 +28,9 @@ import (
 )
 
 func Install(fetchedPackage pack.FetchedPackage, softwareDir string) error {
-	return archive.Extract(fetchedPackage, path.Join(softwareDir, Name))
+	_, err := archive.Extract(fetchedPackage, path.Join(softwareDir, Name))
+	if err != nil {
+		return err
+	}
+	return nil
 }

@@ -35,15 +35,22 @@ import (
 	"path/filepath"
 )
 
-func Extract(fetchedPackage pack.FetchedPackage, softwareDir string) error {
+func Extract(fetchedPackage pack.FetchedPackage, softwareDir string) (pack.InstalledPackage, error) {
 
+	var err error
 	if fetchedPackage.Type == pack.TAR_GZ {
-		return extractTarGz(fetchedPackage.FilePath, softwareDir)
+		err = extractTarGz(fetchedPackage.FilePath, softwareDir)
 	} else if fetchedPackage.Type == pack.ZIP {
-		return extractZip(fetchedPackage.FilePath, softwareDir)
+		err = extractZip(fetchedPackage.FilePath, softwareDir)
+	} else {
+		return pack.InstalledPackage{}, errors.New("Unknown archive type: " + string(fetchedPackage.Type))
 	}
-	return errors.New("Unknown archive type: " + string(fetchedPackage.Type))
 
+	if err != nil {
+		return pack.InstalledPackage{}, err
+	} else {
+		return pack.InstalledPackage{Version: fetchedPackage.Version, Path: filepath.Join(softwareDir, fetchedPackage.FilePath)}, nil
+	}
 }
 
 func extractZip(zipPath string, dir string) error {

@@ -31,3 +31,11 @@ func ParseHistory(repr string) (PackageHistory, error) {
 	return history, nil
 
 }
+
+func (ph PackageHistory) Serialize() string {
+	serialized, err := json.Marshal(ph)
+	if err != nil {
+		return ""
+	}
+	return string(serialized)
+}

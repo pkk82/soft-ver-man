@@ -49,6 +49,7 @@ func (fp FetchedPackage) getDirName() string {
 }
 
 type InstalledPackage struct {
-	Version version.Version
-	Path    string
+	Version     version.Version
+	Path        string
+	InstalledOn int64
 }

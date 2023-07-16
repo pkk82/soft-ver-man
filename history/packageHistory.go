@@ -2,6 +2,8 @@ package history
 
 import (
 	"encoding/json"
+	"github.com/pkk82/soft-ver-man/pack"
+	"github.com/pkk82/soft-ver-man/version"
 )
 
 type PackageHistory struct {
@@ -32,10 +34,29 @@ func ParseHistory(repr string) (PackageHistory, error) {
 
 }
 
-func (ph PackageHistory) Serialize() string {
+func (ph *PackageHistory) Serialize() string {
 	serialized, err := json.Marshal(ph)
 	if err != nil {
 		return ""
 	}
 	return string(serialized)
+}
+
+func (ph *PackageHistory) Add(installedPackage pack.InstalledPackage) *PackageHistory {
+	ph.Items = append(ph.Items, PackageHistoryItem{
+		Version:     installedPackage.Version.Value,
+		Path:        installedPackage.Path,
+		InstalledOn: installedPackage.InstalledOn,
+		Main:        false,
+	})
+	return ph
+}
+
+func (ph *PackageHistory) IsInstalled(version version.Version) bool {
+	for _, item := range ph.Items {
+		if item.Version == version.Value {
+			return true
+		}
+	}
+	return false
 }

@@ -1,6 +1,29 @@
+/*
+Copyright © 2023 Piotr Kozak <piotrkrzysztofkozak@gmail.com>
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
+*/
 package history
 
 import (
+	"github.com/pkk82/soft-ver-man/pack"
+	"github.com/pkk82/soft-ver-man/version"
 	"github.com/yudai/gojsondiff"
 	"reflect"
 	"testing"
@@ -111,4 +134,118 @@ func TestPackageHistory_Serialize(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestPackageHistory_Add(t *testing.T) {
+
+	tests := []struct {
+		name string
+		ph   PackageHistory
+		want []PackageHistoryItem
+	}{
+		{
+			name: "empty",
+			ph:   PackageHistory{Name: "node", Items: []PackageHistoryItem{}},
+			want: []PackageHistoryItem{
+				{
+					Version:     "v20.1.4",
+					Path:        "/home/user/pf/node/node-v20.1.4-linux-x64",
+					Main:        false,
+					InstalledOn: 1689017268000,
+				},
+			},
+		},
+		{
+			name: "with-one-item",
+			ph: PackageHistory{Name: "node", Items: []PackageHistoryItem{
+				{
+					Version:     "v20.1.3",
+					Path:        "/home/user/pf/node/node-v20.1.3-linux-x64",
+					Main:        true,
+					InstalledOn: 1689017267000,
+				},
+			}},
+			want: []PackageHistoryItem{{
+				Version:     "v20.1.3",
+				Path:        "/home/user/pf/node/node-v20.1.3-linux-x64",
+				Main:        true,
+				InstalledOn: 1689017267000,
+			}, {
+				Version:     "v20.1.4",
+				Path:        "/home/user/pf/node/node-v20.1.4-linux-x64",
+				Main:        false,
+				InstalledOn: 1689017268000,
+			}},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			ph := tt.ph
+			got := ph.Add(pack.InstalledPackage{
+				Version: version.Version{
+					Value: "v20.1.4",
+				},
+				Path:        "/home/user/pf/node/node-v20.1.4-linux-x64",
+				InstalledOn: 1689017268000,
+			})
+			if !reflect.DeepEqual(got.Items, tt.want) {
+				t.Errorf("Add() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+
+}
+
+func TestPackageHistory_Exists(t *testing.T) {
+
+	tests := []struct {
+		name       string
+		ph         PackageHistory
+		newVersion version.Version
+		want       bool
+	}{
+		{
+			name:       "empty - false",
+			ph:         PackageHistory{Name: "node", Items: []PackageHistoryItem{}},
+			newVersion: version.Version{Value: "v20.1.4"},
+			want:       false,
+		},
+		{
+			name: "one element - false",
+			ph: PackageHistory{Name: "node", Items: []PackageHistoryItem{
+				{
+					Version:     "v20.1.3",
+					Path:        "/home/user/pf/node/node-v20.1.3-linux-x64",
+					Main:        true,
+					InstalledOn: 1689017267000,
+				},
+			}},
+			newVersion: version.Version{Value: "v20.1.3"},
+			want:       true,
+		}, {
+			name: "one element -  true",
+			ph: PackageHistory{Name: "node", Items: []PackageHistoryItem{
+				{
+					Version:     "v20.1.3",
+					Path:        "/home/user/pf/node/node-v20.1.3-linux-x64",
+					Main:        true,
+					InstalledOn: 1689017267000,
+				},
+			}},
+			newVersion: version.Version{Value: "v20.1.4"},
+			want:       false,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			ph := tt.ph
+			got := ph.IsInstalled(tt.newVersion)
+			if got != tt.want {
+				t.Errorf("IsInstalled() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+
 }

@@ -11,6 +11,7 @@ import (
 
 const SoftwareDownloadDirKey = "software-directory-download"
 const SoftwareDirKey = "software-directory"
+const PackageHistorySuffix = "-history"
 
 func InitSoftwareDownloadDir(cmd *cobra.Command) string {
 	return initConfigEntry(cmd,
@@ -20,7 +21,6 @@ func InitSoftwareDownloadDir(cmd *cobra.Command) string {
 		func() (string, error) {
 			return filepath.Join(os.TempDir(), "soft-ver-man"), nil
 		})
-
 }
 
 func InitSoftwareDir(cmd *cobra.Command) string {

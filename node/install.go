@@ -22,13 +22,29 @@ THE SOFTWARE.
 package node
 
 import (
+	"errors"
 	"github.com/pkk82/soft-ver-man/archive"
+	"github.com/pkk82/soft-ver-man/config"
 	"github.com/pkk82/soft-ver-man/pack"
 	"path"
 )
 
 func Install(fetchedPackage pack.FetchedPackage, softwareDir string) error {
-	_, err := archive.Extract(fetchedPackage, path.Join(softwareDir, Name))
+	history, err := config.ReadHistoryConfig(Name)
+	if err != nil {
+		return err
+	}
+
+	if history.IsInstalled(fetchedPackage.Version) {
+		return errors.New("Version " + fetchedPackage.Version.Value + " is already installed")
+	}
+
+	installedPackage, err := archive.Extract(fetchedPackage, path.Join(softwareDir, Name))
+	history.Add(installedPackage)
+	if err != nil {
+		return err
+	}
+	err = config.WriteHistoryConfig(history)
 	if err != nil {
 		return err
 	}

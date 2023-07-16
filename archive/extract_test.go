@@ -2,22 +2,16 @@ package archive
 
 import (
 	"github.com/pkk82/soft-ver-man/pack"
+	"github.com/pkk82/soft-ver-man/test"
 	"io"
 	"os"
 	"path/filepath"
 	"testing"
-	"time"
 )
-
-var date = time.Now().Format("20060102-150405")
 
 func TestExtractTarGZ(t *testing.T) {
 
-	testDir := filepath.Join(os.TempDir(), "soft-ver-man-test-"+date, t.Name())
-	err := os.MkdirAll(testDir, os.ModePerm)
-	if err != nil {
-		t.Fatalf("Failed to create test directory: %s", err)
-	}
+	testDir := test.CreateTestDir(t)
 
 	fetchedPackage := pack.FetchedPackage{
 		FilePath: filepath.Join("testdata", "dir.tar.gz"),
@@ -45,11 +39,7 @@ func TestExtractTarGZ(t *testing.T) {
 
 func TestExtractZip(t *testing.T) {
 
-	testDir := filepath.Join(os.TempDir(), "soft-ver-man-test-"+date, t.Name())
-	err := os.MkdirAll(testDir, os.ModePerm)
-	if err != nil {
-		t.Fatalf("Failed to create test directory: %s", err)
-	}
+	testDir := test.CreateTestDir(t)
 
 	fetchedPackage := pack.FetchedPackage{
 		FilePath: filepath.Join("testdata", "dir.zip"),

@@ -22,19 +22,95 @@ THE SOFTWARE.
 package test
 
 import (
+	"io"
+	"math/rand"
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 	"time"
 )
 
 func CreateTestDir(t *testing.T) string {
 
-	date := time.Now().Format("20060102-150405")
+	date := time.Now().Format("20060102-150405") + "-" + generateString(5)
 	testDir := filepath.Join(os.TempDir(), "soft-ver-man-test-"+date, t.Name())
 	err := os.MkdirAll(testDir, os.ModePerm)
 	if err != nil {
 		t.Fatalf("Failed to create test directory: %s", err)
 	}
 	return testDir
+}
+
+func CreateEmptyFile(path, fileName string, t *testing.T) {
+	file, err := os.Create(filepath.Join(path, fileName))
+	if err != nil {
+		t.Fatalf("Failed to create file: %s", err)
+	}
+	defer func(file *os.File) {
+		err := file.Close()
+		if err != nil {
+			t.Errorf("Failed to close file: %s", err)
+		}
+	}(file)
+}
+
+func CreateFile(path, fileName string, content []string, t *testing.T) {
+	err := os.WriteFile(filepath.Join(path, fileName), []byte(join(content)), os.ModePerm)
+	if err != nil {
+		t.Errorf("Failed to create file: %s", err)
+	}
+}
+
+func join(content []string) string {
+	return strings.Join(content, "\n")
+}
+
+type HomeDir struct {
+	Dir string
+}
+
+func (receiver HomeDir) HomeDir() (string, error) {
+	return receiver.Dir, nil
+}
+
+func AssertFileContent(path, fileName string, expectedContent []string, t *testing.T) {
+	filePath := filepath.Join(path, fileName)
+	file, err := os.Open(filePath)
+	if err != nil {
+		t.Fatalf("Failed to open file: %s", err)
+	}
+	defer func(file *os.File) {
+		err := file.Close()
+		if err != nil {
+			t.Errorf("Failed to close file: %s", err)
+		}
+	}(file)
+
+	content, err := io.ReadAll(file)
+	if err != nil {
+		t.Fatalf("Failed to read file content: %s", err)
+	}
+
+	if string(content) != join(expectedContent) {
+		t.Errorf("File (%s) content (%s) is not as expected: %s",
+			filePath,
+			string(content),
+			join(expectedContent))
+	}
+}
+
+const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+
+func generateString(length int) string {
+	rand.New(rand.NewSource(time.Now().UnixNano()))
+
+	result := make([]byte, length)
+	charsetLength := len(charset)
+
+	for i := 0; i < length; i++ {
+		result[i] = charset[rand.Intn(charsetLength)]
+	}
+
+	return string(result)
 }

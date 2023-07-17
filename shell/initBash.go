@@ -56,14 +56,14 @@ func initBash(finder homeDirFinder) error {
 		}
 	}
 
-	err = assertHomeDirFileWithContent(bashRcPath, initLine, []string{header, initLine})
+	err = assertFileWithContent(bashRcPath, initLine, []string{header, initLine})
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-func assertHomeDirFileWithContent(filePath string, seekLine string, contentToAdd []string) error {
+func assertFileWithContent(filePath string, seekLine string, contentToAdd []string) error {
 
 	exists, err := fileExists(filePath)
 	if err != nil {

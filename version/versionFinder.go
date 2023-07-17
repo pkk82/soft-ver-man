@@ -28,22 +28,13 @@ import (
 	"strings"
 )
 
-type Version struct {
-	Value string
-	major int
-	minor int
-	patch int
-}
-
 func FindVersion(version string, versions []string) (Version, int, error) {
 	parsedVersions, err := parseVersions(versions)
 	if err != nil {
 		return Version{}, -1, err
 	}
 	sort.Slice(parsedVersions, func(i, j int) bool {
-		return parsedVersions[i].major > parsedVersions[j].major ||
-			(parsedVersions[i].major == parsedVersions[j].major && parsedVersions[i].minor > parsedVersions[j].minor) ||
-			(parsedVersions[i].major == parsedVersions[j].major && parsedVersions[i].minor == parsedVersions[j].minor && parsedVersions[i].patch > parsedVersions[j].patch)
+		return CompareDesc(parsedVersions[i], parsedVersions[j])
 	})
 	parsedVersion, err := parseVersion(version)
 	if err != nil {

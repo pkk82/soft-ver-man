@@ -9,6 +9,8 @@ import (
 	"strings"
 )
 
+const HomeConfigDir = ".soft-ver-man"
+const RcFile = ".svmrc"
 const SoftwareDownloadDirKey = "software-directory-download"
 const SoftwareDirKey = "software-directory"
 const PackageHistorySuffix = "-history"

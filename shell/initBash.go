@@ -23,6 +23,7 @@ package shell
 
 import (
 	"errors"
+	"github.com/pkk82/soft-ver-man/config"
 	"github.com/pkk82/soft-ver-man/console"
 	"io"
 	"os"
@@ -32,7 +33,7 @@ import (
 
 func initBash(finder homeDirFinder) error {
 	header := "### soft-ver-man"
-	initLine := "[[ -s \"$HOME/.soft-ver-man/.svmrc\" ]] && source \"$HOME/.soft-ver-man/.svmrc\""
+	initLine := bashToLoad(config.RcFile)
 	dir, err := finder.HomeDir()
 	if err != nil {
 		return err

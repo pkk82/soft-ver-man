@@ -71,7 +71,14 @@ func assertFileWithContent(filePath string, seekLine string, contentToAdd []stri
 		return err
 	}
 	if !exists {
-		err := createFile(filePath)
+
+		parent, _ := filepath.Split(filePath)
+		err := os.MkdirAll(parent, 0755)
+		if err != nil {
+			return err
+		}
+
+		err = createFile(filePath)
 		if err != nil {
 			return err
 		}
@@ -92,6 +99,28 @@ func assertFileWithContent(filePath string, seekLine string, contentToAdd []stri
 
 	return nil
 
+}
+
+func overrideFileWithContent(filePath string, contentToAdd []string) error {
+
+	exists, err := fileExists(filePath)
+	if err != nil {
+		return err
+	}
+	if !exists {
+		parent, _ := filepath.Split(filePath)
+		err := os.MkdirAll(parent, 0755)
+		if err != nil {
+			return err
+		}
+	}
+
+	err = os.WriteFile(filePath, []byte(strings.Join(contentToAdd, "\n")), 0644)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func readFile(path string) (string, error) {

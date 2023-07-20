@@ -93,7 +93,7 @@ func AssertFileContent(path, fileName string, expectedContent []string, t *testi
 	}
 
 	if string(content) != join(expectedContent) {
-		t.Errorf("File (%s) content (%s) is not as expected: %s",
+		t.Errorf("File (%s) content (%s) is not as expected: (%s)",
 			filePath,
 			string(content),
 			join(expectedContent))

@@ -52,4 +52,5 @@ type InstalledPackage struct {
 	Version     version.Version
 	Path        string
 	InstalledOn int64
+	Main        bool
 }

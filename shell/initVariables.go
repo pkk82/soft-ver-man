@@ -1,0 +1,131 @@
+/*
+Copyright © 2023 Piotr Kozak <piotrkrzysztofkozak@gmail.com>
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
+*/
+package shell
+
+import (
+	"fmt"
+	"github.com/pkk82/soft-ver-man/config"
+	"github.com/pkk82/soft-ver-man/history"
+	"github.com/pkk82/soft-ver-man/pack"
+	"github.com/pkk82/soft-ver-man/version"
+	"path"
+	"sort"
+	"strings"
+)
+
+type helper struct {
+	path    string
+	version version.Version
+}
+
+func initVariables(finder homeDirFinder, history history.PackageHistory) error {
+	name := history.Name
+	initLine := bashToLoad(name)
+
+	dir, err := finder.HomeDir()
+	if err != nil {
+		return err
+	}
+
+	err = assertFileWithContent(path.Join(dir, config.HomeConfigDir, config.RcFile), initLine,
+		[]string{initLine})
+	if err != nil {
+		return err
+	}
+
+	installedPackages, err := convertHistoryToInstalledPackages(history)
+	if err != nil {
+		return err
+	}
+
+	installedPackagesPerMajorVersions := convertToMap(installedPackages)
+
+	majorVersions := sortedMajorVersions(installedPackagesPerMajorVersions)
+	lines := make([]string, 0)
+
+	for _, v := range majorVersions {
+		latestMajor := installedPackagesPerMajorVersions[v][0]
+		lines = append(lines, fmt.Sprintf("export %v_%v_HOME=\"%v\"", strings.ToUpper(name), v, latestMajor.Path))
+	}
+
+	mainTime := int64(0)
+	mainLine := ""
+	for _, ip := range installedPackages {
+		if ip.Main && ip.InstalledOn > mainTime {
+			mainLine = fmt.Sprintf("export %v_HOME=\"%v\"", strings.ToUpper(name), ip.Path)
+			mainTime = ip.InstalledOn
+		}
+	}
+	if mainLine != "" {
+		lines = append(lines, mainLine)
+	}
+	lines = append(lines, fmt.Sprintf("export PATH=\"$%v_HOME/bin:$PATH\"", strings.ToUpper(name)))
+
+	err = overrideFileWithContent(path.Join(dir, config.HomeConfigDir, "."+name+"rc"), lines)
+	if err != nil {
+		return err
+	}
+
+	return nil
+
+}
+
+func convertHistoryToInstalledPackages(history history.PackageHistory) ([]pack.InstalledPackage, error) {
+	installedPackages := make([]pack.InstalledPackage, 0)
+	for _, item := range history.Items {
+		v, err := version.NewVersion(item.Version)
+		if err != nil {
+			return nil, err
+		}
+		installedPackages = append(installedPackages, pack.InstalledPackage{
+			Version:     v,
+			Path:        item.Path,
+			Main:        item.Main,
+			InstalledOn: item.InstalledOn,
+		})
+	}
+	return installedPackages, nil
+}
+
+func convertToMap(installedPackages []pack.InstalledPackage) map[int][]pack.InstalledPackage {
+	packagesPerMajor := make(map[int][]pack.InstalledPackage)
+	for _, ip := range installedPackages {
+		packagesPerMajor[ip.Version.Major()] = append(packagesPerMajor[ip.Version.Major()], ip)
+	}
+	for _, v := range packagesPerMajor {
+		sort.Slice(v, func(i, j int) bool {
+			return version.CompareDesc(v[i].Version, v[j].Version)
+		})
+	}
+	return packagesPerMajor
+}
+
+func sortedMajorVersions(perVersion map[int][]pack.InstalledPackage) []int {
+	majors := make([]int, 0)
+	for k := range perVersion {
+		majors = append(majors, k)
+	}
+	sort.Slice(majors, func(i, j int) bool {
+		return majors[i] < majors[j]
+	})
+	return majors
+}

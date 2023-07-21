@@ -28,6 +28,7 @@ import (
 	"github.com/pkk82/soft-ver-man/pack"
 	"github.com/pkk82/soft-ver-man/version"
 	"path"
+	"path/filepath"
 	"sort"
 	"strings"
 )
@@ -39,13 +40,19 @@ type helper struct {
 
 func initVariables(finder homeDirFinder, history history.PackageHistory) error {
 	name := history.Name
-	initLine := bashToLoad(name)
 
 	dir, err := finder.HomeDir()
 	if err != nil {
 		return err
 	}
 
+	exportLine := fmt.Sprintf("export SVM_DIR=%v", dir)
+	err = assertFileWithContent(path.Join(dir, config.HomeConfigDir, config.RcFile), exportLine,
+		[]string{exportLine})
+	if err != nil {
+		return err
+	}
+	initLine := bashToLoad(name)
 	err = assertFileWithContent(path.Join(dir, config.HomeConfigDir, config.RcFile), initLine,
 		[]string{initLine})
 	if err != nil {
@@ -62,16 +69,21 @@ func initVariables(finder homeDirFinder, history history.PackageHistory) error {
 	majorVersions := sortedMajorVersions(installedPackagesPerMajorVersions)
 	lines := make([]string, 0)
 
+	packageDirVarName := fmt.Sprintf("%v_DIR", strings.ToUpper(name))
+	lines = append(lines, fmt.Sprintf("export %v=\"$SOFT_DIR/%v\"", packageDirVarName, name))
+
 	for _, v := range majorVersions {
 		latestMajor := installedPackagesPerMajorVersions[v][0]
-		lines = append(lines, fmt.Sprintf("export %v_%v_HOME=\"%v\"", strings.ToUpper(name), v, latestMajor.Path))
+		_, dirName := filepath.Split(latestMajor.Path)
+		lines = append(lines, fmt.Sprintf("export %v_%v_HOME=\"$%v/%v\"", strings.ToUpper(name), v, packageDirVarName, dirName))
 	}
 
 	mainTime := int64(0)
 	mainLine := ""
 	for _, ip := range installedPackages {
 		if ip.Main && ip.InstalledOn > mainTime {
-			mainLine = fmt.Sprintf("export %v_HOME=\"%v\"", strings.ToUpper(name), ip.Path)
+			_, dirName := filepath.Split(ip.Path)
+			mainLine = fmt.Sprintf("export %v_HOME=\"$%v/%v\"", strings.ToUpper(name), packageDirVarName, dirName)
 			mainTime = ip.InstalledOn
 		}
 	}

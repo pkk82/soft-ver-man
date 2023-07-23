@@ -19,42 +19,22 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
-package node
+package shell
 
 import (
-	"errors"
-	"github.com/pkk82/soft-ver-man/archive"
-	"github.com/pkk82/soft-ver-man/config"
-	"github.com/pkk82/soft-ver-man/pack"
-	"github.com/pkk82/soft-ver-man/shell"
-	"github.com/spf13/viper"
-	"path"
+	"github.com/pkk82/soft-ver-man/history"
 )
 
-func Install(fetchedPackage pack.FetchedPackage, softwareDir string) error {
-	history, err := config.ReadHistoryConfig(Name)
+func AddVariables(finder DirFinder, history history.PackageHistory) error {
+	err := initBash(finder)
 	if err != nil {
 		return err
 	}
 
-	if history.IsInstalled(fetchedPackage.Version) {
-		return errors.New("Version " + fetchedPackage.Version.Value + " is already installed")
-	}
-
-	installedPackage, err := archive.Extract(fetchedPackage, path.Join(softwareDir, Name))
-	history.Add(installedPackage)
-	if err != nil {
-		return err
-	}
-	err = config.WriteHistoryConfig(history)
-	if err != nil {
-		return err
-	}
-
-	finder := shell.ProdDirFinder{SoftwareDir: viper.GetString(config.SoftwareDirKey)}
-	err = shell.AddVariables(finder, history)
+	err = initVariables(finder, history)
 	if err != nil {
 		return err
 	}
 	return nil
+
 }

@@ -4,17 +4,17 @@ import (
 	"os/user"
 )
 
-type dirFinder interface {
+type DirFinder interface {
 	HomeDir() (string, error)
 
 	SoftDir() (string, error)
 }
 
-type prodDirFinder struct {
-	softDir string
+type ProdDirFinder struct {
+	SoftwareDir string
 }
 
-func (receiver prodDirFinder) HomeDir() (string, error) {
+func (receiver ProdDirFinder) HomeDir() (string, error) {
 	current, err := user.Current()
 	if err != nil {
 		return "", err
@@ -22,6 +22,6 @@ func (receiver prodDirFinder) HomeDir() (string, error) {
 	return current.HomeDir, nil
 }
 
-func (receiver prodDirFinder) SoftDir() (string, error) {
-	return receiver.softDir, nil
+func (receiver ProdDirFinder) SoftDir() (string, error) {
+	return receiver.SoftwareDir, nil
 }

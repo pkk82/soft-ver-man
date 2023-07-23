@@ -38,7 +38,7 @@ type helper struct {
 	version version.Version
 }
 
-func initVariables(finder dirFinder, history history.PackageHistory) error {
+func initVariables(finder DirFinder, history history.PackageHistory) error {
 	name := history.Name
 
 	homeDir, err := finder.HomeDir()

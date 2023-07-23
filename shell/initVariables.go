@@ -92,9 +92,14 @@ func initVariables(finder DirFinder, history history.PackageHistory) error {
 			mainTime = ip.InstalledOn
 		}
 	}
-	if mainLine != "" {
-		lines = append(lines, mainLine)
+	if mainLine == "" {
+		_, dirName := filepath.Split(installedPackagesPerMajorVersions[majorVersions[len(majorVersions)-1]][0].Path)
+		mainLine = fmt.Sprintf("export %v_HOME=\"$%v/%v\"", strings.ToUpper(name), packageDirVarName,
+			dirName)
 	}
+
+	lines = append(lines, mainLine)
+
 	lines = append(lines, fmt.Sprintf("export PATH=\"$%v_HOME/bin:$PATH\"", strings.ToUpper(name)))
 
 	err = overrideFileWithContent(path.Join(homeDir, config.HomeConfigDir, makeRcName(name)), lines)

@@ -80,7 +80,7 @@ func Test_initVariablesInNodeRc(t *testing.T) {
 		expectedSpecificContent  []string
 	}{
 		{
-			name: "first installation",
+			name: "first installation as main",
 			args: args{
 				history: history.PackageHistory{
 					Name: "node",
@@ -89,6 +89,28 @@ func Test_initVariablesInNodeRc(t *testing.T) {
 							Version:     "v20.1.3",
 							Path:        "/home/user/pf/node/node-v20.1.3-linux-x64",
 							Main:        true,
+							InstalledOn: 1689017267000,
+						},
+					},
+				},
+			},
+			expectedSpecificFileName: ".noderc",
+			expectedSpecificContent: []string{
+				"export NODE_DIR=\"$SOFT_DIR/node\"",
+				"export NODE_20_HOME=\"$NODE_DIR/node-v20.1.3-linux-x64\"",
+				"export NODE_HOME=\"$NODE_DIR/node-v20.1.3-linux-x64\"",
+				"export PATH=\"$NODE_HOME/bin:$PATH\"",
+			},
+		}, {
+			name: "first installation - no main",
+			args: args{
+				history: history.PackageHistory{
+					Name: "node",
+					Items: []history.PackageHistoryItem{
+						{
+							Version:     "v20.1.3",
+							Path:        "/home/user/pf/node/node-v20.1.3-linux-x64",
+							Main:        false,
 							InstalledOn: 1689017267000,
 						},
 					},
@@ -126,6 +148,43 @@ func Test_initVariablesInNodeRc(t *testing.T) {
 							Path:        "/home/user/pf/node/node-v20.1.3-linux-x64",
 							Main:        true,
 							InstalledOn: 1689017269000,
+						},
+					},
+				},
+			},
+			expectedSpecificFileName: ".noderc",
+			expectedSpecificContent: []string{
+				"export NODE_DIR=\"$SOFT_DIR/node\"",
+				"export NODE_19_HOME=\"$NODE_DIR/node-v19.1.4-linux-x64\"",
+				"export NODE_20_HOME=\"$NODE_DIR/node-v20.1.3-linux-x64\"",
+				"export NODE_HOME=\"$NODE_DIR/node-v20.1.3-linux-x64\"",
+				"export PATH=\"$NODE_HOME/bin:$PATH\"",
+			},
+		}, {
+			name: "another installation",
+			args: args{
+				history: history.PackageHistory{
+					Name: "node",
+					Items: []history.PackageHistoryItem{
+
+						{
+							Version:     "19.1.3",
+							Path:        "/home/user/pf/node/node-v19.1.3-linux-x64",
+							Main:        false,
+							InstalledOn: 168901728000,
+						},
+						{
+							Version:     "19.1.4",
+							Path:        "/home/user/pf/node/node-v19.1.4-linux-x64",
+							Main:        false,
+							InstalledOn: 168901727000,
+						},
+
+						{
+							Version:     "v20.1.3",
+							Path:        "/home/user/pf/node/node-v20.1.3-linux-x64",
+							Main:        false,
+							InstalledOn: 168901726000,
 						},
 					},
 				},

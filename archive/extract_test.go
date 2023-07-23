@@ -27,14 +27,8 @@ func TestExtractTarGZ(t *testing.T) {
 		t.Errorf("Failed to set installed package path: %s", err)
 	}
 
-	assertFileContent(t, filepath.Join(testDir, "dir", "dir-1", "file-11.txt"), "file-11")
-	assertFileContent(t, filepath.Join(testDir, "dir", "dir-1", "file-12.txt"), "file-12")
-	assertFileContent(t, filepath.Join(testDir, "dir", "dir-2", "file-21.txt"), "file-21")
-	assertFileContent(t, filepath.Join(testDir, "dir", "dir-2", "file-22.txt"), "file-22")
-	assertFileContent(t, filepath.Join(testDir, "dir", "file-1.txt"), "file-1")
-	assertFileContent(t, filepath.Join(testDir, "dir", "exec"), "echo \"Hello, world\"\n")
-	assertFileMode(t, filepath.Join(testDir, "dir", "exec"), 0764)
-	assertLink(t, filepath.Join(testDir, "dir", "file-11.txt"), filepath.Join("dir-1", "file-11.txt"))
+	assertContent(t, filepath.Join(testDir, "dir"))
+
 }
 
 func TestExtractZip(t *testing.T) {
@@ -55,15 +49,19 @@ func TestExtractZip(t *testing.T) {
 		t.Errorf("Failed to set installed package path: %s", err)
 	}
 
-	assertFileContent(t, filepath.Join(testDir, "dir", "dir-1", "file-11.txt"), "file-11")
-	assertFileContent(t, filepath.Join(testDir, "dir", "dir-1", "file-12.txt"), "file-12")
-	assertFileContent(t, filepath.Join(testDir, "dir", "dir-2", "file-21.txt"), "file-21")
-	assertFileContent(t, filepath.Join(testDir, "dir", "dir-2", "file-22.txt"), "file-22")
-	assertFileContent(t, filepath.Join(testDir, "dir", "file-1.txt"), "file-1")
-	assertFileContent(t, filepath.Join(testDir, "dir", "exec"), "echo \"Hello, world\"\n")
-	assertFileMode(t, filepath.Join(testDir, "dir", "exec"), 0764)
-	assertLink(t, filepath.Join(testDir, "dir", "file-11.txt"), filepath.Join("dir-1", "file-11.txt"))
+	assertContent(t, filepath.Join(testDir, "dir"))
 
+}
+
+func assertContent(t *testing.T, dir string) {
+	assertFileContent(t, filepath.Join(dir, "dir-1", "file-11.txt"), "file-11")
+	assertFileContent(t, filepath.Join(dir, "dir-1", "file-12.txt"), "file-12")
+	assertFileContent(t, filepath.Join(dir, "dir-2", "file-21.txt"), "file-21")
+	assertFileContent(t, filepath.Join(dir, "dir-2", "file-22.txt"), "file-22")
+	assertFileContent(t, filepath.Join(dir, "file-1.txt"), "file-1")
+	assertFileContent(t, filepath.Join(dir, "exec"), "echo \"Hello, world\"\n")
+	assertFileMode(t, filepath.Join(dir, "exec"), 0764)
+	assertLink(t, filepath.Join(dir, "file-11.txt"), filepath.Join("dir-1", "file-11.txt"))
 }
 
 func assertFileContent(t *testing.T, filePath, expectedContent string) {

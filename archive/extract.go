@@ -30,13 +30,19 @@ import (
 	"github.com/pkk82/soft-ver-man/console"
 	io2 "github.com/pkk82/soft-ver-man/io"
 	"github.com/pkk82/soft-ver-man/pack"
+	"github.com/pkk82/soft-ver-man/version"
 	"io"
 	"os"
 	"path/filepath"
 	"strings"
 )
 
-func Extract(fetchedPackage pack.FetchedPackage, softwareDir string) (pack.InstalledPackage, error) {
+type ExtractedPackage struct {
+	Version version.Version
+	Path    string
+}
+
+func Extract(fetchedPackage pack.FetchedPackage, softwareDir string) (ExtractedPackage, error) {
 
 	var err error
 	var targetDirName string
@@ -45,13 +51,13 @@ func Extract(fetchedPackage pack.FetchedPackage, softwareDir string) (pack.Insta
 	} else if fetchedPackage.Type == pack.ZIP {
 		targetDirName, err = extractZip(fetchedPackage.FilePath, softwareDir)
 	} else {
-		return pack.InstalledPackage{}, errors.New("Unknown archive type: " + string(fetchedPackage.Type))
+		return ExtractedPackage{}, errors.New("Unknown archive type: " + string(fetchedPackage.Type))
 	}
 
 	if err != nil {
-		return pack.InstalledPackage{}, err
+		return ExtractedPackage{}, err
 	} else {
-		return pack.InstalledPackage{Version: fetchedPackage.Version, Path: filepath.Join(softwareDir, targetDirName)}, nil
+		return ExtractedPackage{Version: fetchedPackage.Version, Path: filepath.Join(softwareDir, targetDirName)}, nil
 	}
 }
 

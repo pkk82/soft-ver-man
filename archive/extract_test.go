@@ -3,9 +3,11 @@ package archive
 import (
 	"github.com/pkk82/soft-ver-man/pack"
 	"github.com/pkk82/soft-ver-man/test"
+	"github.com/pkk82/soft-ver-man/version"
 	"io"
 	"os"
 	"path/filepath"
+	"reflect"
 	"testing"
 )
 
@@ -22,6 +24,7 @@ func TestExtract(t *testing.T) {
 			name: "tar.gz dir",
 			args: args{
 				fetchedPackage: pack.FetchedPackage{
+					Version:  version.Version{Value: "v20.1.2"},
 					FilePath: filepath.Join("testdata", "dir.tar.gz"),
 					Type:     pack.TAR_GZ,
 				},
@@ -31,6 +34,7 @@ func TestExtract(t *testing.T) {
 			name: "zip dir",
 			args: args{
 				fetchedPackage: pack.FetchedPackage{
+					Version:  version.Version{Value: "v20.1.2"},
 					FilePath: filepath.Join("testdata", "dir.zip"),
 					Type:     pack.ZIP,
 				},
@@ -40,6 +44,7 @@ func TestExtract(t *testing.T) {
 			name: "tar.gz files",
 			args: args{
 				fetchedPackage: pack.FetchedPackage{
+					Version:  version.Version{Value: "v20.1.2"},
 					FilePath: filepath.Join("testdata", "files.tar.gz"),
 					Type:     pack.TAR_GZ,
 				},
@@ -49,6 +54,7 @@ func TestExtract(t *testing.T) {
 			name: "zip files",
 			args: args{
 				fetchedPackage: pack.FetchedPackage{
+					Version:  version.Version{Value: "v20.1.2"},
 					FilePath: filepath.Join("testdata", "files.zip"),
 					Type:     pack.ZIP,
 				},
@@ -65,8 +71,12 @@ func TestExtract(t *testing.T) {
 				return
 			}
 			expectedPath := filepath.Join(testDir, tt.wantPath)
-			if got.Path != expectedPath {
-				t.Errorf("Extract() got = %v, want %v", got.Path, expectedPath)
+			expected := ExtractedPackage{
+				Version: tt.args.fetchedPackage.Version,
+				Path:    expectedPath,
+			}
+			if !reflect.DeepEqual(got, expected) {
+				t.Errorf("Extract() got = %v, want %v", got, expected)
 			}
 			assertContent(t, expectedPath)
 		})

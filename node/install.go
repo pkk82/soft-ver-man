@@ -29,6 +29,7 @@ import (
 	"github.com/pkk82/soft-ver-man/shell"
 	"github.com/spf13/viper"
 	"path"
+	"time"
 )
 
 func Install(fetchedPackage pack.FetchedPackage, softwareDir string) error {
@@ -41,7 +42,13 @@ func Install(fetchedPackage pack.FetchedPackage, softwareDir string) error {
 		return errors.New("Version " + fetchedPackage.Version.Value + " is already installed")
 	}
 
-	installedPackage, err := archive.Extract(fetchedPackage, path.Join(softwareDir, Name))
+	extractedPackage, err := archive.Extract(fetchedPackage, path.Join(softwareDir, Name))
+	installedPackage := pack.InstalledPackage{
+		Version:     extractedPackage.Version,
+		Path:        extractedPackage.Path,
+		Main:        false,
+		InstalledOn: time.Now().UnixMilli(),
+	}
 	history.Add(installedPackage)
 	if err != nil {
 		return err

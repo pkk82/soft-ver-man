@@ -26,7 +26,7 @@ import (
 )
 
 func AddVariables(finder DirFinder, history history.PackageHistory) error {
-	err := initBash(finder)
+	err := initShell(finder)
 	if err != nil {
 		return err
 	}

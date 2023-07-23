@@ -43,7 +43,7 @@ func CreateTestDir(t *testing.T) string {
 	return testDir
 }
 
-func CreateEmptyFile(path, fileName string, t *testing.T) {
+func CreateEmptyFile(path, fileName string, t *testing.T) string {
 	file, err := os.Create(filepath.Join(path, fileName))
 	if err != nil {
 		t.Fatalf("Failed to create file: %s", err)
@@ -54,6 +54,7 @@ func CreateEmptyFile(path, fileName string, t *testing.T) {
 			t.Errorf("Failed to close file: %s", err)
 		}
 	}(file)
+	return file.Name()
 }
 
 func CreateFile(path, fileName string, content []string, t *testing.T) {

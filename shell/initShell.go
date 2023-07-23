@@ -31,7 +31,7 @@ import (
 	"strings"
 )
 
-func initBash(finder DirFinder) error {
+func initShell(finder DirFinder) error {
 	header := "### soft-ver-man"
 	initLine := bashToLoad(config.RcFile)
 	dir, err := finder.HomeDir()
@@ -39,27 +39,36 @@ func initBash(finder DirFinder) error {
 		return err
 	}
 
-	bashRcPath := filepath.Join(dir, ".bashrc")
-	exists, err := fileExists(bashRcPath)
-	if err != nil {
-		return err
-	}
+	atLeastOneExists := false
 
-	if exists {
-		content, err := readFile(bashRcPath)
+	rcFiles := [2]string{".bashrc", ".zshrc"}
+	for _, rcFile := range rcFiles {
+		rcPath := filepath.Join(dir, rcFile)
+		exists, err := fileExists(rcPath)
 		if err != nil {
 			return err
 		}
-		if strings.HasSuffix(content, "\n") {
-			header = "\n" + header
-		} else if len(content) > 0 {
-			header = "\n\n" + header
+		if exists {
+			atLeastOneExists = true
+			content, err := readFile(rcPath)
+			if err != nil {
+				return err
+			}
+			if strings.HasSuffix(content, "\n") {
+				header = "\n" + header
+			} else if len(content) > 0 {
+				header = "\n\n" + header
+			}
+
+			err = assertFileWithContent(rcPath, initLine, []string{header, initLine})
+			if err != nil {
+				return err
+			}
 		}
 	}
 
-	err = assertFileWithContent(bashRcPath, initLine, []string{header, initLine})
-	if err != nil {
-		return err
+	if !atLeastOneExists {
+		return errors.New("at least of of the following files must exist: " + strings.Join(rcFiles[:], ", "))
 	}
 	return nil
 }

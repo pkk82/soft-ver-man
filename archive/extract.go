@@ -28,6 +28,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/pkk82/soft-ver-man/console"
+	io2 "github.com/pkk82/soft-ver-man/io"
 	"github.com/pkk82/soft-ver-man/pack"
 	"io"
 	"os"
@@ -58,12 +59,7 @@ func extractZip(zipPath string, dir string) error {
 	if err != nil {
 		return err
 	}
-	defer func(reader *zip.ReadCloser) {
-		err := reader.Close()
-		if err != nil {
-			console.Error(err)
-		}
-	}(reader)
+	defer io2.CloseOrLog(reader)
 
 	for _, file := range reader.File {
 		targetFilePath := filepath.Join(dir, file.Name)
@@ -89,12 +85,7 @@ func extractZipFile(targetFilePath string, file *zip.File) error {
 	if err != nil {
 		return err
 	}
-	defer func(zipEntry io.ReadCloser) {
-		err := zipEntry.Close()
-		if err != nil {
-			console.Error(err)
-		}
-	}(zipEntry)
+	defer io2.CloseOrLog(zipEntry)
 
 	if file.Mode()&os.ModeSymlink != 0 {
 		link, err := io.ReadAll(zipEntry)
@@ -113,12 +104,7 @@ func extractZipFile(targetFilePath string, file *zip.File) error {
 	if err != nil {
 		return err
 	}
-	defer func(targetFile *os.File) {
-		err := targetFile.Close()
-		if err != nil {
-			console.Error(err)
-		}
-	}(targetFile)
+	defer io2.CloseOrLog(targetFile)
 
 	_, err = io.Copy(targetFile, zipEntry)
 	if err != nil {
@@ -142,23 +128,13 @@ func extractTarGz(tarGzFilePath, dir string) error {
 	if err != nil {
 		return err
 	}
-	defer func(open *os.File) {
-		err := open.Close()
-		if err != nil {
-			console.Error(err)
-		}
-	}(tarGzFile)
+	defer io2.CloseOrLog(tarGzFile)
 
 	gzReader, err := gzip.NewReader(tarGzFile)
 	if err != nil {
 		return err
 	}
-	defer func(reader *gzip.Reader) {
-		err := reader.Close()
-		if err != nil {
-			console.Error(err)
-		}
-	}(gzReader)
+	defer io2.CloseOrLog(gzReader)
 
 	tarReader := tar.NewReader(gzReader)
 

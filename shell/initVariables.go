@@ -57,7 +57,7 @@ func initVariables(finder DirFinder, history history.PackageHistory) error {
 	if err != nil {
 		return err
 	}
-	initLine := bashToLoad(name)
+	initLine := bashToLoad(makeRcName(name))
 	err = assertFileWithContent(path.Join(homeDir, config.HomeConfigDir, config.RcFile), initLine,
 		[]string{initLine})
 	if err != nil {
@@ -97,7 +97,7 @@ func initVariables(finder DirFinder, history history.PackageHistory) error {
 	}
 	lines = append(lines, fmt.Sprintf("export PATH=\"$%v_HOME/bin:$PATH\"", strings.ToUpper(name)))
 
-	err = overrideFileWithContent(path.Join(homeDir, config.HomeConfigDir, "."+name+"rc"), lines)
+	err = overrideFileWithContent(path.Join(homeDir, config.HomeConfigDir, makeRcName(name)), lines)
 	if err != nil {
 		return err
 	}

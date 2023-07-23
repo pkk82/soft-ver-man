@@ -35,7 +35,7 @@ func Test_initVariablesInSvmRc(t *testing.T) {
 				},
 			},
 			expectedContent: func(dir string) []string {
-				return []string{"export SVM_DIR=" + path.Join(dir, "pf"), "[[ -s \"$HOME/.soft-ver-man/node\" ]] && source \"$HOME/.soft-ver-man/node\"\n"}
+				return []string{"export SVM_DIR=" + path.Join(dir, "pf"), "[[ -s \"$HOME/.soft-ver-man/.noderc\" ]] && source \"$HOME/.soft-ver-man/.noderc\"\n"}
 			},
 		}, {
 			name: "go installation",
@@ -54,7 +54,7 @@ func Test_initVariablesInSvmRc(t *testing.T) {
 				},
 			},
 			expectedContent: func(dir string) []string {
-				return []string{"export SVM_DIR=" + path.Join(dir, "pf"), "[[ -s \"$HOME/.soft-ver-man/go\" ]] && source \"$HOME/.soft-ver-man/go\"\n"}
+				return []string{"export SVM_DIR=" + path.Join(dir, "pf"), "[[ -s \"$HOME/.soft-ver-man/.gorc\" ]] && source \"$HOME/.soft-ver-man/.gorc\"\n"}
 			},
 		},
 	}

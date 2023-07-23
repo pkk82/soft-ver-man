@@ -35,7 +35,7 @@ func Test_initVariablesInSvmRc(t *testing.T) {
 				},
 			},
 			expectedContent: func(dir string) []string {
-				return []string{"export SVM_DIR=" + dir, "[[ -s \"$HOME/.soft-ver-man/node\" ]] && source \"$HOME/.soft-ver-man/node\"\n"}
+				return []string{"export SVM_DIR=" + path.Join(dir, "pf"), "[[ -s \"$HOME/.soft-ver-man/node\" ]] && source \"$HOME/.soft-ver-man/node\"\n"}
 			},
 		}, {
 			name: "go installation",
@@ -54,14 +54,14 @@ func Test_initVariablesInSvmRc(t *testing.T) {
 				},
 			},
 			expectedContent: func(dir string) []string {
-				return []string{"export SVM_DIR=" + dir, "[[ -s \"$HOME/.soft-ver-man/go\" ]] && source \"$HOME/.soft-ver-man/go\"\n"}
+				return []string{"export SVM_DIR=" + path.Join(dir, "pf"), "[[ -s \"$HOME/.soft-ver-man/go\" ]] && source \"$HOME/.soft-ver-man/go\"\n"}
 			},
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			dir := test.CreateTestDir(t)
-			err := initVariables(test.HomeDir{Dir: dir}, tt.args.history)
+			err := initVariables(test.TestDirs{Home: dir}, tt.args.history)
 			if err != nil {
 				t.Errorf("Failed to init variables: %s", err)
 			}
@@ -171,7 +171,7 @@ func Test_initVariablesInNodeRc(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			dir := test.CreateTestDir(t)
-			err := initVariables(test.HomeDir{Dir: dir}, tt.args.history)
+			err := initVariables(test.TestDirs{Home: dir}, tt.args.history)
 			if err != nil {
 				t.Errorf("Failed to init variables: %s", err)
 			}

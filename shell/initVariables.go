@@ -38,22 +38,27 @@ type helper struct {
 	version version.Version
 }
 
-func initVariables(finder homeDirFinder, history history.PackageHistory) error {
+func initVariables(finder dirFinder, history history.PackageHistory) error {
 	name := history.Name
 
-	dir, err := finder.HomeDir()
+	homeDir, err := finder.HomeDir()
 	if err != nil {
 		return err
 	}
 
-	exportLine := fmt.Sprintf("export SVM_DIR=%v", dir)
-	err = assertFileWithContent(path.Join(dir, config.HomeConfigDir, config.RcFile), exportLine,
+	softDir, err := finder.SoftDir()
+	if err != nil {
+		return err
+	}
+
+	exportLine := fmt.Sprintf("export SVM_DIR=%v", softDir)
+	err = assertFileWithContent(path.Join(homeDir, config.HomeConfigDir, config.RcFile), exportLine,
 		[]string{exportLine})
 	if err != nil {
 		return err
 	}
 	initLine := bashToLoad(name)
-	err = assertFileWithContent(path.Join(dir, config.HomeConfigDir, config.RcFile), initLine,
+	err = assertFileWithContent(path.Join(homeDir, config.HomeConfigDir, config.RcFile), initLine,
 		[]string{initLine})
 	if err != nil {
 		return err
@@ -92,7 +97,7 @@ func initVariables(finder homeDirFinder, history history.PackageHistory) error {
 	}
 	lines = append(lines, fmt.Sprintf("export PATH=\"$%v_HOME/bin:$PATH\"", strings.ToUpper(name)))
 
-	err = overrideFileWithContent(path.Join(dir, config.HomeConfigDir, "."+name+"rc"), lines)
+	err = overrideFileWithContent(path.Join(homeDir, config.HomeConfigDir, "."+name+"rc"), lines)
 	if err != nil {
 		return err
 	}

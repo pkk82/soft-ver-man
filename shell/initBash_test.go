@@ -40,7 +40,7 @@ func TestInitBash(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			dir := test.CreateTestDir(t)
 			tt.bashRcProvider.(func(string))(dir)
-			err := initBash(test.HomeDir{Dir: dir})
+			err := initBash(test.TestDirs{Home: dir})
 			if err != nil {
 				t.Errorf("Failed to init bash: %s", err)
 			}

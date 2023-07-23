@@ -31,7 +31,7 @@ import (
 	"strings"
 )
 
-func initBash(finder homeDirFinder) error {
+func initBash(finder dirFinder) error {
 	header := "### soft-ver-man"
 	initLine := bashToLoad(config.RcFile)
 	dir, err := finder.HomeDir()

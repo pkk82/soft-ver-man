@@ -25,6 +25,7 @@ import (
 	"io"
 	"math/rand"
 	"os"
+	"path"
 	"path/filepath"
 	"strings"
 	"testing"
@@ -66,12 +67,16 @@ func join(content []string) string {
 	return strings.Join(content, "\n")
 }
 
-type HomeDir struct {
-	Dir string
+type TestDirs struct {
+	Home string
 }
 
-func (receiver HomeDir) HomeDir() (string, error) {
-	return receiver.Dir, nil
+func (receiver TestDirs) HomeDir() (string, error) {
+	return receiver.Home, nil
+}
+
+func (receiver TestDirs) SoftDir() (string, error) {
+	return path.Join(receiver.Home, "pf"), nil
 }
 
 func AssertFileContent(path, fileName string, expectedContent []string, t *testing.T) {

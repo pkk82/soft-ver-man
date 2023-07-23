@@ -9,48 +9,68 @@ import (
 	"testing"
 )
 
-func TestExtractTarGZ(t *testing.T) {
-
-	testDir := test.CreateTestDir(t)
-
-	fetchedPackage := pack.FetchedPackage{
-		FilePath: filepath.Join("testdata", "dir.tar.gz"),
-		Type:     pack.TAR_GZ,
+func TestExtract(t *testing.T) {
+	type args struct {
+		fetchedPackage pack.FetchedPackage
 	}
-
-	installedPackage, err := Extract(fetchedPackage, testDir)
-	if err != nil {
-		t.Errorf("Failed to extract tar.gz: %s", err)
+	tests := []struct {
+		name     string
+		args     args
+		wantPath string
+	}{
+		{
+			name: "tar.gz dir",
+			args: args{
+				fetchedPackage: pack.FetchedPackage{
+					FilePath: filepath.Join("testdata", "dir.tar.gz"),
+					Type:     pack.TAR_GZ,
+				},
+			},
+			wantPath: "dir",
+		}, {
+			name: "zip dir",
+			args: args{
+				fetchedPackage: pack.FetchedPackage{
+					FilePath: filepath.Join("testdata", "dir.zip"),
+					Type:     pack.ZIP,
+				},
+			},
+			wantPath: "dir",
+		}, {
+			name: "tar.gz files",
+			args: args{
+				fetchedPackage: pack.FetchedPackage{
+					FilePath: filepath.Join("testdata", "files.tar.gz"),
+					Type:     pack.TAR_GZ,
+				},
+			},
+			wantPath: "files",
+		}, {
+			name: "zip files",
+			args: args{
+				fetchedPackage: pack.FetchedPackage{
+					FilePath: filepath.Join("testdata", "files.zip"),
+					Type:     pack.ZIP,
+				},
+			},
+			wantPath: "files",
+		},
 	}
-
-	if installedPackage.Path != filepath.Join(testDir, fetchedPackage.FilePath) {
-		t.Errorf("Failed to set installed package path: %s", err)
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			testDir := test.CreateTestDir(t)
+			got, err := Extract(tt.args.fetchedPackage, testDir)
+			if err != nil {
+				t.Errorf("Extract() error = %v", err)
+				return
+			}
+			expectedPath := filepath.Join(testDir, tt.wantPath)
+			if got.Path != expectedPath {
+				t.Errorf("Extract() got = %v, want %v", got.Path, expectedPath)
+			}
+			assertContent(t, expectedPath)
+		})
 	}
-
-	assertContent(t, filepath.Join(testDir, "dir"))
-
-}
-
-func TestExtractZip(t *testing.T) {
-
-	testDir := test.CreateTestDir(t)
-
-	fetchedPackage := pack.FetchedPackage{
-		FilePath: filepath.Join("testdata", "dir.zip"),
-		Type:     pack.ZIP,
-	}
-
-	installedPackage, err := Extract(fetchedPackage, testDir)
-	if err != nil {
-		t.Errorf("Failed to extract zip: %s", err)
-	}
-
-	if installedPackage.Path != filepath.Join(testDir, fetchedPackage.FilePath) {
-		t.Errorf("Failed to set installed package path: %s", err)
-	}
-
-	assertContent(t, filepath.Join(testDir, "dir"))
-
 }
 
 func assertContent(t *testing.T, dir string) {

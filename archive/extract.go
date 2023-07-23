@@ -32,17 +32,18 @@ import (
 	"github.com/pkk82/soft-ver-man/pack"
 	"io"
 	"os"
-	"path"
 	"path/filepath"
+	"strings"
 )
 
 func Extract(fetchedPackage pack.FetchedPackage, softwareDir string) (pack.InstalledPackage, error) {
 
 	var err error
+	var targetDirName string
 	if fetchedPackage.Type == pack.TAR_GZ {
-		err = extractTarGz(fetchedPackage.FilePath, softwareDir)
+		targetDirName, err = extractTarGz(fetchedPackage.FilePath, softwareDir)
 	} else if fetchedPackage.Type == pack.ZIP {
-		err = extractZip(fetchedPackage.FilePath, softwareDir)
+		targetDirName, err = extractZip(fetchedPackage.FilePath, softwareDir)
 	} else {
 		return pack.InstalledPackage{}, errors.New("Unknown archive type: " + string(fetchedPackage.Type))
 	}
@@ -50,33 +51,54 @@ func Extract(fetchedPackage pack.FetchedPackage, softwareDir string) (pack.Insta
 	if err != nil {
 		return pack.InstalledPackage{}, err
 	} else {
-		return pack.InstalledPackage{Version: fetchedPackage.Version, Path: filepath.Join(softwareDir, fetchedPackage.FilePath)}, nil
+		return pack.InstalledPackage{Version: fetchedPackage.Version, Path: filepath.Join(softwareDir, targetDirName)}, nil
 	}
 }
 
-func extractZip(zipPath string, dir string) error {
+func extractZip(zipPath string, dir string) (string, error) {
 	reader, err := zip.OpenReader(zipPath)
 	if err != nil {
-		return err
+		return "", err
 	}
 	defer io2.CloseOrLog(reader)
 
+	topLevelDir, applyTopLevelDir := extractTopLevelDirInZipFile(reader, zipPath)
+
 	for _, file := range reader.File {
-		targetFilePath := filepath.Join(dir, file.Name)
+		var targetFilePath string
+		if applyTopLevelDir {
+			targetFilePath = filepath.Join(dir, topLevelDir, file.Name)
+		} else {
+			targetFilePath = filepath.Join(dir, file.Name)
+		}
 		if file.FileInfo().IsDir() {
 			err := os.MkdirAll(targetFilePath, file.Mode())
 			if err != nil {
-				return err
+				return "", err
 			}
 			continue
 		}
 		err = extractZipFile(targetFilePath, file)
 		if err != nil {
-			return err
+			return "", err
 		}
 	}
 
-	return nil
+	return topLevelDir, nil
+}
+
+func extractTopLevelDirInZipFile(reader *zip.ReadCloser, zipPath string) (string, bool) {
+	var topLevelDirs []string
+	for _, file := range reader.File {
+		if !strings.Contains(strings.TrimSuffix(file.Name, "/"), "/") && file.FileInfo().IsDir() {
+			topLevelDirs = append(topLevelDirs, file.Name)
+		}
+	}
+	if len(topLevelDirs) == 1 {
+		return topLevelDirs[0], false
+	} else {
+		return archiveNameWithoutExtension(zipPath), true
+	}
 }
 
 func extractZipFile(targetFilePath string, file *zip.File) error {
@@ -122,73 +144,133 @@ func extractZipFile(targetFilePath string, file *zip.File) error {
 	return nil
 }
 
-func extractTarGz(tarGzFilePath, dir string) error {
+func extractTarGz(tarGzFilePath, dir string) (string, error) {
+
+	topLevelDir, applyTopLevelDir, err := extractTopLevelDirInTarGzFile(tarGzFilePath)
+	if err != nil {
+		return "", err
+	}
 
 	tarGzFile, err := os.Open(tarGzFilePath)
 	if err != nil {
-		return err
+		return "", err
 	}
 	defer io2.CloseOrLog(tarGzFile)
 
 	gzReader, err := gzip.NewReader(tarGzFile)
 	if err != nil {
-		return err
+		return "", err
 	}
 	defer io2.CloseOrLog(gzReader)
 
 	tarReader := tar.NewReader(gzReader)
-
 	for true {
 		header, err := tarReader.Next()
 
 		if err == io.EOF {
-			return nil
+			return topLevelDir, nil
 		}
 
 		if err != nil {
-			return err
+			return "", err
 		}
 
+		var targetFilePath string
+		if applyTopLevelDir {
+			targetFilePath = filepath.Join(dir, topLevelDir, header.Name)
+		} else {
+			targetFilePath = filepath.Join(dir, header.Name)
+		}
 		switch header.Typeflag {
 		case tar.TypeDir:
-			if err := os.MkdirAll(path.Join(dir, header.Name), 0755); err != nil {
-				return errors.New(fmt.Sprintf("ExtractTarGz: MkdirAll() failed: %s", err.Error()))
+			if err := os.MkdirAll(targetFilePath, 0755); err != nil {
+				return "", errors.New(fmt.Sprintf("ExtractTarGz: MkdirAll() failed: %s", err.Error()))
 			}
 		case tar.TypeReg:
-			outFile, err := os.Create(path.Join(dir, header.Name))
+			outFile, err := os.Create(targetFilePath)
 			if err != nil {
-				return errors.New(fmt.Sprintf("ExtractTarGz: Create() failed: %s", err.Error()))
+				return "", errors.New(fmt.Sprintf("ExtractTarGz: Create() failed: %s", err.Error()))
 			}
 			if _, err := io.Copy(outFile, tarReader); err != nil {
-				return errors.New(fmt.Sprintf("ExtractTarGz: Copy() failed: %s", err.Error()))
+				return "", errors.New(fmt.Sprintf("ExtractTarGz: Copy() failed: %s", err.Error()))
 			}
 			err = outFile.Close()
 			if err != nil {
-				return err
+				return "", err
 			}
 
 			fileMode := header.FileInfo().Mode()
 			if fileMode&0111 != 0 {
-				err := os.Chmod(path.Join(dir, header.Name), fileMode|0100)
+				err := os.Chmod(targetFilePath, fileMode|0100)
 				if err != nil {
-					return errors.New(fmt.Sprintf("ExtractTarGz: Chmod() failed: %s", err.Error()))
+					return "", errors.New(fmt.Sprintf("ExtractTarGz: Chmod() failed: %s", err.Error()))
 				}
 			}
 
 		case tar.TypeSymlink:
-			if err := os.Symlink(header.Linkname, filepath.Join(dir, header.Name)); err != nil {
+			if err := os.Symlink(header.Linkname, targetFilePath); err != nil {
 				console.Fatal(err)
-				return err
+				return "", err
 			}
 
 		default:
-			return errors.New(fmt.Sprintf(
+			return "", errors.New(fmt.Sprintf(
 				"ExtractTarGz: uknown type: %x in %s",
 				header.Typeflag,
 				header.Name))
 		}
 
 	}
-	return nil
+	return "", errors.New("should not reach here")
 
+}
+
+func extractTopLevelDirInTarGzFile(tarGzFilePath string) (string, bool, error) {
+
+	tarGzFile, err := os.Open(tarGzFilePath)
+	if err != nil {
+		return "", false, err
+	}
+	defer io2.CloseOrLog(tarGzFile)
+
+	gzReader, err := gzip.NewReader(tarGzFile)
+	if err != nil {
+		return "", false, err
+	}
+	defer io2.CloseOrLog(gzReader)
+
+	tarReader := tar.NewReader(gzReader)
+
+	topLevelDirs := make([]string, 0)
+	for true {
+		header, err := tarReader.Next()
+
+		if err == io.EOF {
+			if len(topLevelDirs) == 1 {
+				return topLevelDirs[0], false, nil
+			} else {
+				return archiveNameWithoutExtension(tarGzFilePath), true, nil
+			}
+		}
+
+		if err != nil {
+			return "", false, err
+		}
+
+		if header.Typeflag == tar.TypeDir {
+			if !strings.Contains(strings.TrimSuffix(header.Name, "/"), "/") {
+				topLevelDirs = append(topLevelDirs, header.Name)
+			}
+		}
+	}
+	return "", false, errors.New("should not reach here")
+}
+
+func archiveNameWithoutExtension(path string) string {
+	var name = filepath.Base(path)
+	if strings.HasSuffix(name, "."+pack.TAR_GZ) {
+		return strings.TrimSuffix(name, "."+pack.TAR_GZ)
+	} else {
+		return strings.TrimSuffix(name, filepath.Ext(name))
+	}
 }

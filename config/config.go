@@ -15,6 +15,9 @@ const SoftwareDownloadDirKey = "software-directory-download"
 const SoftwareDirKey = "software-directory"
 const PackageHistorySuffix = "-history"
 
+const VarNameSvmSoftDir = "SVM_SOFT_DIR"
+const VarNameSvmSoftPackageDirTemplate = "SVM_SOFT_%v_DIR"
+
 func InitSoftwareDownloadDir(cmd *cobra.Command) string {
 	return initConfigEntry(cmd,
 		SoftwareDownloadDirKey,

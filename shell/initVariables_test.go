@@ -35,7 +35,7 @@ func Test_initVariablesInSvmRc(t *testing.T) {
 				},
 			},
 			expectedContent: func(dir string) []string {
-				return []string{"export SVM_DIR=" + path.Join(dir, "pf"), "[[ -s \"$HOME/.soft-ver-man/.noderc\" ]] && source \"$HOME/.soft-ver-man/.noderc\"\n"}
+				return []string{"export SVM_SOFT_DIR=\"" + path.Join(dir, "pf\""), "[[ -s \"$HOME/.soft-ver-man/.noderc\" ]] && source \"$HOME/.soft-ver-man/.noderc\"\n"}
 			},
 		}, {
 			name: "go installation",
@@ -54,7 +54,7 @@ func Test_initVariablesInSvmRc(t *testing.T) {
 				},
 			},
 			expectedContent: func(dir string) []string {
-				return []string{"export SVM_DIR=" + path.Join(dir, "pf"), "[[ -s \"$HOME/.soft-ver-man/.gorc\" ]] && source \"$HOME/.soft-ver-man/.gorc\"\n"}
+				return []string{"export SVM_SOFT_DIR=\"" + path.Join(dir, "pf\""), "[[ -s \"$HOME/.soft-ver-man/.gorc\" ]] && source \"$HOME/.soft-ver-man/.gorc\"\n"}
 			},
 		},
 	}
@@ -96,9 +96,9 @@ func Test_initVariablesInNodeRc(t *testing.T) {
 			},
 			expectedSpecificFileName: ".noderc",
 			expectedSpecificContent: []string{
-				"export NODE_DIR=\"$SOFT_DIR/node\"",
-				"export NODE_20_HOME=\"$NODE_DIR/node-v20.1.3-linux-x64\"",
-				"export NODE_HOME=\"$NODE_DIR/node-v20.1.3-linux-x64\"",
+				"export SVM_SOFT_NODE_DIR=\"$SVM_SOFT_DIR/node\"",
+				"export NODE_20_HOME=\"$SVM_SOFT_NODE_DIR/node-v20.1.3-linux-x64\"",
+				"export NODE_HOME=\"$SVM_SOFT_NODE_DIR/node-v20.1.3-linux-x64\"",
 				"export PATH=\"$NODE_HOME/bin:$PATH\"",
 			},
 		}, {
@@ -118,9 +118,9 @@ func Test_initVariablesInNodeRc(t *testing.T) {
 			},
 			expectedSpecificFileName: ".noderc",
 			expectedSpecificContent: []string{
-				"export NODE_DIR=\"$SOFT_DIR/node\"",
-				"export NODE_20_HOME=\"$NODE_DIR/node-v20.1.3-linux-x64\"",
-				"export NODE_HOME=\"$NODE_DIR/node-v20.1.3-linux-x64\"",
+				"export SVM_SOFT_NODE_DIR=\"$SVM_SOFT_DIR/node\"",
+				"export NODE_20_HOME=\"$SVM_SOFT_NODE_DIR/node-v20.1.3-linux-x64\"",
+				"export NODE_HOME=\"$SVM_SOFT_NODE_DIR/node-v20.1.3-linux-x64\"",
 				"export PATH=\"$NODE_HOME/bin:$PATH\"",
 			},
 		}, {
@@ -154,10 +154,10 @@ func Test_initVariablesInNodeRc(t *testing.T) {
 			},
 			expectedSpecificFileName: ".noderc",
 			expectedSpecificContent: []string{
-				"export NODE_DIR=\"$SOFT_DIR/node\"",
-				"export NODE_19_HOME=\"$NODE_DIR/node-v19.1.4-linux-x64\"",
-				"export NODE_20_HOME=\"$NODE_DIR/node-v20.1.3-linux-x64\"",
-				"export NODE_HOME=\"$NODE_DIR/node-v20.1.3-linux-x64\"",
+				"export SVM_SOFT_NODE_DIR=\"$SVM_SOFT_DIR/node\"",
+				"export NODE_19_HOME=\"$SVM_SOFT_NODE_DIR/node-v19.1.4-linux-x64\"",
+				"export NODE_20_HOME=\"$SVM_SOFT_NODE_DIR/node-v20.1.3-linux-x64\"",
+				"export NODE_HOME=\"$SVM_SOFT_NODE_DIR/node-v20.1.3-linux-x64\"",
 				"export PATH=\"$NODE_HOME/bin:$PATH\"",
 			},
 		}, {
@@ -191,10 +191,10 @@ func Test_initVariablesInNodeRc(t *testing.T) {
 			},
 			expectedSpecificFileName: ".noderc",
 			expectedSpecificContent: []string{
-				"export NODE_DIR=\"$SOFT_DIR/node\"",
-				"export NODE_19_HOME=\"$NODE_DIR/node-v19.1.4-linux-x64\"",
-				"export NODE_20_HOME=\"$NODE_DIR/node-v20.1.3-linux-x64\"",
-				"export NODE_HOME=\"$NODE_DIR/node-v20.1.3-linux-x64\"",
+				"export SVM_SOFT_NODE_DIR=\"$SVM_SOFT_DIR/node\"",
+				"export NODE_19_HOME=\"$SVM_SOFT_NODE_DIR/node-v19.1.4-linux-x64\"",
+				"export NODE_20_HOME=\"$SVM_SOFT_NODE_DIR/node-v20.1.3-linux-x64\"",
+				"export NODE_HOME=\"$SVM_SOFT_NODE_DIR/node-v20.1.3-linux-x64\"",
 				"export PATH=\"$NODE_HOME/bin:$PATH\"",
 			},
 		}, {
@@ -219,10 +219,10 @@ func Test_initVariablesInNodeRc(t *testing.T) {
 			},
 			expectedSpecificFileName: ".noderc",
 			expectedSpecificContent: []string{
-				"export NODE_DIR=\"$SOFT_DIR/node\"",
-				"export NODE_19_HOME=\"$NODE_DIR/node-v19.1.3-linux-x64\"",
-				"export NODE_20_HOME=\"$NODE_DIR/node-v20.1.3-linux-x64\"",
-				"export NODE_HOME=\"$NODE_DIR/node-v19.1.3-linux-x64\"",
+				"export SVM_SOFT_NODE_DIR=\"$SVM_SOFT_DIR/node\"",
+				"export NODE_19_HOME=\"$SVM_SOFT_NODE_DIR/node-v19.1.3-linux-x64\"",
+				"export NODE_20_HOME=\"$SVM_SOFT_NODE_DIR/node-v20.1.3-linux-x64\"",
+				"export NODE_HOME=\"$SVM_SOFT_NODE_DIR/node-v19.1.3-linux-x64\"",
 				"export PATH=\"$NODE_HOME/bin:$PATH\"",
 			},
 		},

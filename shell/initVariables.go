@@ -40,6 +40,7 @@ type helper struct {
 
 func initVariables(finder DirFinder, history history.PackageHistory) error {
 	name := history.Name
+	upperName := strings.ToUpper(name)
 
 	homeDir, err := finder.HomeDir()
 	if err != nil {
@@ -51,7 +52,7 @@ func initVariables(finder DirFinder, history history.PackageHistory) error {
 		return err
 	}
 
-	exportLine := fmt.Sprintf("export SVM_DIR=%v", softDir)
+	exportLine := exportVariable(config.VarNameSvmSoftDir, softDir)
 	err = assertFileWithContent(path.Join(homeDir, config.HomeConfigDir, config.RcFile), exportLine,
 		[]string{exportLine})
 	if err != nil {
@@ -74,13 +75,13 @@ func initVariables(finder DirFinder, history history.PackageHistory) error {
 	majorVersions := sortedMajorVersions(installedPackagesPerMajorVersions)
 	lines := make([]string, 0)
 
-	packageDirVarName := fmt.Sprintf("%v_DIR", strings.ToUpper(name))
-	lines = append(lines, fmt.Sprintf("export %v=\"$SOFT_DIR/%v\"", packageDirVarName, name))
+	packageDirVarName := fmt.Sprintf(config.VarNameSvmSoftPackageDirTemplate, upperName)
+	lines = append(lines, exportRefPathVariable(packageDirVarName, config.VarNameSvmSoftDir, name))
 
 	for _, v := range majorVersions {
 		latestMajor := installedPackagesPerMajorVersions[v][0]
 		_, dirName := filepath.Split(latestMajor.Path)
-		lines = append(lines, fmt.Sprintf("export %v_%v_HOME=\"$%v/%v\"", strings.ToUpper(name), v, packageDirVarName, dirName))
+		lines = append(lines, exportHomeMajorVersionVariable(upperName, v, packageDirVarName, dirName))
 	}
 
 	mainTime := int64(0)
@@ -88,14 +89,13 @@ func initVariables(finder DirFinder, history history.PackageHistory) error {
 	for _, ip := range installedPackages {
 		if ip.Main && ip.InstalledOn > mainTime {
 			_, dirName := filepath.Split(ip.Path)
-			mainLine = fmt.Sprintf("export %v_HOME=\"$%v/%v\"", strings.ToUpper(name), packageDirVarName, dirName)
+			mainLine = exportHomeVariable(upperName, packageDirVarName, dirName)
 			mainTime = ip.InstalledOn
 		}
 	}
 	if mainLine == "" {
 		_, dirName := filepath.Split(installedPackagesPerMajorVersions[majorVersions[len(majorVersions)-1]][0].Path)
-		mainLine = fmt.Sprintf("export %v_HOME=\"$%v/%v\"", strings.ToUpper(name), packageDirVarName,
-			dirName)
+		mainLine = exportHomeVariable(upperName, packageDirVarName, dirName)
 	}
 
 	lines = append(lines, mainLine)

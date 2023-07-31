@@ -81,8 +81,8 @@ func parseVersion(version string) (Version, error) {
 	}
 
 	splitVersion := strings.Split(versionWithoutV, ".")
-	var major, minor, patch = -1, -1, -1
-	var errVersion = Version{Value: version, major: major, minor: minor, patch: patch}
+	var major, minor, patch, build = -1, -1, -1, -1
+	var errVersion = Version{Value: version, major: major, minor: minor, patch: patch, build: build}
 	var err error
 	if len(splitVersion) > 0 && splitVersion[0] != "" {
 		major, err = strconv.Atoi(splitVersion[0])
@@ -102,6 +102,12 @@ func parseVersion(version string) (Version, error) {
 	if err != nil {
 		return errVersion, err
 	}
+	if len(splitVersion) > 3 && splitVersion[3] != "" {
+		build, err = strconv.Atoi(splitVersion[3])
+	}
+	if err != nil {
+		return errVersion, err
+	}
 
-	return Version{Value: version, major: major, minor: minor, patch: patch}, nil
+	return Version{Value: version, major: major, minor: minor, patch: patch, build: build}, nil
 }

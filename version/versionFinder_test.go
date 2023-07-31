@@ -27,7 +27,7 @@ import (
 	"testing"
 )
 
-func TestFindVersion(t *testing.T) {
+func TestFindVersionForNode(t *testing.T) {
 	versions := []string{
 		"v19.13.19",
 		"v21.0.0",
@@ -74,6 +74,31 @@ func TestFindVersion(t *testing.T) {
 		"20.0":    "v20.0.10",
 		"v20.0.1": "v20.0.1",
 		"20.0.1":  "v20.0.1",
+	}
+	for version, expected := range terms {
+		actual, _, err := ver.FindVersion(version, versions)
+		if err != nil {
+			t.Errorf("Error: %v", err)
+		}
+		if actual.Value != expected {
+			t.Errorf("Expected: %v,. but got: %v", expected, actual)
+		}
+	}
+}
+func TestFindVersionForJava(t *testing.T) {
+	versions := []string{
+		"20.0.2",
+		"19.0.2",
+		"18.0.2.1",
+	}
+	terms := map[string]string{
+		"":         "20.0.2",
+		"v":        "20.0.2",
+		"v20":      "20.0.2",
+		"20":       "20.0.2",
+		"18":       "18.0.2.1",
+		"18.":      "18.0.2.1",
+		"18.0.2.1": "18.0.2.1",
 	}
 	for version, expected := range terms {
 		actual, _, err := ver.FindVersion(version, versions)

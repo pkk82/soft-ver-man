@@ -5,6 +5,7 @@ type Version struct {
 	major int
 	minor int
 	patch int
+	build int
 }
 
 func NewVersion(version string) (Version, error) {
@@ -22,7 +23,8 @@ func (receiver Version) Major() int {
 func CompareDesc(v1, v2 Version) bool {
 	return v1.major > v2.major ||
 		(v1.major == v2.major && v1.minor > v2.minor) ||
-		(v1.major == v2.major && v1.minor == v2.minor && v1.patch > v2.patch)
+		(v1.major == v2.major && v1.minor == v2.minor && v1.patch > v2.patch) ||
+		(v1.major == v2.major && v1.minor == v2.minor && v1.patch == v2.patch && v1.build > v2.build)
 }
 
 func CompareAsc(v1, v2 Version) bool {

@@ -19,14 +19,36 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
-package main
+package java
 
 import (
+	"fmt"
 	"github.com/pkk82/soft-ver-man/cmd"
-	_ "github.com/pkk82/soft-ver-man/cmd/java"
-	_ "github.com/pkk82/soft-ver-man/cmd/node"
+
+	"github.com/spf13/cobra"
 )
 
-func main() {
-	cmd.Execute()
+// Cmd represents the java command
+var Cmd = &cobra.Command{
+	Use:     "java",
+	Short:   "Software: java",
+	Long:    `Download and configure java (azul)`,
+	Aliases: []string{"jdk"},
+	Run: func(cmd *cobra.Command, args []string) {
+		fmt.Println("Use --help to display java subcommands")
+	},
+}
+
+func init() {
+	cmd.RootCmd.AddCommand(Cmd)
+
+	// Here you will define your flags and configuration settings.
+
+	// Cobra supports Persistent Flags which will work for this command
+	// and all subcommands, e.g.:
+	// NodeCmd.PersistentFlags().String("foo", "", "A help for foo")
+
+	// Cobra supports local flags which will only run when this command
+	// is called directly, e.g.:
+	// NodeCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }

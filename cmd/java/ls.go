@@ -19,14 +19,34 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
-package main
+package java
 
 import (
-	"github.com/pkk82/soft-ver-man/cmd"
-	_ "github.com/pkk82/soft-ver-man/cmd/java"
-	_ "github.com/pkk82/soft-ver-man/cmd/node"
+	"fmt"
+	"github.com/pkk82/soft-ver-man/java"
+	"github.com/spf13/cobra"
 )
 
-func main() {
-	cmd.Execute()
+// lsCmd represents the ls command
+var lsCmd = &cobra.Command{
+	Use:   "ls",
+	Short: "Display available version of java",
+	Long:  fmt.Sprintf("Display available versions of java using %v.", java.PackagesAPIURL),
+	Run: func(cmd *cobra.Command, args []string) {
+		java.List()
+	},
+}
+
+func init() {
+	Cmd.AddCommand(lsCmd)
+
+	// Here you will define your flags and configuration settings.
+
+	// Cobra supports Persistent Flags which will work for this command
+	// and all subcommands, e.g.:
+	// lsCmd.PersistentFlags().String("foo", "", "A help for foo")
+
+	// Cobra supports local flags which will only run when this command
+	// is called directly, e.g.:
+	// lsCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }

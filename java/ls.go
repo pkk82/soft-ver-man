@@ -12,11 +12,18 @@ import (
 )
 
 func List() {
+	allPackages := getSupportedPackages()
+	for _, p := range allPackages {
+		console.Info(p.version())
+	}
+}
+
+func getSupportedPackages() []Package {
 	var allPackages []Package
 
 	pageNo := 1
 	for {
-		pagination, packages := getSupportedPackages(pageNo)
+		pagination, packages := getPageOfSupportedPackages(pageNo)
 		for _, pkg := range packages {
 			allPackages = append(allPackages, pkg)
 		}
@@ -25,9 +32,7 @@ func List() {
 		}
 		pageNo = pagination.NextPage
 	}
-	for _, p := range allPackages {
-		console.Info(strings.Join(intSliceToStringSlice(p.JavaVersion), "."))
-	}
+	return allPackages
 }
 
 type Package struct {
@@ -36,6 +41,17 @@ type Package struct {
 	DownloadUrl      string `json:"download_url"`
 	JavaVersion      []int  `json:"java_version"`
 	AvailabilityType string `json:"availability_type"`
+}
+
+func (p Package) version() string {
+	return strings.Join(intSliceToStringSlice(p.JavaVersion), ".")
+}
+
+func (p Package) packagingType() pack.Type {
+	if strings.HasSuffix(p.DownloadUrl, ".zip") {
+		return pack.ZIP
+	}
+	return pack.TAR_GZ
 }
 
 type Pagination struct {
@@ -47,10 +63,12 @@ type Pagination struct {
 	NextPage   int `json:"next_page"`
 }
 
-func getSupportedPackages(pageNo int) (Pagination, []Package) {
+func getPageOfSupportedPackages(pageNo int) (Pagination, []Package) {
 	url := PackagesAPIURL + "?page=" + strconv.Itoa(pageNo) +
 		"&page_size=" + strconv.Itoa(PageSize) +
 		"&javafx_bundled=false" +
+		"&crac_supported=false" +
+		"&release_status=ga" +
 		"&java_package_type=jdk" +
 		"&os=" + toOs(runtime.GOOS) +
 		"&arch=" + toArch(runtime.GOARCH) +

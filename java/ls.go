@@ -41,6 +41,7 @@ type Package struct {
 	DownloadUrl      string `json:"download_url"`
 	JavaVersion      []int  `json:"java_version"`
 	AvailabilityType string `json:"availability_type"`
+	Id               string `json:"package_uuid"`
 }
 
 func (p Package) version() string {

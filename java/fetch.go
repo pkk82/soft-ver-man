@@ -25,11 +25,12 @@ import (
 	"github.com/pkk82/soft-ver-man/console"
 	"github.com/pkk82/soft-ver-man/download"
 	"github.com/pkk82/soft-ver-man/pack"
+	"github.com/pkk82/soft-ver-man/verification"
 	"github.com/pkk82/soft-ver-man/version"
 	"path/filepath"
 )
 
-func Fetch(inputVersion, softwareDownloadDir string) pack.FetchedPackage {
+func Fetch(inputVersion, softwareDownloadDir string, verify bool) (pack.FetchedPackage, error) {
 	supportedPackages := getSupportedPackages()
 	versions := make([]string, len(supportedPackages))
 	for i, v := range supportedPackages {
@@ -43,6 +44,18 @@ func Fetch(inputVersion, softwareDownloadDir string) pack.FetchedPackage {
 	javaDir := filepath.Join(softwareDownloadDir, Name)
 	fetchedPackagePath := download.FetchFile(matchingVersion.DownloadUrl, javaDir, matchingVersion.Name)
 
-	return pack.FetchedPackage{Version: foundVersion, FilePath: fetchedPackagePath, Type: matchingVersion.packagingType()}
+	if verify {
+		extendedPackage, err := getExtendedPackage(matchingVersion.Id)
+		if err != nil {
+			return pack.FetchedPackage{}, err
+		}
+		err = verification.VerifySha256(fetchedPackagePath, extendedPackage.Sha256)
+		if err != nil {
+			return pack.FetchedPackage{}, err
+		}
+		console.Info("Verification successful")
+	}
+
+	return pack.FetchedPackage{Version: foundVersion, FilePath: fetchedPackagePath, Type: matchingVersion.packagingType()}, nil
 
 }

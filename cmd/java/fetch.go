@@ -24,11 +24,14 @@ package java
 import (
 	"fmt"
 	"github.com/pkk82/soft-ver-man/config"
+	"github.com/pkk82/soft-ver-man/console"
 	"github.com/pkk82/soft-ver-man/java"
 	"github.com/pkk82/soft-ver-man/version"
 
 	"github.com/spf13/cobra"
 )
+
+var fetchVerify bool
 
 // fetchCmd represents the fetch command
 var fetchCmd = &cobra.Command{
@@ -43,12 +46,18 @@ var fetchCmd = &cobra.Command{
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 		softwareDownloadDir := config.InitSoftwareDownloadDir(cmd)
-		java.Fetch(args[0], softwareDownloadDir)
+		fetch, err := java.Fetch(args[0], softwareDownloadDir, fetchVerify)
+		if err != nil {
+			console.Fatal(err)
+		} else {
+			console.Info(fmt.Sprintf("Downloaded file: %v", fetch.FilePath))
+		}
 	},
 }
 
 func init() {
 	Cmd.AddCommand(fetchCmd)
+	fetchCmd.Flags().BoolVarP(&fetchVerify, "verify", "", false, "Verify checksum of downloaded file")
 
 	// Here you will define your flags and configuration settings.
 

@@ -2,10 +2,9 @@ package node
 
 import (
 	"bufio"
-	"crypto/sha256"
 	"fmt"
 	"github.com/pkk82/soft-ver-man/console"
-	"io"
+	"github.com/pkk82/soft-ver-man/verification"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -13,26 +12,10 @@ import (
 
 func verifySha(filePath, signatureFilePath string) {
 
-	file, err := os.Open(filePath)
-	if err != nil {
-		console.Fatal(err)
-	}
-	defer func(file *os.File) {
-		err := file.Close()
-		if err != nil {
-			console.Error(err)
-		}
-	}(file)
+	expectedHash := readHashes(signatureFilePath)[filepath.Base(filePath)]
+	err := verification.VerifySha256(filePath, expectedHash)
 
-	h := sha256.New()
-	if _, err := io.Copy(h, io.Reader(file)); err != nil {
-		console.Fatal(err)
-	}
-
-	fileHash := fmt.Sprintf("%x", h.Sum(nil))
-	expectedHash := readHashes(signatureFilePath)[filepath.Base(file.Name())]
-
-	if fileHash == expectedHash {
+	if err == nil {
 		console.Info(filePath + " is correct file")
 	} else {
 		console.Fatal(fmt.Errorf(filePath + " is corrupted file"))

@@ -1,0 +1,2 @@
+# fetch first page of releases
+GET https://api.github.com/repos/JetBrains/kotlin/releases?per_page=100&page=1

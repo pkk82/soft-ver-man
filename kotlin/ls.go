@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/pkk82/soft-ver-man/console"
+	"github.com/pkk82/soft-ver-man/pack"
 	"github.com/pkk82/soft-ver-man/version"
 	"io"
 	"net/http"
@@ -42,6 +43,7 @@ func getSupportedPackages() ([]CompilerAsset, error) {
 						Version: v,
 						Name:    asset.Name,
 						Url:     asset.Url,
+						Type:    pack.ZIP,
 					}
 					allPackages = append(allPackages, compilerAsset)
 				}
@@ -68,6 +70,7 @@ type CompilerAsset struct {
 	Version version.Version
 	Name    string
 	Url     string
+	Type    pack.Type
 }
 
 func getPageOfSupportedPackages(url string) ([]Package, string, error) {

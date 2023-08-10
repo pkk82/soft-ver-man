@@ -87,7 +87,6 @@ func extractZip(zipPath string, dir string, strategy TargetDirNameStrategy) (str
 
 	for _, file := range reader.File {
 		targetFilePath := targetFilePathSupplier.supply(dir, file.Name)
-		fmt.Println(targetFilePath)
 		if file.FileInfo().IsDir() {
 			err := os.MkdirAll(targetFilePath, file.Mode())
 			if err != nil {

@@ -42,7 +42,7 @@ func Install(fetchedPackage pack.FetchedPackage, softwareDir string) error {
 		return errors.New("Version " + fetchedPackage.Version.Value + " is already installed")
 	}
 
-	extractedPackage, err := archive.Extract(fetchedPackage, path.Join(softwareDir, Name))
+	extractedPackage, err := archive.Extract(fetchedPackage, path.Join(softwareDir, Name), archive.TargetDirNameDefault)
 	installedPackage := pack.InstalledPackage{
 		Version:     extractedPackage.Version,
 		Path:        extractedPackage.Path,
@@ -59,7 +59,7 @@ func Install(fetchedPackage pack.FetchedPackage, softwareDir string) error {
 	}
 
 	finder := shell.ProdDirFinder{SoftwareDir: viper.GetString(config.SoftwareDirKey)}
-	err = shell.AddVariables(finder, history)
+	err = shell.AddVariables(finder, history, shell.VariableGranularityMajor)
 	if err != nil {
 		return err
 	}

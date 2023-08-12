@@ -20,6 +20,10 @@ func (receiver Version) Major() int {
 	return receiver.major
 }
 
+func (receiver Version) Minor() int {
+	return receiver.minor
+}
+
 func CompareDesc(v1, v2 Version) bool {
 	return v1.major > v2.major ||
 		(v1.major == v2.major && v1.minor > v2.minor) ||

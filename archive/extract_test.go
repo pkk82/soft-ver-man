@@ -14,6 +14,7 @@ import (
 func TestExtract(t *testing.T) {
 	type args struct {
 		fetchedPackage pack.FetchedPackage
+		strategy       TargetDirNameStrategy
 	}
 	tests := []struct {
 		name     string
@@ -21,25 +22,49 @@ func TestExtract(t *testing.T) {
 		wantPath string
 	}{
 		{
-			name: "tar.gz dir",
+			name: "tar.gz dir (default strategy)",
 			args: args{
 				fetchedPackage: pack.FetchedPackage{
 					Version:  version.Version{Value: "v20.1.2"},
-					FilePath: filepath.Join("testdata", "dir.tar.gz"),
+					FilePath: filepath.Join("testdata", "some-dir.tar.gz"),
 					Type:     pack.TAR_GZ,
 				},
+				strategy: TargetDirNameDefault,
 			},
 			wantPath: "dir",
 		}, {
-			name: "zip dir",
+			name: "tar.gz dir (replace strategy)",
 			args: args{
 				fetchedPackage: pack.FetchedPackage{
 					Version:  version.Version{Value: "v20.1.2"},
-					FilePath: filepath.Join("testdata", "dir.zip"),
+					FilePath: filepath.Join("testdata", "some-dir.tar.gz"),
+					Type:     pack.TAR_GZ,
+				},
+				strategy: TargetDirNameArchiveReplace,
+			},
+			wantPath: "some-dir",
+		}, {
+			name: "zip dir (default strategy)",
+			args: args{
+				fetchedPackage: pack.FetchedPackage{
+					Version:  version.Version{Value: "v20.1.2"},
+					FilePath: filepath.Join("testdata", "some-dir.zip"),
 					Type:     pack.ZIP,
 				},
+				strategy: TargetDirNameDefault,
 			},
 			wantPath: "dir",
+		}, {
+			name: "zip dir (replace strategy)",
+			args: args{
+				fetchedPackage: pack.FetchedPackage{
+					Version:  version.Version{Value: "v20.1.2"},
+					FilePath: filepath.Join("testdata", "some-dir.zip"),
+					Type:     pack.ZIP,
+				},
+				strategy: TargetDirNameArchiveReplace,
+			},
+			wantPath: "some-dir",
 		}, {
 			name: "tar.gz files",
 			args: args{
@@ -48,7 +73,9 @@ func TestExtract(t *testing.T) {
 					FilePath: filepath.Join("testdata", "files.tar.gz"),
 					Type:     pack.TAR_GZ,
 				},
+				strategy: TargetDirNameDefault,
 			},
+
 			wantPath: "files",
 		}, {
 			name: "zip files",
@@ -58,6 +85,7 @@ func TestExtract(t *testing.T) {
 					FilePath: filepath.Join("testdata", "files.zip"),
 					Type:     pack.ZIP,
 				},
+				strategy: TargetDirNameDefault,
 			},
 			wantPath: "files",
 		},
@@ -65,7 +93,7 @@ func TestExtract(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			testDir := test.CreateTestDir(t)
-			got, err := Extract(tt.args.fetchedPackage, testDir)
+			got, err := Extract(tt.args.fetchedPackage, testDir, tt.args.strategy)
 			if err != nil {
 				t.Errorf("Extract() error = %v", err)
 				return

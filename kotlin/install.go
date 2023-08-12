@@ -19,7 +19,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
-package java
+package kotlin
 
 import (
 	"errors"
@@ -42,7 +42,7 @@ func Install(fetchedPackage pack.FetchedPackage, softwareDir string) error {
 		return errors.New("Version " + fetchedPackage.Version.Value + " is already installed")
 	}
 
-	extractedPackage, err := archive.Extract(fetchedPackage, path.Join(softwareDir, Name), archive.TargetDirNameDefault)
+	extractedPackage, err := archive.Extract(fetchedPackage, path.Join(softwareDir, Name), archive.TargetDirNameArchiveReplace)
 	installedPackage := pack.InstalledPackage{
 		Version:     extractedPackage.Version,
 		Path:        extractedPackage.Path,
@@ -59,7 +59,7 @@ func Install(fetchedPackage pack.FetchedPackage, softwareDir string) error {
 	}
 
 	finder := shell.ProdDirFinder{SoftwareDir: viper.GetString(config.SoftwareDirKey)}
-	err = shell.AddVariables(finder, history, shell.VariableGranularityMajor)
+	err = shell.AddVariables(finder, history, shell.VariableGranularityMinor)
 	if err != nil {
 		return err
 	}

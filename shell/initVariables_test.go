@@ -61,7 +61,7 @@ func Test_initVariablesInSvmRc(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			dir := test.CreateTestDir(t)
-			err := initVariables(test.TestDirs{Home: dir}, tt.args.history)
+			err := initVariables(test.TestDirs{Home: dir}, tt.args.history, VariableGranularityMajor)
 			if err != nil {
 				t.Errorf("Failed to init variables: %s", err)
 			}
@@ -69,9 +69,10 @@ func Test_initVariablesInSvmRc(t *testing.T) {
 		})
 	}
 }
-func Test_initVariablesInNodeRc(t *testing.T) {
+func Test_initVariablesInSpecificRc(t *testing.T) {
 	type args struct {
-		history history.PackageHistory
+		history     history.PackageHistory
+		granularity VariableGranularity
 	}
 	tests := []struct {
 		name                     string
@@ -93,6 +94,7 @@ func Test_initVariablesInNodeRc(t *testing.T) {
 						},
 					},
 				},
+				granularity: VariableGranularityMajor,
 			},
 			expectedSpecificFileName: ".noderc",
 			expectedSpecificContent: []string{
@@ -115,6 +117,7 @@ func Test_initVariablesInNodeRc(t *testing.T) {
 						},
 					},
 				},
+				granularity: VariableGranularityMajor,
 			},
 			expectedSpecificFileName: ".noderc",
 			expectedSpecificContent: []string{
@@ -151,6 +154,7 @@ func Test_initVariablesInNodeRc(t *testing.T) {
 						},
 					},
 				},
+				granularity: VariableGranularityMajor,
 			},
 			expectedSpecificFileName: ".noderc",
 			expectedSpecificContent: []string{
@@ -188,6 +192,7 @@ func Test_initVariablesInNodeRc(t *testing.T) {
 						},
 					},
 				},
+				granularity: VariableGranularityMajor,
 			},
 			expectedSpecificFileName: ".noderc",
 			expectedSpecificContent: []string{
@@ -198,7 +203,7 @@ func Test_initVariablesInNodeRc(t *testing.T) {
 				"export PATH=\"$NODE_HOME/bin:$PATH\"",
 			},
 		}, {
-			name: "latest main installation",
+			name: "latest main installation - major granularity",
 			args: args{
 				history: history.PackageHistory{
 					Name: "node",
@@ -216,6 +221,7 @@ func Test_initVariablesInNodeRc(t *testing.T) {
 						},
 					},
 				},
+				granularity: VariableGranularityMajor,
 			},
 			expectedSpecificFileName: ".noderc",
 			expectedSpecificContent: []string{
@@ -225,12 +231,41 @@ func Test_initVariablesInNodeRc(t *testing.T) {
 				"export NODE_HOME=\"$SVM_SOFT_NODE_DIR/node-v19.1.3-linux-x64\"",
 				"export PATH=\"$NODE_HOME/bin:$PATH\"",
 			},
+		}, {
+			name: "latest main installation - minor granularity",
+			args: args{
+				history: history.PackageHistory{
+					Name: "kotlin",
+					Items: []history.PackageHistoryItem{
+						{
+							Version:     "v1.8.22",
+							Path:        "/home/user/pf/kotlin/kotlin-compiler-1.8.22",
+							Main:        true,
+							InstalledOn: 1689017268000,
+						}, {
+							Version:     "v1.9.0",
+							Path:        "/home/user/pf/kotlin/kotlin-compiler-1.9.0",
+							Main:        true,
+							InstalledOn: 1689017267000,
+						},
+					},
+				},
+				granularity: VariableGranularityMinor,
+			},
+			expectedSpecificFileName: ".kotlinrc",
+			expectedSpecificContent: []string{
+				"export SVM_SOFT_KOTLIN_DIR=\"$SVM_SOFT_DIR/kotlin\"",
+				"export KOTLIN_1_8_HOME=\"$SVM_SOFT_KOTLIN_DIR/kotlin-compiler-1.8.22\"",
+				"export KOTLIN_1_9_HOME=\"$SVM_SOFT_KOTLIN_DIR/kotlin-compiler-1.9.0\"",
+				"export KOTLIN_HOME=\"$SVM_SOFT_KOTLIN_DIR/kotlin-compiler-1.8.22\"",
+				"export PATH=\"$KOTLIN_HOME/bin:$PATH\"",
+			},
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			dir := test.CreateTestDir(t)
-			err := initVariables(test.TestDirs{Home: dir}, tt.args.history)
+			err := initVariables(test.TestDirs{Home: dir}, tt.args.history, tt.args.granularity)
 			if err != nil {
 				t.Errorf("Failed to init variables: %s", err)
 			}

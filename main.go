@@ -24,6 +24,7 @@ package main
 import (
 	"github.com/pkk82/soft-ver-man/cmd"
 	_ "github.com/pkk82/soft-ver-man/cmd/java"
+	_ "github.com/pkk82/soft-ver-man/cmd/kotlin"
 	_ "github.com/pkk82/soft-ver-man/cmd/node"
 )
 

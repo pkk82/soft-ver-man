@@ -42,14 +42,28 @@ type ExtractedPackage struct {
 	Path    string
 }
 
-func Extract(fetchedPackage pack.FetchedPackage, softwareDir string) (ExtractedPackage, error) {
+type TargetDirNameStrategy string
+
+// how to extract archive
+const (
+
+	// TargetDirNameDefault - if archive contains only one top level directory, it will be used as target directory,
+	// otherwise archive name without extension will be used
+	TargetDirNameDefault TargetDirNameStrategy = "default"
+
+	// TargetDirNameArchiveReplace - archive name without extension will be used as target directory,
+	// and it will replace archive top level directory if there is only one
+	TargetDirNameArchiveReplace TargetDirNameStrategy = "archive_replace"
+)
+
+func Extract(fetchedPackage pack.FetchedPackage, softwareDir string, targetDirNameStrategy TargetDirNameStrategy) (ExtractedPackage, error) {
 
 	var err error
-	var targetDirName string
+	var targetDirPath string
 	if fetchedPackage.Type == pack.TAR_GZ {
-		targetDirName, err = extractTarGz(fetchedPackage.FilePath, softwareDir)
+		targetDirPath, err = extractTarGz(fetchedPackage.FilePath, softwareDir, targetDirNameStrategy)
 	} else if fetchedPackage.Type == pack.ZIP {
-		targetDirName, err = extractZip(fetchedPackage.FilePath, softwareDir)
+		targetDirPath, err = extractZip(fetchedPackage.FilePath, softwareDir, targetDirNameStrategy)
 	} else {
 		return ExtractedPackage{}, errors.New("Unknown archive type: " + string(fetchedPackage.Type))
 	}
@@ -57,26 +71,22 @@ func Extract(fetchedPackage pack.FetchedPackage, softwareDir string) (ExtractedP
 	if err != nil {
 		return ExtractedPackage{}, err
 	} else {
-		return ExtractedPackage{Version: fetchedPackage.Version, Path: filepath.Join(softwareDir, targetDirName)}, nil
+		return ExtractedPackage{Version: fetchedPackage.Version, Path: targetDirPath}, nil
 	}
 }
 
-func extractZip(zipPath string, dir string) (string, error) {
+func extractZip(zipPath string, dir string, strategy TargetDirNameStrategy) (string, error) {
 	reader, err := zip.OpenReader(zipPath)
 	if err != nil {
 		return "", err
 	}
 	defer io2.CloseOrLog(reader)
 
-	topLevelDir, applyTopLevelDir := extractTopLevelDirInZipFile(reader, zipPath)
+	topLevelDir := extractTopLevelDirInZipFile(reader, zipPath)
+	targetFilePathSupplier := prepareTargetFilePathSupplier(zipPath, topLevelDir, strategy)
 
 	for _, file := range reader.File {
-		var targetFilePath string
-		if applyTopLevelDir {
-			targetFilePath = filepath.Join(dir, topLevelDir, file.Name)
-		} else {
-			targetFilePath = filepath.Join(dir, file.Name)
-		}
+		targetFilePath := targetFilePathSupplier.supply(dir, file.Name)
 		if file.FileInfo().IsDir() {
 			err := os.MkdirAll(targetFilePath, file.Mode())
 			if err != nil {
@@ -90,10 +100,10 @@ func extractZip(zipPath string, dir string) (string, error) {
 		}
 	}
 
-	return topLevelDir, nil
+	return targetFilePathSupplier.supply(dir, ""), nil
 }
 
-func extractTopLevelDirInZipFile(reader *zip.ReadCloser, zipPath string) (string, bool) {
+func extractTopLevelDirInZipFile(reader *zip.ReadCloser, zipPath string) string {
 	var topLevelDirs []string
 	for _, file := range reader.File {
 		if !strings.Contains(strings.TrimSuffix(file.Name, "/"), "/") && file.FileInfo().IsDir() {
@@ -101,9 +111,9 @@ func extractTopLevelDirInZipFile(reader *zip.ReadCloser, zipPath string) (string
 		}
 	}
 	if len(topLevelDirs) == 1 {
-		return topLevelDirs[0], false
+		return topLevelDirs[0]
 	} else {
-		return archiveNameWithoutExtension(zipPath), true
+		return ""
 	}
 }
 
@@ -150,12 +160,13 @@ func extractZipFile(targetFilePath string, file *zip.File) error {
 	return nil
 }
 
-func extractTarGz(tarGzFilePath, dir string) (string, error) {
+func extractTarGz(tarGzFilePath, dir string, strategy TargetDirNameStrategy) (string, error) {
 
-	topLevelDir, applyTopLevelDir, err := extractTopLevelDirInTarGzFile(tarGzFilePath)
+	topLevelDir, err := extractTopLevelDirInTarGzFile(tarGzFilePath)
 	if err != nil {
 		return "", err
 	}
+	targetFilePathSupplier := prepareTargetFilePathSupplier(tarGzFilePath, topLevelDir, strategy)
 
 	tarGzFile, err := os.Open(tarGzFilePath)
 	if err != nil {
@@ -174,19 +185,14 @@ func extractTarGz(tarGzFilePath, dir string) (string, error) {
 		header, err := tarReader.Next()
 
 		if err == io.EOF {
-			return topLevelDir, nil
+			return targetFilePathSupplier.supply(dir, ""), nil
 		}
 
 		if err != nil {
 			return "", err
 		}
 
-		var targetFilePath string
-		if applyTopLevelDir {
-			targetFilePath = filepath.Join(dir, topLevelDir, header.Name)
-		} else {
-			targetFilePath = filepath.Join(dir, header.Name)
-		}
+		targetFilePath := targetFilePathSupplier.supply(dir, header.Name)
 		switch header.Typeflag {
 		case tar.TypeDir:
 			if err := os.MkdirAll(targetFilePath, 0755); err != nil {
@@ -231,17 +237,17 @@ func extractTarGz(tarGzFilePath, dir string) (string, error) {
 
 }
 
-func extractTopLevelDirInTarGzFile(tarGzFilePath string) (string, bool, error) {
+func extractTopLevelDirInTarGzFile(tarGzFilePath string) (string, error) {
 
 	tarGzFile, err := os.Open(tarGzFilePath)
 	if err != nil {
-		return "", false, err
+		return "", err
 	}
 	defer io2.CloseOrLog(tarGzFile)
 
 	gzReader, err := gzip.NewReader(tarGzFile)
 	if err != nil {
-		return "", false, err
+		return "", err
 	}
 	defer io2.CloseOrLog(gzReader)
 
@@ -253,14 +259,14 @@ func extractTopLevelDirInTarGzFile(tarGzFilePath string) (string, bool, error) {
 
 		if err == io.EOF {
 			if len(topLevelDirs) == 1 {
-				return topLevelDirs[0], false, nil
+				return topLevelDirs[0], nil
 			} else {
-				return archiveNameWithoutExtension(tarGzFilePath), true, nil
+				return "", nil
 			}
 		}
 
 		if err != nil {
-			return "", false, err
+			return "", err
 		}
 
 		if header.Typeflag == tar.TypeDir {
@@ -269,7 +275,7 @@ func extractTopLevelDirInTarGzFile(tarGzFilePath string) (string, bool, error) {
 			}
 		}
 	}
-	return "", false, errors.New("should not reach here")
+	return "", errors.New("should not reach here")
 }
 
 func archiveNameWithoutExtension(path string) string {
@@ -279,4 +285,48 @@ func archiveNameWithoutExtension(path string) string {
 	} else {
 		return strings.TrimSuffix(name, filepath.Ext(name))
 	}
+}
+
+type targetFilePathSupplier interface {
+	supply(targetDir, archiveFilePath string) string
+}
+
+type defaultTargetFilePathSupplier struct {
+	archiveNameWithoutExtension string
+	topLevelDirInArchive        string
+}
+
+func (s *defaultTargetFilePathSupplier) supply(targetDir, archiveFilePath string) string {
+	if s.topLevelDirInArchive == "" {
+		return filepath.Join(targetDir, s.archiveNameWithoutExtension, archiveFilePath)
+	} else {
+		return filepath.Join(targetDir, s.topLevelDirInArchive, strings.TrimPrefix(archiveFilePath, s.topLevelDirInArchive))
+	}
+}
+
+type archiveReplaceTargetFilePathSupplier struct {
+	archiveNameWithoutExtension string
+	topLevelDirInArchive        string
+}
+
+func (s *archiveReplaceTargetFilePathSupplier) supply(targetDir, archiveFilePath string) string {
+	if s.topLevelDirInArchive == "" {
+		return filepath.Join(targetDir, s.archiveNameWithoutExtension, archiveFilePath)
+	} else {
+		return filepath.Join(targetDir, s.archiveNameWithoutExtension, strings.TrimPrefix(archiveFilePath, s.topLevelDirInArchive))
+	}
+}
+
+func prepareTargetFilePathSupplier(archivePath, topLevelDirInArchive string, strategy TargetDirNameStrategy) targetFilePathSupplier {
+
+	archiveNameWithoutExtension := archiveNameWithoutExtension(archivePath)
+	switch strategy {
+	case TargetDirNameDefault:
+		return &defaultTargetFilePathSupplier{archiveNameWithoutExtension: archiveNameWithoutExtension, topLevelDirInArchive: topLevelDirInArchive}
+	case TargetDirNameArchiveReplace:
+		return &archiveReplaceTargetFilePathSupplier{archiveNameWithoutExtension: archiveNameWithoutExtension, topLevelDirInArchive: topLevelDirInArchive}
+	default:
+		panic("Unknown target dir name strategy: " + string(strategy))
+	}
+
 }

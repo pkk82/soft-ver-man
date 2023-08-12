@@ -29,7 +29,7 @@ import (
 
 func TestCorrectVersions(t *testing.T) {
 	versions := []string{"v10.11.12", "10.11.12", "v10.11", "10.11", "v10", "10",
-		"v10.11.", "10.11.", "v10.", "10.",
+		"v10.11.", "10.11.", "v10.", "10.", "1.0", "1.1", "0.1", "0.2",
 	}
 	for _, v := range versions {
 		err := ver.ValidateVersion(v)

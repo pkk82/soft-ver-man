@@ -19,22 +19,35 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
-package version
+package kotlin
 
 import (
 	"fmt"
-	"regexp"
+	"github.com/pkk82/soft-ver-man/cmd"
+
+	"github.com/spf13/cobra"
 )
 
-func ValidateVersion(version string) error {
-	match, err := regexp.MatchString("^(v)?(0|[1-9][0-9]*)(\\.(0|[1-9][0-9]*)?){0,2}$", version)
-	if err != nil {
-		return err
-	}
+// Cmd represents the java command
+var Cmd = &cobra.Command{
+	Use:   "kotlin",
+	Short: "Software: kotlin",
+	Long:  `Download and configure kotlin`,
+	Run: func(cmd *cobra.Command, args []string) {
+		fmt.Println("Use --help to display kotlin subcommands")
+	},
+}
 
-	if match {
-		return nil
-	} else {
-		return fmt.Errorf("%s is not a valid version", version)
-	}
+func init() {
+	cmd.RootCmd.AddCommand(Cmd)
+
+	// Here you will define your flags and configuration settings.
+
+	// Cobra supports Persistent Flags which will work for this command
+	// and all subcommands, e.g.:
+	// NodeCmd.PersistentFlags().String("foo", "", "A help for foo")
+
+	// Cobra supports local flags which will only run when this command
+	// is called directly, e.g.:
+	// NodeCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }

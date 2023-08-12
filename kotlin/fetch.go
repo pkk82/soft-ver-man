@@ -19,22 +19,32 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
-package version
+package kotlin
 
 import (
-	"fmt"
-	"regexp"
+	"github.com/pkk82/soft-ver-man/download"
+	"github.com/pkk82/soft-ver-man/pack"
+	"github.com/pkk82/soft-ver-man/version"
+	"path/filepath"
 )
 
-func ValidateVersion(version string) error {
-	match, err := regexp.MatchString("^(v)?(0|[1-9][0-9]*)(\\.(0|[1-9][0-9]*)?){0,2}$", version)
+func Fetch(inputVersion, softwareDownloadDir string) (pack.FetchedPackage, error) {
+	supportedPackages, err := getSupportedPackages()
 	if err != nil {
-		return err
+		return pack.FetchedPackage{}, err
 	}
+	versions := make([]string, len(supportedPackages))
+	for i, v := range supportedPackages {
+		versions[i] = v.Version.Value
+	}
+	foundVersion, index, err := version.FindVersion(inputVersion, versions)
+	if err != nil {
+		return pack.FetchedPackage{}, err
+	}
+	matchingVersion := supportedPackages[index]
+	javaDir := filepath.Join(softwareDownloadDir, Name)
+	fetchedPackagePath := download.FetchFile(matchingVersion.Url, javaDir, matchingVersion.Name)
 
-	if match {
-		return nil
-	} else {
-		return fmt.Errorf("%s is not a valid version", version)
-	}
+	return pack.FetchedPackage{Version: foundVersion, FilePath: fetchedPackagePath, Type: matchingVersion.Type}, nil
+
 }

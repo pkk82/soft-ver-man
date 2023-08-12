@@ -33,19 +33,49 @@ import (
 	"strings"
 )
 
-type helper struct {
-	path    string
-	version version.Version
-}
+type VariableGranularity string
 
-func initVariables(finder DirFinder, history history.PackageHistory) error {
+const (
+	VariableGranularityMajor VariableGranularity = "MAJOR"
+	VariableGranularityMinor VariableGranularity = "MINOR"
+)
+
+func initVariables(finder DirFinder, history history.PackageHistory, granularity VariableGranularity) error {
 	name := history.Name
-	upperName := strings.ToUpper(name)
 
 	homeDir, err := finder.HomeDir()
 	if err != nil {
 		return err
 	}
+
+	err = initSvmRcFile(name, homeDir, finder)
+	if err != nil {
+		return err
+	}
+
+	installedPackages, err := convertHistoryToInstalledPackages(history)
+	if err != nil {
+		return err
+	}
+
+	switch granularity {
+	case VariableGranularityMajor:
+		err = initSpecificRcRileWithMajorVariables(installedPackages, name, homeDir)
+		if err != nil {
+			return err
+		}
+	case VariableGranularityMinor:
+		err = initSpecificRcRileWithMinorVariables(installedPackages, name, homeDir)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+
+}
+
+func initSvmRcFile(name, homeDir string, finder DirFinder) error {
 
 	softDir, err := finder.SoftDir()
 	if err != nil {
@@ -64,22 +94,25 @@ func initVariables(finder DirFinder, history history.PackageHistory) error {
 	if err != nil {
 		return err
 	}
+	return nil
+}
 
-	installedPackages, err := convertHistoryToInstalledPackages(history)
+func initSpecificRcRileWithMajorVariables(installedPackages []pack.InstalledPackage, name string, homeDir string) error {
+	upperName := strings.ToUpper(name)
+
+	installedPackagesPerMajorVersions, err := toSortedMapPerVersion(installedPackages, MajorRounder)
 	if err != nil {
 		return err
 	}
 
-	installedPackagesPerMajorVersions := convertToMap(installedPackages)
-
-	majorVersions := sortedMajorVersions(installedPackagesPerMajorVersions)
 	lines := make([]string, 0)
 
 	packageDirVarName := fmt.Sprintf(config.VarNameSvmSoftPackageDirTemplate, upperName)
 	lines = append(lines, exportRefPathVariable(packageDirVarName, config.VarNameSvmSoftDir, name))
 
-	for _, v := range majorVersions {
-		latestMajor := installedPackagesPerMajorVersions[v][0]
+	for _, v := range installedPackagesPerMajorVersions.keys {
+		get, _ := installedPackagesPerMajorVersions.get(v)
+		latestMajor := get[0]
 		_, dirName := filepath.Split(latestMajor.Path)
 		lines = append(lines, exportHomeMajorVersionVariable(upperName, v, packageDirVarName, dirName))
 	}
@@ -94,7 +127,8 @@ func initVariables(finder DirFinder, history history.PackageHistory) error {
 		}
 	}
 	if mainLine == "" {
-		_, dirName := filepath.Split(installedPackagesPerMajorVersions[majorVersions[len(majorVersions)-1]][0].Path)
+		last := installedPackagesPerMajorVersions.getLast()
+		_, dirName := filepath.Split(last[0].Path)
 		mainLine = exportHomeVariable(upperName, packageDirVarName, dirName)
 	}
 
@@ -106,9 +140,53 @@ func initVariables(finder DirFinder, history history.PackageHistory) error {
 	if err != nil {
 		return err
 	}
-
 	return nil
+}
 
+func initSpecificRcRileWithMinorVariables(installedPackages []pack.InstalledPackage, name string, homeDir string) error {
+	upperName := strings.ToUpper(name)
+
+	installedPackagesPerMajorVersions, err := toSortedMapPerVersion(installedPackages, MinorRounder)
+	if err != nil {
+		return err
+	}
+
+	lines := make([]string, 0)
+
+	packageDirVarName := fmt.Sprintf(config.VarNameSvmSoftPackageDirTemplate, upperName)
+	lines = append(lines, exportRefPathVariable(packageDirVarName, config.VarNameSvmSoftDir, name))
+
+	for _, v := range installedPackagesPerMajorVersions.keys {
+		minor, _ := installedPackagesPerMajorVersions.get(v)
+		latestMinor := minor[0]
+		_, dirName := filepath.Split(latestMinor.Path)
+		lines = append(lines, exportHomeMinorVersionVariable(upperName, v, packageDirVarName, dirName))
+	}
+
+	mainTime := int64(0)
+	mainLine := ""
+	for _, ip := range installedPackages {
+		if ip.Main && ip.InstalledOn > mainTime {
+			_, dirName := filepath.Split(ip.Path)
+			mainLine = exportHomeVariable(upperName, packageDirVarName, dirName)
+			mainTime = ip.InstalledOn
+		}
+	}
+	if mainLine == "" {
+		last := installedPackagesPerMajorVersions.getLast()
+		_, dirName := filepath.Split(last[0].Path)
+		mainLine = exportHomeVariable(upperName, packageDirVarName, dirName)
+	}
+
+	lines = append(lines, mainLine)
+
+	lines = append(lines, fmt.Sprintf("export PATH=\"$%v_HOME/bin:$PATH\"", strings.ToUpper(name)))
+
+	err = overrideFileWithContent(path.Join(homeDir, config.HomeConfigDir, makeRcName(name)), lines)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func convertHistoryToInstalledPackages(history history.PackageHistory) ([]pack.InstalledPackage, error) {
@@ -128,26 +206,61 @@ func convertHistoryToInstalledPackages(history history.PackageHistory) ([]pack.I
 	return installedPackages, nil
 }
 
-func convertToMap(installedPackages []pack.InstalledPackage) map[int][]pack.InstalledPackage {
-	packagesPerMajor := make(map[int][]pack.InstalledPackage)
-	for _, ip := range installedPackages {
-		packagesPerMajor[ip.Version.Major()] = append(packagesPerMajor[ip.Version.Major()], ip)
-	}
-	for _, v := range packagesPerMajor {
-		sort.Slice(v, func(i, j int) bool {
-			return version.CompareDesc(v[i].Version, v[j].Version)
-		})
-	}
-	return packagesPerMajor
+type VersionRounder func(pack.InstalledPackage) (version.Version, error)
+
+func MinorRounder(ip pack.InstalledPackage) (version.Version, error) {
+	return version.NewVersion(fmt.Sprintf("%d.%d", ip.Version.Major(), ip.Version.Minor()))
 }
 
-func sortedMajorVersions(perVersion map[int][]pack.InstalledPackage) []int {
-	majors := make([]int, 0)
-	for k := range perVersion {
-		majors = append(majors, k)
+func MajorRounder(ip pack.InstalledPackage) (version.Version, error) {
+	return version.NewVersion(fmt.Sprintf("%d", ip.Version.Major()))
+}
+
+func toSortedMapPerVersion(installedPackages []pack.InstalledPackage, versionRounder VersionRounder) (SortedMap, error) {
+	packagesPerVersion := make(map[version.Version][]pack.InstalledPackage)
+	for _, ip := range installedPackages {
+		roundedVersion, err := versionRounder(ip)
+		if err != nil {
+			return SortedMap{}, err
+		}
+		packagesPerVersion[roundedVersion] = append(packagesPerVersion[roundedVersion], ip)
 	}
-	sort.Slice(majors, func(i, j int) bool {
-		return majors[i] < majors[j]
+	sortedMap := newSortedMap()
+	for v, p := range packagesPerVersion {
+		sort.Slice(p, func(i, j int) bool {
+			return version.CompareDesc(p[i].Version, p[j].Version)
+		})
+		sortedMap.put(v, p)
+	}
+	return sortedMap, nil
+}
+
+type SortedMap struct {
+	keys   []version.Version
+	values map[version.Version][]pack.InstalledPackage
+}
+
+func newSortedMap() SortedMap {
+	return SortedMap{
+		keys:   make([]version.Version, 0),
+		values: make(map[version.Version][]pack.InstalledPackage),
+	}
+}
+
+func (sm *SortedMap) put(key version.Version, value []pack.InstalledPackage) {
+	sm.keys = append(sm.keys, key)
+	sort.Slice(sm.keys, func(i, j int) bool {
+		return version.CompareAsc(sm.keys[i], sm.keys[j])
 	})
-	return majors
+	sm.values[key] = value
+}
+
+func (sm *SortedMap) getLast() []pack.InstalledPackage {
+	lastKey := sm.keys[len(sm.keys)-1]
+	return sm.values[lastKey]
+}
+
+func (sm *SortedMap) get(key version.Version) ([]pack.InstalledPackage, bool) {
+	value, ok := sm.values[key]
+	return value, ok
 }

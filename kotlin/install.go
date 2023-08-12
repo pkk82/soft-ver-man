@@ -59,7 +59,7 @@ func Install(fetchedPackage pack.FetchedPackage, softwareDir string) error {
 	}
 
 	finder := shell.ProdDirFinder{SoftwareDir: viper.GetString(config.SoftwareDirKey)}
-	err = shell.AddVariables(finder, history)
+	err = shell.AddVariables(finder, history, shell.VariableGranularityMinor)
 	if err != nil {
 		return err
 	}

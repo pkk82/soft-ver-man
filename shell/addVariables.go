@@ -25,13 +25,13 @@ import (
 	"github.com/pkk82/soft-ver-man/history"
 )
 
-func AddVariables(finder DirFinder, history history.PackageHistory) error {
+func AddVariables(finder DirFinder, history history.PackageHistory, granularity VariableGranularity) error {
 	err := initShell(finder)
 	if err != nil {
 		return err
 	}
 
-	err = initVariables(finder, history)
+	err = initVariables(finder, history, granularity)
 	if err != nil {
 		return err
 	}

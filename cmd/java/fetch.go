@@ -24,10 +24,9 @@ package java
 import (
 	"fmt"
 	"github.com/pkk82/soft-ver-man/config"
-	"github.com/pkk82/soft-ver-man/console"
-	"github.com/pkk82/soft-ver-man/java"
-	"github.com/pkk82/soft-ver-man/version"
-
+	"github.com/pkk82/soft-ver-man/domain"
+	"github.com/pkk82/soft-ver-man/software/java"
+	"github.com/pkk82/soft-ver-man/util/console"
 	"github.com/spf13/cobra"
 )
 
@@ -42,7 +41,7 @@ var fetchCmd = &cobra.Command{
 		if err := cobra.ExactArgs(1)(cmd, args); err != nil {
 			return err
 		}
-		return version.ValidateVersion(args[0])
+		return domain.ValidateVersion(args[0])
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 		softwareDownloadDir := config.InitSoftwareDownloadDir(cmd)

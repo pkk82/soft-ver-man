@@ -23,7 +23,7 @@ package java
 
 import (
 	"fmt"
-	"github.com/pkk82/soft-ver-man/java"
+	"github.com/pkk82/soft-ver-man/software/java"
 	"github.com/spf13/cobra"
 )
 

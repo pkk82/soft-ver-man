@@ -2,8 +2,8 @@ package shell
 
 import (
 	"github.com/pkk82/soft-ver-man/config"
-	"github.com/pkk82/soft-ver-man/history"
-	"github.com/pkk82/soft-ver-man/test"
+	"github.com/pkk82/soft-ver-man/domain"
+	"github.com/pkk82/soft-ver-man/util/test"
 	"path"
 	"testing"
 )
@@ -12,7 +12,7 @@ type expectedContentProvider func(dir string) []string
 
 func Test_initVariablesInSvmRc(t *testing.T) {
 	type args struct {
-		history history.PackageHistory
+		history domain.PackageHistory
 	}
 	tests := []struct {
 		name            string
@@ -22,9 +22,9 @@ func Test_initVariablesInSvmRc(t *testing.T) {
 		{
 			name: "node installation",
 			args: args{
-				history: history.PackageHistory{
+				history: domain.PackageHistory{
 					Name: "node",
-					Items: []history.PackageHistoryItem{
+					Items: []domain.PackageHistoryItem{
 						{
 							Version:     "v20.1.3",
 							Path:        "/home/user/pf/node/node-v20.1.3-linux-x64",
@@ -40,9 +40,9 @@ func Test_initVariablesInSvmRc(t *testing.T) {
 		}, {
 			name: "go installation",
 			args: args{
-				history: history.PackageHistory{
+				history: domain.PackageHistory{
 					Name: "go",
-					Items: []history.PackageHistoryItem{
+					Items: []domain.PackageHistoryItem{
 
 						{
 							Version:     "1.20.1",
@@ -71,7 +71,7 @@ func Test_initVariablesInSvmRc(t *testing.T) {
 }
 func Test_initVariablesInSpecificRc(t *testing.T) {
 	type args struct {
-		history     history.PackageHistory
+		history     domain.PackageHistory
 		granularity VariableGranularity
 	}
 	tests := []struct {
@@ -83,9 +83,9 @@ func Test_initVariablesInSpecificRc(t *testing.T) {
 		{
 			name: "first installation as main",
 			args: args{
-				history: history.PackageHistory{
+				history: domain.PackageHistory{
 					Name: "node",
-					Items: []history.PackageHistoryItem{
+					Items: []domain.PackageHistoryItem{
 						{
 							Version:     "v20.1.3",
 							Path:        "/home/user/pf/node/node-v20.1.3-linux-x64",
@@ -106,9 +106,9 @@ func Test_initVariablesInSpecificRc(t *testing.T) {
 		}, {
 			name: "first installation - no main",
 			args: args{
-				history: history.PackageHistory{
+				history: domain.PackageHistory{
 					Name: "node",
-					Items: []history.PackageHistoryItem{
+					Items: []domain.PackageHistoryItem{
 						{
 							Version:     "v20.1.3",
 							Path:        "/home/user/pf/node/node-v20.1.3-linux-x64",
@@ -129,9 +129,9 @@ func Test_initVariablesInSpecificRc(t *testing.T) {
 		}, {
 			name: "another main installation",
 			args: args{
-				history: history.PackageHistory{
+				history: domain.PackageHistory{
 					Name: "node",
-					Items: []history.PackageHistoryItem{
+					Items: []domain.PackageHistoryItem{
 
 						{
 							Version:     "19.1.3",
@@ -167,9 +167,9 @@ func Test_initVariablesInSpecificRc(t *testing.T) {
 		}, {
 			name: "another installation",
 			args: args{
-				history: history.PackageHistory{
+				history: domain.PackageHistory{
 					Name: "node",
-					Items: []history.PackageHistoryItem{
+					Items: []domain.PackageHistoryItem{
 
 						{
 							Version:     "19.1.3",
@@ -205,9 +205,9 @@ func Test_initVariablesInSpecificRc(t *testing.T) {
 		}, {
 			name: "latest main installation - major granularity",
 			args: args{
-				history: history.PackageHistory{
+				history: domain.PackageHistory{
 					Name: "node",
-					Items: []history.PackageHistoryItem{
+					Items: []domain.PackageHistoryItem{
 						{
 							Version:     "19.1.3",
 							Path:        "/home/user/pf/node/node-v19.1.3-linux-x64",
@@ -234,9 +234,9 @@ func Test_initVariablesInSpecificRc(t *testing.T) {
 		}, {
 			name: "latest main installation - minor granularity",
 			args: args{
-				history: history.PackageHistory{
+				history: domain.PackageHistory{
 					Name: "kotlin",
-					Items: []history.PackageHistoryItem{
+					Items: []domain.PackageHistoryItem{
 						{
 							Version:     "v1.8.22",
 							Path:        "/home/user/pf/kotlin/kotlin-compiler-1.8.22",

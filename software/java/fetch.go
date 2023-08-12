@@ -19,38 +19,42 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
-package kotlin
+package java
 
 import (
-	"fmt"
-	"github.com/pkk82/soft-ver-man/software/kotlin"
+	"github.com/pkk82/soft-ver-man/domain"
 	"github.com/pkk82/soft-ver-man/util/console"
-	"github.com/spf13/cobra"
+	"github.com/pkk82/soft-ver-man/util/download"
+	"github.com/pkk82/soft-ver-man/util/verification"
+	"path/filepath"
 )
 
-// lsCmd represents the ls command
-var lsCmd = &cobra.Command{
-	Use:   "ls",
-	Short: "Display available version of kotlin",
-	Long:  fmt.Sprintf("Display available versions of kotlin using %v.", kotlin.ReleasesURL),
-	Run: func(cmd *cobra.Command, args []string) {
-		err := kotlin.List()
+func Fetch(inputVersion, softwareDownloadDir string, verify bool) (domain.FetchedPackage, error) {
+	supportedPackages := getSupportedPackages()
+	versions := make([]string, len(supportedPackages))
+	for i, v := range supportedPackages {
+		versions[i] = v.version()
+	}
+	foundVersion, index, err := domain.FindVersion(inputVersion, versions)
+	if err != nil {
+		console.Fatal(err)
+	}
+	matchingVersion := supportedPackages[index]
+	javaDir := filepath.Join(softwareDownloadDir, Name)
+	fetchedPackagePath := download.FetchFile(matchingVersion.DownloadUrl, javaDir, matchingVersion.Name)
+
+	if verify {
+		extendedPackage, err := getExtendedPackage(matchingVersion.Id)
 		if err != nil {
-			console.Fatal(err)
+			return domain.FetchedPackage{}, err
 		}
-	},
-}
+		err = verification.VerifySha256(fetchedPackagePath, extendedPackage.Sha256)
+		if err != nil {
+			return domain.FetchedPackage{}, err
+		}
+		console.Info("Verification successful")
+	}
 
-func init() {
-	Cmd.AddCommand(lsCmd)
+	return domain.FetchedPackage{Version: foundVersion, FilePath: fetchedPackagePath, Type: matchingVersion.packagingType()}, nil
 
-	// Here you will define your flags and configuration settings.
-
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// lsCmd.PersistentFlags().String("foo", "", "A help for foo")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// lsCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }

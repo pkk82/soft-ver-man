@@ -19,34 +19,45 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
-package node
+package domain
 
 import (
-	"fmt"
-	"github.com/pkk82/soft-ver-man/software/node"
-	"github.com/spf13/cobra"
+	"testing"
 )
 
-// lsCmd represents the ls command
-var lsCmd = &cobra.Command{
-	Use:   "ls",
-	Short: "Display available version of node",
-	Long:  fmt.Sprintf("Display available versions of node.js using %v.", node.JsonFileURL),
-	Run: func(cmd *cobra.Command, args []string) {
-		node.List()
-	},
-}
+func TestFetchedPackage(t *testing.T) {
 
-func init() {
-	NodeCmd.AddCommand(lsCmd)
+	fetchedPackages := []FetchedPackage{
+		{
+			Version: Version{
+				Value: "v0.8.6",
+			},
+			Type:     TAR_GZ,
+			FilePath: "/tmp/node/node-v0.8.6-darwin-x64.tar.gz",
+		},
+		{
+			Version: Version{
+				Value: "v0.8.6",
+			},
+			Type:     TAR_GZ,
+			FilePath: "/tmp/node/node-v0.8.6-darwin-x64.tgz",
+		},
+		{
+			Version: Version{
+				Value: "v20.4.0",
+			},
+			Type:     ZIP,
+			FilePath: "/tmp/node/node-v20.4.0-win-x64.zip",
+		},
+	}
 
-	// Here you will define your flags and configuration settings.
+	expected := []string{"node-v0.8.6-darwin-x64", "node-v0.8.6-darwin-x64", "node-v20.4.0-win-x64"}
 
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// lsCmd.PersistentFlags().String("foo", "", "A help for foo")
+	for i, fetchPackage := range fetchedPackages {
+		actual := fetchPackage.getDirName()
+		if actual != expected[i] {
+			t.Errorf("Expected: %v, got: %v", expected[i], actual)
+		}
+	}
 
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// lsCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }

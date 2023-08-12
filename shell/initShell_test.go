@@ -1,7 +1,7 @@
 package shell
 
 import (
-	"github.com/pkk82/soft-ver-man/test"
+	"github.com/pkk82/soft-ver-man/util/test"
 	"testing"
 )
 

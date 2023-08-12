@@ -13,7 +13,7 @@ const HomeConfigDir = ".soft-ver-man"
 const RcFile = ".svmrc"
 const SoftwareDownloadDirKey = "software-directory-download"
 const SoftwareDirKey = "software-directory"
-const PackageHistorySuffix = "-history"
+const PackageHistorySuffix = "-domain"
 
 const VarNameSvmSoftDir = "SVM_SOFT_DIR"
 const VarNameSvmSoftPackageDirTemplate = "SVM_SOFT_%v_DIR"

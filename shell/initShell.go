@@ -24,7 +24,7 @@ package shell
 import (
 	"errors"
 	"github.com/pkk82/soft-ver-man/config"
-	"github.com/pkk82/soft-ver-man/console"
+	"github.com/pkk82/soft-ver-man/util/console"
 	"io"
 	"os"
 	"path/filepath"

@@ -24,10 +24,9 @@ package node
 import (
 	"fmt"
 	"github.com/pkk82/soft-ver-man/config"
-	"github.com/pkk82/soft-ver-man/console"
-	"github.com/pkk82/soft-ver-man/node"
-	"github.com/pkk82/soft-ver-man/version"
-
+	"github.com/pkk82/soft-ver-man/domain"
+	node2 "github.com/pkk82/soft-ver-man/software/node"
+	"github.com/pkk82/soft-ver-man/util/console"
 	"github.com/spf13/cobra"
 )
 
@@ -37,18 +36,18 @@ var installVerify bool
 var installCmd = &cobra.Command{
 	Use:   "install [version]",
 	Short: "Install node package into software directory",
-	Long:  fmt.Sprintf("Install node package from %v into software directory", node.DistURL),
+	Long:  fmt.Sprintf("Install node package from %v into software directory", node2.DistURL),
 	Args: func(cmd *cobra.Command, args []string) error {
 		if err := cobra.ExactArgs(1)(cmd, args); err != nil {
 			return err
 		}
-		return version.ValidateVersion(args[0])
+		return domain.ValidateVersion(args[0])
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 		softwareDownloadDir := config.InitSoftwareDownloadDir(cmd)
-		fetchedPackage := node.Fetch(args[0], softwareDownloadDir, installVerify)
+		fetchedPackage := node2.Fetch(args[0], softwareDownloadDir, installVerify)
 		softwareDir := config.InitSoftwareDir(cmd)
-		err := node.Install(fetchedPackage, softwareDir)
+		err := node2.Install(fetchedPackage, softwareDir)
 		if err != nil {
 			console.Error(err)
 		}

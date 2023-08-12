@@ -19,34 +19,22 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
-package java
+package domain
 
 import (
 	"fmt"
-	java2 "github.com/pkk82/soft-ver-man/software/java"
-	"github.com/spf13/cobra"
+	"regexp"
 )
 
-// lsCmd represents the ls command
-var lsCmd = &cobra.Command{
-	Use:   "ls",
-	Short: "Display available version of java",
-	Long:  fmt.Sprintf("Display available versions of java using %v.", java2.PackagesAPIURL),
-	Run: func(cmd *cobra.Command, args []string) {
-		java2.List()
-	},
-}
+func ValidateVersion(version string) error {
+	match, err := regexp.MatchString("^(v)?(0|[1-9][0-9]*)(\\.(0|[1-9][0-9]*)?){0,2}$", version)
+	if err != nil {
+		return err
+	}
 
-func init() {
-	Cmd.AddCommand(lsCmd)
-
-	// Here you will define your flags and configuration settings.
-
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// lsCmd.PersistentFlags().String("foo", "", "A help for foo")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// lsCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	if match {
+		return nil
+	} else {
+		return fmt.Errorf("%s is not a valid version", version)
+	}
 }

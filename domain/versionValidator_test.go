@@ -19,34 +19,33 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
-package java
+package domain_test
 
 import (
 	"fmt"
-	java2 "github.com/pkk82/soft-ver-man/software/java"
-	"github.com/spf13/cobra"
+	ver "github.com/pkk82/soft-ver-man/domain"
+	"testing"
 )
 
-// lsCmd represents the ls command
-var lsCmd = &cobra.Command{
-	Use:   "ls",
-	Short: "Display available version of java",
-	Long:  fmt.Sprintf("Display available versions of java using %v.", java2.PackagesAPIURL),
-	Run: func(cmd *cobra.Command, args []string) {
-		java2.List()
-	},
+func TestCorrectVersions(t *testing.T) {
+	versions := []string{"v10.11.12", "10.11.12", "v10.11", "10.11", "v10", "10",
+		"v10.11.", "10.11.", "v10.", "10.", "1.0", "1.1", "0.1", "0.2",
+	}
+	for _, v := range versions {
+		err := ver.ValidateVersion(v)
+		if err != nil {
+			t.Errorf("Validate should pass, but got exception: %v", err)
+		}
+	}
 }
 
-func init() {
-	Cmd.AddCommand(lsCmd)
-
-	// Here you will define your flags and configuration settings.
-
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// lsCmd.PersistentFlags().String("foo", "", "A help for foo")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// lsCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+func TestIncorrectVersions(t *testing.T) {
+	versions := []string{"a.b.c", "1.2.a", "x1.2.3"}
+	for _, v := range versions {
+		err := ver.ValidateVersion(v)
+		expectedErr := fmt.Sprintf("%s is not a valid version", v)
+		if err.Error() != expectedErr {
+			t.Errorf("Got unexpected error: %v, expected: %v", err, expectedErr)
+		}
+	}
 }

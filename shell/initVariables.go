@@ -24,9 +24,7 @@ package shell
 import (
 	"fmt"
 	"github.com/pkk82/soft-ver-man/config"
-	"github.com/pkk82/soft-ver-man/history"
-	"github.com/pkk82/soft-ver-man/pack"
-	"github.com/pkk82/soft-ver-man/version"
+	"github.com/pkk82/soft-ver-man/domain"
 	"path"
 	"path/filepath"
 	"sort"
@@ -40,7 +38,7 @@ const (
 	VariableGranularityMinor VariableGranularity = "MINOR"
 )
 
-func initVariables(finder DirFinder, history history.PackageHistory, granularity VariableGranularity) error {
+func initVariables(finder DirFinder, history domain.PackageHistory, granularity VariableGranularity) error {
 	name := history.Name
 
 	homeDir, err := finder.HomeDir()
@@ -97,7 +95,7 @@ func initSvmRcFile(name, homeDir string, finder DirFinder) error {
 	return nil
 }
 
-func initSpecificRcRileWithMajorVariables(installedPackages []pack.InstalledPackage, name string, homeDir string) error {
+func initSpecificRcRileWithMajorVariables(installedPackages []domain.InstalledPackage, name string, homeDir string) error {
 	upperName := strings.ToUpper(name)
 
 	installedPackagesPerMajorVersions, err := toSortedMapPerVersion(installedPackages, MajorRounder)
@@ -143,7 +141,7 @@ func initSpecificRcRileWithMajorVariables(installedPackages []pack.InstalledPack
 	return nil
 }
 
-func initSpecificRcRileWithMinorVariables(installedPackages []pack.InstalledPackage, name string, homeDir string) error {
+func initSpecificRcRileWithMinorVariables(installedPackages []domain.InstalledPackage, name string, homeDir string) error {
 	upperName := strings.ToUpper(name)
 
 	installedPackagesPerMajorVersions, err := toSortedMapPerVersion(installedPackages, MinorRounder)
@@ -189,14 +187,14 @@ func initSpecificRcRileWithMinorVariables(installedPackages []pack.InstalledPack
 	return nil
 }
 
-func convertHistoryToInstalledPackages(history history.PackageHistory) ([]pack.InstalledPackage, error) {
-	installedPackages := make([]pack.InstalledPackage, 0)
+func convertHistoryToInstalledPackages(history domain.PackageHistory) ([]domain.InstalledPackage, error) {
+	installedPackages := make([]domain.InstalledPackage, 0)
 	for _, item := range history.Items {
-		v, err := version.NewVersion(item.Version)
+		v, err := domain.NewVersion(item.Version)
 		if err != nil {
 			return nil, err
 		}
-		installedPackages = append(installedPackages, pack.InstalledPackage{
+		installedPackages = append(installedPackages, domain.InstalledPackage{
 			Version:     v,
 			Path:        item.Path,
 			Main:        item.Main,
@@ -206,18 +204,18 @@ func convertHistoryToInstalledPackages(history history.PackageHistory) ([]pack.I
 	return installedPackages, nil
 }
 
-type VersionRounder func(pack.InstalledPackage) (version.Version, error)
+type VersionRounder func(domain.InstalledPackage) (domain.Version, error)
 
-func MinorRounder(ip pack.InstalledPackage) (version.Version, error) {
-	return version.NewVersion(fmt.Sprintf("%d.%d", ip.Version.Major(), ip.Version.Minor()))
+func MinorRounder(ip domain.InstalledPackage) (domain.Version, error) {
+	return domain.NewVersion(fmt.Sprintf("%d.%d", ip.Version.Major(), ip.Version.Minor()))
 }
 
-func MajorRounder(ip pack.InstalledPackage) (version.Version, error) {
-	return version.NewVersion(fmt.Sprintf("%d", ip.Version.Major()))
+func MajorRounder(ip domain.InstalledPackage) (domain.Version, error) {
+	return domain.NewVersion(fmt.Sprintf("%d", ip.Version.Major()))
 }
 
-func toSortedMapPerVersion(installedPackages []pack.InstalledPackage, versionRounder VersionRounder) (SortedMap, error) {
-	packagesPerVersion := make(map[version.Version][]pack.InstalledPackage)
+func toSortedMapPerVersion(installedPackages []domain.InstalledPackage, versionRounder VersionRounder) (SortedMap, error) {
+	packagesPerVersion := make(map[domain.Version][]domain.InstalledPackage)
 	for _, ip := range installedPackages {
 		roundedVersion, err := versionRounder(ip)
 		if err != nil {
@@ -228,7 +226,7 @@ func toSortedMapPerVersion(installedPackages []pack.InstalledPackage, versionRou
 	sortedMap := newSortedMap()
 	for v, p := range packagesPerVersion {
 		sort.Slice(p, func(i, j int) bool {
-			return version.CompareDesc(p[i].Version, p[j].Version)
+			return domain.CompareDesc(p[i].Version, p[j].Version)
 		})
 		sortedMap.put(v, p)
 	}
@@ -236,31 +234,31 @@ func toSortedMapPerVersion(installedPackages []pack.InstalledPackage, versionRou
 }
 
 type SortedMap struct {
-	keys   []version.Version
-	values map[version.Version][]pack.InstalledPackage
+	keys   []domain.Version
+	values map[domain.Version][]domain.InstalledPackage
 }
 
 func newSortedMap() SortedMap {
 	return SortedMap{
-		keys:   make([]version.Version, 0),
-		values: make(map[version.Version][]pack.InstalledPackage),
+		keys:   make([]domain.Version, 0),
+		values: make(map[domain.Version][]domain.InstalledPackage),
 	}
 }
 
-func (sm *SortedMap) put(key version.Version, value []pack.InstalledPackage) {
+func (sm *SortedMap) put(key domain.Version, value []domain.InstalledPackage) {
 	sm.keys = append(sm.keys, key)
 	sort.Slice(sm.keys, func(i, j int) bool {
-		return version.CompareAsc(sm.keys[i], sm.keys[j])
+		return domain.CompareAsc(sm.keys[i], sm.keys[j])
 	})
 	sm.values[key] = value
 }
 
-func (sm *SortedMap) getLast() []pack.InstalledPackage {
+func (sm *SortedMap) getLast() []domain.InstalledPackage {
 	lastKey := sm.keys[len(sm.keys)-1]
 	return sm.values[lastKey]
 }
 
-func (sm *SortedMap) get(key version.Version) ([]pack.InstalledPackage, bool) {
+func (sm *SortedMap) get(key domain.Version) ([]domain.InstalledPackage, bool) {
 	value, ok := sm.values[key]
 	return value, ok
 }

@@ -3,7 +3,7 @@ package shell
 import (
 	"fmt"
 	"github.com/pkk82/soft-ver-man/config"
-	"github.com/pkk82/soft-ver-man/version"
+	"github.com/pkk82/soft-ver-man/domain"
 )
 
 func bashToLoad(fileName string) string {
@@ -27,10 +27,10 @@ func exportHomeVariable(name, refVar, path string) string {
 	return fmt.Sprintf("export %v_HOME=\"$%v/%v\"", name, refVar, path)
 }
 
-func exportHomeMajorVersionVariable(name string, version version.Version, refVar, path string) string {
+func exportHomeMajorVersionVariable(name string, version domain.Version, refVar, path string) string {
 	return fmt.Sprintf("export %v_%v_HOME=\"$%v/%v\"", name, version.Major(), refVar, path)
 }
 
-func exportHomeMinorVersionVariable(name string, version version.Version, refVar, path string) string {
+func exportHomeMinorVersionVariable(name string, version domain.Version, refVar, path string) string {
 	return fmt.Sprintf("export %v_%v_%v_HOME=\"$%v/%v\"", name, version.Major(), version.Minor(), refVar, path)
 }

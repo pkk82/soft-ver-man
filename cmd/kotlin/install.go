@@ -24,10 +24,9 @@ package kotlin
 import (
 	"fmt"
 	"github.com/pkk82/soft-ver-man/config"
-	"github.com/pkk82/soft-ver-man/console"
-	"github.com/pkk82/soft-ver-man/kotlin"
-	"github.com/pkk82/soft-ver-man/version"
-
+	"github.com/pkk82/soft-ver-man/domain"
+	kotlin2 "github.com/pkk82/soft-ver-man/software/kotlin"
+	"github.com/pkk82/soft-ver-man/util/console"
 	"github.com/spf13/cobra"
 )
 
@@ -35,22 +34,22 @@ import (
 var installCmd = &cobra.Command{
 	Use:   "install [version]",
 	Short: "Install kotlin package into software directory",
-	Long:  fmt.Sprintf("Install kotlin package (from GitHub releases) from %v into software directory", kotlin.ReleasesURL),
+	Long:  fmt.Sprintf("Install kotlin package (from GitHub releases) from %v into software directory", kotlin2.ReleasesURL),
 	Args: func(cmd *cobra.Command, args []string) error {
 		if err := cobra.ExactArgs(1)(cmd, args); err != nil {
 			return err
 		}
-		return version.ValidateVersion(args[0])
+		return domain.ValidateVersion(args[0])
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 		softwareDownloadDir := config.InitSoftwareDownloadDir(cmd)
 		softwareDir := config.InitSoftwareDir(cmd)
 
-		fetchedPackage, err := kotlin.Fetch(args[0], softwareDownloadDir)
+		fetchedPackage, err := kotlin2.Fetch(args[0], softwareDownloadDir)
 		if err != nil {
 			console.Fatal(err)
 		}
-		err = kotlin.Install(fetchedPackage, softwareDir)
+		err = kotlin2.Install(fetchedPackage, softwareDir)
 		if err != nil {
 			console.Fatal(err)
 		}

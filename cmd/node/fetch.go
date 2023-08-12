@@ -24,9 +24,8 @@ package node
 import (
 	"fmt"
 	"github.com/pkk82/soft-ver-man/config"
-	"github.com/pkk82/soft-ver-man/node"
-	"github.com/pkk82/soft-ver-man/version"
-
+	"github.com/pkk82/soft-ver-man/domain"
+	node2 "github.com/pkk82/soft-ver-man/software/node"
 	"github.com/spf13/cobra"
 )
 
@@ -36,16 +35,16 @@ var fetchVerify bool
 var fetchCmd = &cobra.Command{
 	Use:   "fetch [version]",
 	Short: "Fetch node package into download directory",
-	Long:  fmt.Sprintf("Fetch node package from %v into download directory", node.DistURL),
+	Long:  fmt.Sprintf("Fetch node package from %v into download directory", node2.DistURL),
 	Args: func(cmd *cobra.Command, args []string) error {
 		if err := cobra.ExactArgs(1)(cmd, args); err != nil {
 			return err
 		}
-		return version.ValidateVersion(args[0])
+		return domain.ValidateVersion(args[0])
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 		softwareDownloadDir := config.InitSoftwareDownloadDir(cmd)
-		node.Fetch(args[0], softwareDownloadDir, fetchVerify)
+		node2.Fetch(args[0], softwareDownloadDir, fetchVerify)
 	},
 }
 

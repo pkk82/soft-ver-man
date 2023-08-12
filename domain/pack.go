@@ -19,34 +19,37 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
-package java
+package domain
 
 import (
-	"fmt"
-	java2 "github.com/pkk82/soft-ver-man/software/java"
-	"github.com/spf13/cobra"
+	"path/filepath"
+	"strings"
 )
 
-// lsCmd represents the ls command
-var lsCmd = &cobra.Command{
-	Use:   "ls",
-	Short: "Display available version of java",
-	Long:  fmt.Sprintf("Display available versions of java using %v.", java2.PackagesAPIURL),
-	Run: func(cmd *cobra.Command, args []string) {
-		java2.List()
-	},
+const (
+	TAR_GZ = "tar.gz"
+	ZIP    = "zip"
+)
+
+type Type string
+
+type FetchedPackage struct {
+	Version  Version
+	FilePath string
+	Type     Type
 }
 
-func init() {
-	Cmd.AddCommand(lsCmd)
+func (fp FetchedPackage) getDirName() string {
+	base := filepath.Base(fp.FilePath)
+	if fp.Type == TAR_GZ && strings.HasSuffix(base, "."+TAR_GZ) {
+		return strings.TrimSuffix(base, ".tar.gz")
+	}
+	return strings.TrimSuffix(base, filepath.Ext(base))
+}
 
-	// Here you will define your flags and configuration settings.
-
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// lsCmd.PersistentFlags().String("foo", "", "A help for foo")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// lsCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+type InstalledPackage struct {
+	Version     Version
+	Path        string
+	InstalledOn int64
+	Main        bool
 }

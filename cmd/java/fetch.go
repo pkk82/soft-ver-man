@@ -25,7 +25,7 @@ import (
 	"fmt"
 	"github.com/pkk82/soft-ver-man/config"
 	"github.com/pkk82/soft-ver-man/domain"
-	java2 "github.com/pkk82/soft-ver-man/software/java"
+	"github.com/pkk82/soft-ver-man/software/java"
 	"github.com/pkk82/soft-ver-man/util/console"
 	"github.com/spf13/cobra"
 )
@@ -36,7 +36,7 @@ var fetchVerify bool
 var fetchCmd = &cobra.Command{
 	Use:   "fetch [version]",
 	Short: "Fetch java package into download directory",
-	Long:  fmt.Sprintf("Fetch java package from %v into download directory", java2.PackagesAPIURL),
+	Long:  fmt.Sprintf("Fetch java package from %v into download directory", java.PackagesAPIURL),
 	Args: func(cmd *cobra.Command, args []string) error {
 		if err := cobra.ExactArgs(1)(cmd, args); err != nil {
 			return err
@@ -45,7 +45,7 @@ var fetchCmd = &cobra.Command{
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 		softwareDownloadDir := config.InitSoftwareDownloadDir(cmd)
-		fetch, err := java2.Fetch(args[0], softwareDownloadDir, fetchVerify)
+		fetch, err := java.Fetch(args[0], softwareDownloadDir, fetchVerify)
 		if err != nil {
 			console.Fatal(err)
 		} else {

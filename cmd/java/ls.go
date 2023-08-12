@@ -23,7 +23,7 @@ package java
 
 import (
 	"fmt"
-	java2 "github.com/pkk82/soft-ver-man/software/java"
+	"github.com/pkk82/soft-ver-man/software/java"
 	"github.com/spf13/cobra"
 )
 
@@ -31,9 +31,9 @@ import (
 var lsCmd = &cobra.Command{
 	Use:   "ls",
 	Short: "Display available version of java",
-	Long:  fmt.Sprintf("Display available versions of java using %v.", java2.PackagesAPIURL),
+	Long:  fmt.Sprintf("Display available versions of java using %v.", java.PackagesAPIURL),
 	Run: func(cmd *cobra.Command, args []string) {
-		java2.List()
+		java.List()
 	},
 }
 

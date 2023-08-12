@@ -23,7 +23,7 @@ package node
 
 import (
 	"fmt"
-	node2 "github.com/pkk82/soft-ver-man/software/node"
+	"github.com/pkk82/soft-ver-man/software/node"
 	"github.com/spf13/cobra"
 )
 
@@ -31,9 +31,9 @@ import (
 var lsCmd = &cobra.Command{
 	Use:   "ls",
 	Short: "Display available version of node",
-	Long:  fmt.Sprintf("Display available versions of node.js using %v.", node2.JsonFileURL),
+	Long:  fmt.Sprintf("Display available versions of node.js using %v.", node.JsonFileURL),
 	Run: func(cmd *cobra.Command, args []string) {
-		node2.List()
+		node.List()
 	},
 }
 

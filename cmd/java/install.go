@@ -25,7 +25,7 @@ import (
 	"fmt"
 	"github.com/pkk82/soft-ver-man/config"
 	"github.com/pkk82/soft-ver-man/domain"
-	java2 "github.com/pkk82/soft-ver-man/software/java"
+	"github.com/pkk82/soft-ver-man/software/java"
 	"github.com/pkk82/soft-ver-man/util/console"
 	"github.com/spf13/cobra"
 )
@@ -36,7 +36,7 @@ var installVerify bool
 var installCmd = &cobra.Command{
 	Use:   "install [version]",
 	Short: "Install java package into software directory",
-	Long:  fmt.Sprintf("Install java package (zulu from azul) from %v into software directory", java2.PackagesAPIURL),
+	Long:  fmt.Sprintf("Install java package (zulu from azul) from %v into software directory", java.PackagesAPIURL),
 	Args: func(cmd *cobra.Command, args []string) error {
 		if err := cobra.ExactArgs(1)(cmd, args); err != nil {
 			return err
@@ -47,11 +47,11 @@ var installCmd = &cobra.Command{
 		softwareDownloadDir := config.InitSoftwareDownloadDir(cmd)
 		softwareDir := config.InitSoftwareDir(cmd)
 
-		fetchedPackage, err := java2.Fetch(args[0], softwareDownloadDir, installVerify)
+		fetchedPackage, err := java.Fetch(args[0], softwareDownloadDir, installVerify)
 		if err != nil {
 			console.Fatal(err)
 		}
-		err = java2.Install(fetchedPackage, softwareDir)
+		err = java.Install(fetchedPackage, softwareDir)
 		if err != nil {
 			console.Fatal(err)
 		}

@@ -24,7 +24,6 @@ package java
 import (
 	"fmt"
 	"github.com/pkk82/soft-ver-man/cmd"
-
 	"github.com/spf13/cobra"
 )
 

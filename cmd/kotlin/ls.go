@@ -23,7 +23,7 @@ package kotlin
 
 import (
 	"fmt"
-	kotlin2 "github.com/pkk82/soft-ver-man/software/kotlin"
+	"github.com/pkk82/soft-ver-man/software/kotlin"
 	"github.com/pkk82/soft-ver-man/util/console"
 	"github.com/spf13/cobra"
 )
@@ -32,9 +32,9 @@ import (
 var lsCmd = &cobra.Command{
 	Use:   "ls",
 	Short: "Display available version of kotlin",
-	Long:  fmt.Sprintf("Display available versions of kotlin using %v.", kotlin2.ReleasesURL),
+	Long:  fmt.Sprintf("Display available versions of kotlin using %v.", kotlin.ReleasesURL),
 	Run: func(cmd *cobra.Command, args []string) {
-		err := kotlin2.List()
+		err := kotlin.List()
 		if err != nil {
 			console.Fatal(err)
 		}

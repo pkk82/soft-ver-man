@@ -34,9 +34,10 @@ var installVerify bool
 
 // installCmd represents the install command
 var installCmd = &cobra.Command{
-	Use:   "install [version]",
-	Short: "Install node package into software directory",
-	Long:  fmt.Sprintf("Install node package from %v into software directory", node.DistURL),
+	Use:     "install [version]",
+	Aliases: []string{"i", "install"},
+	Short:   "Install node package into software directory",
+	Long:    fmt.Sprintf("Install node package from %v into software directory", node.DistURL),
 	Args: func(cmd *cobra.Command, args []string) error {
 		if err := cobra.ExactArgs(1)(cmd, args); err != nil {
 			return err
@@ -55,7 +56,7 @@ var installCmd = &cobra.Command{
 }
 
 func init() {
-	NodeCmd.AddCommand(installCmd)
+	Cmd.AddCommand(installCmd)
 	installCmd.Flags().BoolVarP(&installVerify, "verify", "", false, "Verify checksum of downloaded file")
 
 	// Here you will define your flags and configuration settings.

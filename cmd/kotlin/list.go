@@ -19,26 +19,31 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
-package node
+package kotlin
 
 import (
 	"fmt"
-	"github.com/pkk82/soft-ver-man/software/node"
+	"github.com/pkk82/soft-ver-man/software/kotlin"
+	"github.com/pkk82/soft-ver-man/util/console"
 	"github.com/spf13/cobra"
 )
 
 // lsCmd represents the ls command
 var lsCmd = &cobra.Command{
-	Use:   "ls",
-	Short: "Display available version of node",
-	Long:  fmt.Sprintf("Display available versions of node.js using %v.", node.JsonFileURL),
+	Use:     "ls",
+	Aliases: []string{"ls", "list"},
+	Short:   "Display available version of kotlin",
+	Long:    fmt.Sprintf("Display available versions of kotlin using %v.", kotlin.ReleasesURL),
 	Run: func(cmd *cobra.Command, args []string) {
-		node.List()
+		err := kotlin.List()
+		if err != nil {
+			console.Fatal(err)
+		}
 	},
 }
 
 func init() {
-	NodeCmd.AddCommand(lsCmd)
+	Cmd.AddCommand(lsCmd)
 
 	// Here you will define your flags and configuration settings.
 

@@ -27,8 +27,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// NodeCmd represents the node command
-var NodeCmd = &cobra.Command{
+var Cmd = &cobra.Command{
 	Use:     "node",
 	Short:   "Software: node.js",
 	Long:    `Download and configure node.js`,
@@ -39,7 +38,7 @@ var NodeCmd = &cobra.Command{
 }
 
 func init() {
-	cmd.RootCmd.AddCommand(NodeCmd)
+	cmd.RootCmd.AddCommand(Cmd)
 
 	// Here you will define your flags and configuration settings.
 

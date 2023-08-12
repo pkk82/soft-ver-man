@@ -34,9 +34,10 @@ var installVerify bool
 
 // installCmd represents the install command
 var installCmd = &cobra.Command{
-	Use:   "install [version]",
-	Short: "Install java package into software directory",
-	Long:  fmt.Sprintf("Install java package (zulu from azul) from %v into software directory", java.PackagesAPIURL),
+	Use:     "install [version]",
+	Aliases: []string{"i", "install"},
+	Short:   "Install java package into software directory",
+	Long:    fmt.Sprintf("Install java package (zulu from azul) from %v into software directory", java.PackagesAPIURL),
 	Args: func(cmd *cobra.Command, args []string) error {
 		if err := cobra.ExactArgs(1)(cmd, args); err != nil {
 			return err

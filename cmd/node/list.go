@@ -19,21 +19,22 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
-package java
+package node
 
 import (
 	"fmt"
-	"github.com/pkk82/soft-ver-man/software/java"
+	"github.com/pkk82/soft-ver-man/software/node"
 	"github.com/spf13/cobra"
 )
 
 // lsCmd represents the ls command
 var lsCmd = &cobra.Command{
-	Use:   "ls",
-	Short: "Display available version of java",
-	Long:  fmt.Sprintf("Display available versions of java using %v.", java.PackagesAPIURL),
+	Use:     "list",
+	Aliases: []string{"ls", "list"},
+	Short:   "Display available version of node",
+	Long:    fmt.Sprintf("Display available versions of node.js using %v.", node.JsonFileURL),
 	Run: func(cmd *cobra.Command, args []string) {
-		java.List()
+		node.List()
 	},
 }
 

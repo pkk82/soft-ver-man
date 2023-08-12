@@ -33,9 +33,10 @@ var fetchVerify bool
 
 // fetchCmd represents the fetch command
 var fetchCmd = &cobra.Command{
-	Use:   "fetch [version]",
-	Short: "Fetch node package into download directory",
-	Long:  fmt.Sprintf("Fetch node package from %v into download directory", node.DistURL),
+	Use:     "fetch [version]",
+	Aliases: []string{"f", "fetch"},
+	Short:   "Fetch node package into download directory",
+	Long:    fmt.Sprintf("Fetch node package from %v into download directory", node.DistURL),
 	Args: func(cmd *cobra.Command, args []string) error {
 		if err := cobra.ExactArgs(1)(cmd, args); err != nil {
 			return err
@@ -49,7 +50,7 @@ var fetchCmd = &cobra.Command{
 }
 
 func init() {
-	NodeCmd.AddCommand(fetchCmd)
+	Cmd.AddCommand(fetchCmd)
 	fetchCmd.Flags().BoolVarP(&fetchVerify, "verify", "", false, "Verify checksum of downloaded file")
 
 	// Here you will define your flags and configuration settings.

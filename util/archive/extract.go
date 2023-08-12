@@ -81,7 +81,7 @@ func extractZip(zipPath string, dir string, strategy TargetDirNameStrategy) (str
 	}
 	defer io2.CloseOrLog(reader)
 
-	topLevelDir := extractTopLevelDirInZipFile(reader, zipPath)
+	topLevelDir := extractTopLevelDirInZipFile(reader)
 	targetFilePathSupplier := prepareTargetFilePathSupplier(zipPath, topLevelDir, strategy)
 
 	for _, file := range reader.File {
@@ -102,7 +102,7 @@ func extractZip(zipPath string, dir string, strategy TargetDirNameStrategy) (str
 	return targetFilePathSupplier.supply(dir, ""), nil
 }
 
-func extractTopLevelDirInZipFile(reader *zip.ReadCloser, zipPath string) string {
+func extractTopLevelDirInZipFile(reader *zip.ReadCloser) string {
 	var topLevelDirs []string
 	for _, file := range reader.File {
 		if !strings.Contains(strings.TrimSuffix(file.Name, "/"), "/") && file.FileInfo().IsDir() {

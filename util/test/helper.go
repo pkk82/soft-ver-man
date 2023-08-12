@@ -43,20 +43,6 @@ func CreateTestDir(t *testing.T) string {
 	return testDir
 }
 
-func CreateEmptyFile(path, fileName string, t *testing.T) string {
-	file, err := os.Create(filepath.Join(path, fileName))
-	if err != nil {
-		t.Fatalf("Failed to create file: %s", err)
-	}
-	defer func(file *os.File) {
-		err := file.Close()
-		if err != nil {
-			t.Errorf("Failed to close file: %s", err)
-		}
-	}(file)
-	return file.Name()
-}
-
 func CreateFile(path, fileName string, content []string, t *testing.T) {
 	err := os.WriteFile(filepath.Join(path, fileName), []byte(join(content)), os.ModePerm)
 	if err != nil {

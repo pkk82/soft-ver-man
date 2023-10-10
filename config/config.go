@@ -2,6 +2,7 @@ package config
 
 import (
 	"bufio"
+	"errors"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"os"
@@ -18,8 +19,23 @@ const PackageHistorySuffix = "-domain"
 const VarNameSvmSoftDir = "SVM_SOFT_DIR"
 const VarNameSvmSoftPackageDirTemplate = "SVM_SOFT_%v_DIR"
 
-func InitSoftwareDownloadDir(cmd *cobra.Command) string {
-	return initConfigEntry(cmd,
+type Config struct {
+	SoftwareDownloadDir string
+	SoftwareDir         string
+}
+
+func Get() (Config, error) {
+	if !viper.IsSet(SoftwareDownloadDirKey) || !viper.IsSet(SoftwareDirKey) {
+		return Config{}, errors.New("config not initialized, run 'svm init' first")
+	}
+	return Config{
+		SoftwareDownloadDir: viper.GetString(SoftwareDownloadDirKey),
+		SoftwareDir:         viper.GetString(SoftwareDirKey),
+	}, nil
+}
+
+func InitSoftwareDownloadDir(cmd *cobra.Command) {
+	initConfigEntry(cmd,
 		SoftwareDownloadDirKey,
 		"Where to download software?",
 		"Software download directory not set",
@@ -28,8 +44,8 @@ func InitSoftwareDownloadDir(cmd *cobra.Command) string {
 		})
 }
 
-func InitSoftwareDir(cmd *cobra.Command) string {
-	return initConfigEntry(cmd,
+func InitSoftwareDir(cmd *cobra.Command) {
+	initConfigEntry(cmd,
 		SoftwareDirKey,
 		"Where to install software?",
 		"Software directory not set",
@@ -44,7 +60,7 @@ func InitSoftwareDir(cmd *cobra.Command) string {
 
 func initConfigEntry(cmd *cobra.Command,
 	key, question, errMessage string,
-	defaultValueSupplier func() (string, error)) string {
+	defaultValueSupplier func() (string, error)) {
 	if !viper.IsSet(key) {
 		defaultValue, err := defaultValueSupplier()
 		if err != nil {
@@ -70,5 +86,4 @@ func initConfigEntry(cmd *cobra.Command,
 		err = viper.WriteConfig()
 		cobra.CheckErr(err)
 	}
-	return viper.GetString(key)
 }

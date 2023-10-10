@@ -43,14 +43,17 @@ var installCmd = &cobra.Command{
 		return domain.ValidateVersion(args[0])
 	},
 	Run: func(cmd *cobra.Command, args []string) {
-		softwareDownloadDir := config.InitSoftwareDownloadDir(cmd)
-		softwareDir := config.InitSoftwareDir(cmd)
 
-		fetchedPackage, err := kotlin.Fetch(args[0], softwareDownloadDir)
+		config, err := config.Get()
 		if err != nil {
 			console.Fatal(err)
 		}
-		err = kotlin.Install(fetchedPackage, softwareDir)
+
+		fetchedPackage, err := kotlin.Fetch(args[0], config.SoftwareDownloadDir)
+		if err != nil {
+			console.Fatal(err)
+		}
+		err = kotlin.Install(fetchedPackage, config.SoftwareDir)
 		if err != nil {
 			console.Fatal(err)
 		}

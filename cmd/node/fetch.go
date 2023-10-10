@@ -26,6 +26,7 @@ import (
 	"github.com/pkk82/soft-ver-man/config"
 	"github.com/pkk82/soft-ver-man/domain"
 	"github.com/pkk82/soft-ver-man/software/node"
+	"github.com/pkk82/soft-ver-man/util/console"
 	"github.com/spf13/cobra"
 )
 
@@ -44,8 +45,11 @@ var fetchCmd = &cobra.Command{
 		return domain.ValidateVersion(args[0])
 	},
 	Run: func(cmd *cobra.Command, args []string) {
-		softwareDownloadDir := config.InitSoftwareDownloadDir(cmd)
-		node.Fetch(args[0], softwareDownloadDir, fetchVerify)
+		config, err := config.Get()
+		if err != nil {
+			console.Fatal(err)
+		}
+		node.Fetch(args[0], config.SoftwareDownloadDir, fetchVerify)
 	},
 }
 

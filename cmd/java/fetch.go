@@ -45,8 +45,11 @@ var fetchCmd = &cobra.Command{
 		return domain.ValidateVersion(args[0])
 	},
 	Run: func(cmd *cobra.Command, args []string) {
-		softwareDownloadDir := config.InitSoftwareDownloadDir(cmd)
-		fetch, err := java.Fetch(args[0], softwareDownloadDir, fetchVerify)
+		config, err := config.Get()
+		if err != nil {
+			console.Fatal(err)
+		}
+		fetch, err := java.Fetch(args[0], config.SoftwareDownloadDir, fetchVerify)
 		if err != nil {
 			console.Fatal(err)
 		} else {

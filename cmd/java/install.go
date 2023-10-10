@@ -45,14 +45,17 @@ var installCmd = &cobra.Command{
 		return domain.ValidateVersion(args[0])
 	},
 	Run: func(cmd *cobra.Command, args []string) {
-		softwareDownloadDir := config.InitSoftwareDownloadDir(cmd)
-		softwareDir := config.InitSoftwareDir(cmd)
 
-		fetchedPackage, err := java.Fetch(args[0], softwareDownloadDir, installVerify)
+		config, err := config.Get()
 		if err != nil {
 			console.Fatal(err)
 		}
-		err = java.Install(fetchedPackage, softwareDir)
+
+		fetchedPackage, err := java.Fetch(args[0], config.SoftwareDownloadDir, installVerify)
+		if err != nil {
+			console.Fatal(err)
+		}
+		err = java.Install(fetchedPackage, config.SoftwareDir)
 		if err != nil {
 			console.Fatal(err)
 		}

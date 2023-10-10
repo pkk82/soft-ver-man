@@ -43,8 +43,11 @@ var fetchCmd = &cobra.Command{
 		return domain.ValidateVersion(args[0])
 	},
 	Run: func(cmd *cobra.Command, args []string) {
-		softwareDownloadDir := config.InitSoftwareDownloadDir(cmd)
-		fetch, err := kotlin.Fetch(args[0], softwareDownloadDir)
+		config, err := config.Get()
+		if err != nil {
+			console.Fatal(err)
+		}
+		fetch, err := kotlin.Fetch(args[0], config.SoftwareDownloadDir)
 		if err != nil {
 			console.Fatal(err)
 		} else {

@@ -24,23 +24,27 @@ package cmd_test
 import (
 	"bytes"
 	"github.com/pkk82/soft-ver-man/cmd"
+	"github.com/spf13/viper"
+	"io"
 	"strings"
 	"testing"
 )
 
 func Test_ShouldExecuteRootCommand(t *testing.T) {
-	output := execute("")
+	viper.Reset()
+	output := execute("", nil)
 	expectedOutput := "Use \"soft-ver-man [command] --help\" for more information about a command."
 	if strings.Index(output, expectedOutput) == -1 {
 		t.Errorf("Root command does not contain %v\n", expectedOutput)
 	}
 }
 
-func execute(args string) string {
+func execute(args string, newIn io.Reader) string {
 	actual := new(bytes.Buffer)
 	cmd.RootCmd.SetOut(actual)
 	cmd.RootCmd.SetErr(actual)
 	cmd.RootCmd.SetArgs(strings.Split(args, " "))
+	cmd.RootCmd.SetIn(newIn)
 	err := cmd.RootCmd.Execute()
 	if err != nil {
 		return err.Error()

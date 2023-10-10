@@ -34,17 +34,22 @@ func Get() (Config, error) {
 	}, nil
 }
 
-func InitSoftwareDownloadDir(cmd *cobra.Command) {
+func Init(cmd *cobra.Command, useDefault bool) {
+	initSoftwareDownloadDir(cmd, useDefault)
+	initSoftwareDir(cmd, useDefault)
+}
+func initSoftwareDownloadDir(cmd *cobra.Command, useDefault bool) {
+
 	initConfigEntry(cmd,
 		SoftwareDownloadDirKey,
 		"Where to download software?",
 		"Software download directory not set",
 		func() (string, error) {
 			return filepath.Join(os.TempDir(), "soft-ver-man"), nil
-		})
+		}, useDefault)
 }
 
-func InitSoftwareDir(cmd *cobra.Command) {
+func initSoftwareDir(cmd *cobra.Command, useDefault bool) {
 	initConfigEntry(cmd,
 		SoftwareDirKey,
 		"Where to install software?",
@@ -55,31 +60,39 @@ func InitSoftwareDir(cmd *cobra.Command) {
 				return "", err
 			}
 			return filepath.Join(homeDir, "pf"), nil
-		})
+		}, useDefault)
 }
 
 func initConfigEntry(cmd *cobra.Command,
 	key, question, errMessage string,
-	defaultValueSupplier func() (string, error)) {
+	defaultValueSupplier func() (string, error),
+	useDefault bool) {
 	if !viper.IsSet(key) {
 		defaultValue, err := defaultValueSupplier()
 		if err != nil {
 			defaultValue = ""
 		}
+
 		if defaultValue == "" {
 			cmd.Printf(question + ": ")
-		} else {
+		} else if !useDefault {
 			cmd.Printf("%v [%v]: ", question, defaultValue)
 		}
-		reader := bufio.NewReader(cmd.InOrStdin())
-		input, err := reader.ReadString('\n')
-		if err != nil {
-			cmd.PrintErr(err)
+		var input string
+		if useDefault && defaultValue != "" {
+			input = defaultValue
+		} else {
+			reader := bufio.NewReader(cmd.InOrStdin())
+			input, err = reader.ReadString('\n')
+			if err != nil {
+				cmd.PrintErr(err)
+			}
 		}
+
 		if strings.TrimSpace(input) == "" && defaultValue != "" {
 			viper.Set(key, defaultValue)
 		} else if strings.TrimSpace(input) != "" {
-			viper.Set(key, input)
+			viper.Set(key, strings.TrimSpace(input))
 		} else {
 			cobra.CheckErr(errMessage)
 		}

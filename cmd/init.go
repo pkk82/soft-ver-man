@@ -26,20 +26,19 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func InitCommand() *cobra.Command {
-	return &cobra.Command{
-		Use:   "init",
-		Short: "Init soft-ver-man",
-		Long:  `Init soft-ver-man by defining directory where software is to be installed and install itself there`,
-		Run: func(cmd *cobra.Command, args []string) {
-			config.InitSoftwareDownloadDir(cmd)
-			config.InitSoftwareDir(cmd)
-		},
-	}
+var useDefault bool
+var initCommand = &cobra.Command{
+	Use:   "init",
+	Short: "Init soft-ver-man",
+	Long:  `Init soft-ver-man by defining directory where software is to be installed and install itself there`,
+	Run: func(cmd *cobra.Command, args []string) {
+		config.Init(cmd, useDefault)
+	},
 }
 
 func init() {
-	RootCmd.AddCommand(InitCommand())
+	RootCmd.AddCommand(initCommand)
+	initCommand.Flags().BoolVarP(&useDefault, "default", "", false, "Choose default configs without interruption")
 
 	// Here you will define your flags and configuration settings.
 

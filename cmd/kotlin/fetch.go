@@ -35,7 +35,7 @@ var fetchCmd = &cobra.Command{
 	Use:     "fetch [version]",
 	Aliases: []string{"f", "fetch"},
 	Short:   "Fetch kotlin compiler package into download directory",
-	Long:    fmt.Sprintf("Fetch kotlin package from %v into download directory", kotlin.ReleasesURL),
+	Long:    fmt.Sprintf("Fetch kotlin package from %v into download directory", kotlin.ReleasesURL()),
 	Args: func(cmd *cobra.Command, args []string) error {
 		if err := cobra.ExactArgs(1)(cmd, args); err != nil {
 			return err

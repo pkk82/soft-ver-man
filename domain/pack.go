@@ -27,8 +27,10 @@ import (
 )
 
 const (
-	TAR_GZ = "tar.gz"
-	ZIP    = "zip"
+	TAR_GZ  = "tar.gz"
+	ZIP     = "zip"
+	RAW     = "raw"
+	UNKNOWN = "unknown"
 )
 
 type Type string

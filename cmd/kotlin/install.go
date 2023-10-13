@@ -35,7 +35,7 @@ var installCmd = &cobra.Command{
 	Use:     "install [version]",
 	Aliases: []string{"i", "install"},
 	Short:   "Install kotlin package into software directory",
-	Long:    fmt.Sprintf("Install kotlin package (from GitHub releases) from %v into software directory", kotlin.ReleasesURL),
+	Long:    fmt.Sprintf("Install kotlin package (from GitHub releases) from %v into software directory", kotlin.ReleasesURL()),
 	Args: func(cmd *cobra.Command, args []string) error {
 		if err := cobra.ExactArgs(1)(cmd, args); err != nil {
 			return err

@@ -1,4 +1,4 @@
-package kotlin
+package github
 
 import "testing"
 

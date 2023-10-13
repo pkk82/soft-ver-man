@@ -33,7 +33,7 @@ var lsCmd = &cobra.Command{
 	Use:     "ls",
 	Aliases: []string{"ls", "list"},
 	Short:   "Display available version of kotlin",
-	Long:    fmt.Sprintf("Display available versions of kotlin using %v.", kotlin.ReleasesURL),
+	Long:    fmt.Sprintf("Display available versions of kotlin using %v.", kotlin.ReleasesURL()),
 	Run: func(cmd *cobra.Command, args []string) {
 		err := kotlin.List()
 		if err != nil {

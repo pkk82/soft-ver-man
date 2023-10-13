@@ -22,10 +22,10 @@ jobs:
           version=$(git tag --sort=-version:refname | head -n 1)
           module=github.com/pkk82/soft-ver-man
           versionRef=$module/cmd.version
-          GOOS=linux GOARCH=amd64 go build -ldflags "-X $versionRef=$version" -o "soft-ver-man-$version-amd64-linux" $module
-          GOOS=windows GOARCH=amd64 go build -ldflags "-X $versionRef=$version" -o "soft-ver-man-$version-amd64-win" $module
-          GOOS=darwin GOARCH=amd64 go build -ldflags "-X $versionRef=$version" -o "soft-ver-man-$version-amd64-darwin" $module
-          GOOS=darwin GOARCH=arm64 go build -ldflags "-X $versionRef=$version" -o "soft-ver-man-$version-arm64-darwin" $module
+          GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -ldflags "-X $versionRef=$version" -o "soft-ver-man-$version-amd64-linux" $module
+          GOOS=windows GOARCH=amd64 CGO_ENABLED=0 go build -ldflags "-X $versionRef=$version" -o "soft-ver-man-$version-amd64-win" $module
+          GOOS=darwin GOARCH=amd64 CGO_ENABLED=0 go build -ldflags "-X $versionRef=$version" -o "soft-ver-man-$version-amd64-darwin" $module
+          GOOS=darwin GOARCH=arm64 CGO_ENABLED=0 go build -ldflags "-X $versionRef=$version" -o "soft-ver-man-$version-arm64-darwin" $module
       - name: release
         uses: ncipollo/release-action@v1
         with:

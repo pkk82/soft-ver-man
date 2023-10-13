@@ -92,6 +92,24 @@ func AssertFileContent(path, fileName string, expectedContent []string, t *testi
 	}
 }
 
+func AssertFileMode(path, fileName string, expectedMode os.FileMode, t *testing.T) {
+	filePath := filepath.Join(path, fileName)
+	fileInfo, err := os.Stat(filePath)
+	if err != nil {
+		if os.IsNotExist(err) {
+			t.Errorf("File does not exist.")
+		} else {
+			t.Errorf("Error: %v", err)
+		}
+		return
+	}
+	mode := fileInfo.Mode()
+	if mode != expectedMode {
+		t.Errorf("File (%s) mode: %s is not as expected: %s", filePath, mode, expectedMode)
+	}
+
+}
+
 const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 
 func generateString(length int) string {

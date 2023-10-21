@@ -86,7 +86,7 @@ func initSvmRcFile(name, homeDir string, finder DirFinder) error {
 	if err != nil {
 		return err
 	}
-	initLine := bashToLoad(makeRcName(name))
+	initLine := bashToLoad(rcName(name))
 	err = assertFileWithContent(path.Join(homeDir, config.HomeConfigDir, config.RcFile), initLine,
 		[]string{initLine})
 	if err != nil {
@@ -96,7 +96,7 @@ func initSvmRcFile(name, homeDir string, finder DirFinder) error {
 }
 
 func initSpecificRcRileWithMajorVariables(installedPackages []domain.InstalledPackage, name, homeDir, executableDirName string) error {
-	upperName := strings.ToUpper(name)
+	variablePartName := variablePartName(name)
 
 	installedPackagesPerMajorVersions, err := toSortedMapPerVersion(installedPackages, MajorRounder)
 	if err != nil {
@@ -105,14 +105,14 @@ func initSpecificRcRileWithMajorVariables(installedPackages []domain.InstalledPa
 
 	lines := make([]string, 0)
 
-	packageDirVarName := fmt.Sprintf(config.VarNameSvmSoftPackageDirTemplate, upperName)
+	packageDirVarName := fmt.Sprintf(config.VarNameSvmSoftPackageDirTemplate, variablePartName)
 	lines = append(lines, exportRefPathVariable(packageDirVarName, config.VarNameSvmSoftDir, name))
 
 	for _, v := range installedPackagesPerMajorVersions.keys {
 		get, _ := installedPackagesPerMajorVersions.get(v)
 		latestMajor := get[0]
 		_, dirName := filepath.Split(latestMajor.Path)
-		lines = append(lines, exportHomeMajorVersionVariable(upperName, v, packageDirVarName, dirName))
+		lines = append(lines, exportHomeMajorVersionVariable(variablePartName, v, packageDirVarName, dirName))
 	}
 
 	mainTime := int64(0)
@@ -120,21 +120,21 @@ func initSpecificRcRileWithMajorVariables(installedPackages []domain.InstalledPa
 	for _, ip := range installedPackages {
 		if ip.Main && ip.InstalledOn > mainTime {
 			_, dirName := filepath.Split(ip.Path)
-			mainLine = exportHomeVariable(upperName, packageDirVarName, dirName)
+			mainLine = exportHomeVariable(variablePartName, packageDirVarName, dirName)
 			mainTime = ip.InstalledOn
 		}
 	}
 	if mainLine == "" {
 		last := installedPackagesPerMajorVersions.getLast()
 		_, dirName := filepath.Split(last[0].Path)
-		mainLine = exportHomeVariable(upperName, packageDirVarName, dirName)
+		mainLine = exportHomeVariable(variablePartName, packageDirVarName, dirName)
 	}
 
 	lines = append(lines, mainLine)
 
-	lines = append(lines, fmt.Sprintf("export PATH=\"$%v_HOME%v:$PATH\"", upperName, executableDirName))
+	lines = append(lines, fmt.Sprintf("export PATH=\"$%v_HOME%v:$PATH\"", variablePartName, executableDirName))
 
-	err = overrideFileWithContent(path.Join(homeDir, config.HomeConfigDir, makeRcName(name)), lines)
+	err = overrideFileWithContent(path.Join(homeDir, config.HomeConfigDir, rcName(name)), lines)
 	if err != nil {
 		return err
 	}
@@ -142,7 +142,7 @@ func initSpecificRcRileWithMajorVariables(installedPackages []domain.InstalledPa
 }
 
 func initSpecificRcRileWithMinorVariables(installedPackages []domain.InstalledPackage, name, homeDir, executableDirName string) error {
-	upperName := strings.ToUpper(name)
+	variablePartName := variablePartName(name)
 
 	installedPackagesPerMajorVersions, err := toSortedMapPerVersion(installedPackages, MinorRounder)
 	if err != nil {
@@ -151,14 +151,14 @@ func initSpecificRcRileWithMinorVariables(installedPackages []domain.InstalledPa
 
 	lines := make([]string, 0)
 
-	packageDirVarName := fmt.Sprintf(config.VarNameSvmSoftPackageDirTemplate, upperName)
+	packageDirVarName := fmt.Sprintf(config.VarNameSvmSoftPackageDirTemplate, variablePartName)
 	lines = append(lines, exportRefPathVariable(packageDirVarName, config.VarNameSvmSoftDir, name))
 
 	for _, v := range installedPackagesPerMajorVersions.keys {
 		minor, _ := installedPackagesPerMajorVersions.get(v)
 		latestMinor := minor[0]
 		_, dirName := filepath.Split(latestMinor.Path)
-		lines = append(lines, exportHomeMinorVersionVariable(upperName, v, packageDirVarName, dirName))
+		lines = append(lines, exportHomeMinorVersionVariable(variablePartName, v, packageDirVarName, dirName))
 	}
 
 	mainTime := int64(0)
@@ -166,21 +166,21 @@ func initSpecificRcRileWithMinorVariables(installedPackages []domain.InstalledPa
 	for _, ip := range installedPackages {
 		if ip.Main && ip.InstalledOn > mainTime {
 			_, dirName := filepath.Split(ip.Path)
-			mainLine = exportHomeVariable(upperName, packageDirVarName, dirName)
+			mainLine = exportHomeVariable(variablePartName, packageDirVarName, dirName)
 			mainTime = ip.InstalledOn
 		}
 	}
 	if mainLine == "" {
 		last := installedPackagesPerMajorVersions.getLast()
 		_, dirName := filepath.Split(last[0].Path)
-		mainLine = exportHomeVariable(upperName, packageDirVarName, dirName)
+		mainLine = exportHomeVariable(variablePartName, packageDirVarName, dirName)
 	}
 
 	lines = append(lines, mainLine)
 
-	lines = append(lines, fmt.Sprintf("export PATH=\"$%v_HOME%v:$PATH\"", upperName, executableDirName))
+	lines = append(lines, fmt.Sprintf("export PATH=\"$%v_HOME%v:$PATH\"", variablePartName, executableDirName))
 
-	err = overrideFileWithContent(path.Join(homeDir, config.HomeConfigDir, makeRcName(name)), lines)
+	err = overrideFileWithContent(path.Join(homeDir, config.HomeConfigDir, rcName(name)), lines)
 	if err != nil {
 		return err
 	}
@@ -261,4 +261,27 @@ func (sm *SortedMap) getLast() []domain.InstalledPackage {
 func (sm *SortedMap) get(key domain.Version) ([]domain.InstalledPackage, bool) {
 	value, ok := sm.values[key]
 	return value, ok
+}
+
+func transformName(name string) string {
+	if strings.Contains(name, "-") {
+		parts := strings.Split(name, "-")
+		short := ""
+		for _, part := range parts {
+			short += string(part[0])
+		}
+		return short
+	} else {
+		return name
+	}
+}
+
+func rcName(name string) string {
+	transformedName := transformName(name)
+	return makeRcName(transformedName)
+}
+
+func variablePartName(name string) string {
+	transformedName := transformName(name)
+	return strings.ToUpper(transformedName)
 }

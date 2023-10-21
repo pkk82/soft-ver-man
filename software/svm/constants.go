@@ -9,6 +9,8 @@ const PageSize = 1000
 
 const Name = "soft-ver-man"
 
+const FileName = "svm"
+
 func ReleasesURL() string {
 	return github.URL(RepoOwner, RepoName)
 }

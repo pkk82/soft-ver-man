@@ -268,6 +268,31 @@ func Test_initVariablesInSpecificRc(t *testing.T) {
 				"export PATH=\"$KOTLIN_HOME/bin:$PATH\"",
 			},
 		},
+		{
+			name: "soft-ver-man",
+			args: args{
+				history: domain.PackageHistory{
+					Name: "soft-ver-man",
+					Items: []domain.PackageHistoryItem{
+						{
+							Version:     "v0.5.0",
+							Path:        "/home/user/pf/soft-ver-man/soft-ver-man-0.5.0",
+							Main:        true,
+							InstalledOn: 1689017268000,
+						},
+					},
+				},
+				executableDirName: "",
+				granularity:       VariableGranularityMinor,
+			},
+			expectedSpecificFileName: ".svmrc",
+			expectedSpecificContent: []string{
+				"export SVM_SOFT_SVM_DIR=\"$SVM_SOFT_DIR/soft-ver-man\"",
+				"export SVM_0_5_HOME=\"$SVM_SOFT_SVM_DIR/soft-ver-man-0.5.0\"",
+				"export SVM_HOME=\"$SVM_SOFT_SVM_DIR/soft-ver-man-0.5.0\"",
+				"export PATH=\"$SVM_HOME:$PATH\"",
+			},
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

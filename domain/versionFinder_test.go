@@ -111,6 +111,32 @@ func TestFindVersionForJava(t *testing.T) {
 	}
 }
 
+func TestFindVersionForSVM(t *testing.T) {
+	versions := []string{
+		"v0.1.0",
+		"v0.2.0",
+		"v0.3.0",
+		"v0.4.0",
+		"v0.5.0",
+	}
+	terms := map[string]string{
+		"":     "v0.5.0",
+		"v":    "v0.5.0",
+		"v0":   "v0.5.0",
+		"v0.":  "v0.5.0",
+		"v0.4": "v0.4.0",
+	}
+	for version, expected := range terms {
+		actual, _, err := ver.FindVersion(version, versions)
+		if err != nil {
+			t.Errorf("Error: %v", err)
+		}
+		if actual.Value != expected {
+			t.Errorf("Expected: %v,. but got: %v", expected, actual)
+		}
+	}
+}
+
 func TestFindNoVersion(t *testing.T) {
 	versions := []string{
 		"v20.0.9",

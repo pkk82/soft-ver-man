@@ -23,27 +23,27 @@ func TestInitBash(t *testing.T) {
 		{
 			name:            "empty .bashrc",
 			files:           map[string][]string{bashrc: {}},
-			expectedContent: map[string][]string{bashrc: {"### soft-ver-man", `[[ -s "$HOME/.soft-ver-man/.svmrc" ]] && source "$HOME/.soft-ver-man/.svmrc"`, ""}},
+			expectedContent: map[string][]string{bashrc: {"### soft-ver-man", `[[ -s "$HOME/.soft-ver-man/.svmmainrc" ]] && source "$HOME/.soft-ver-man/.svmmainrc"`, ""}},
 		}, {
 			name:            "empty .zshrc",
 			files:           map[string][]string{zshrc: {}},
-			expectedContent: map[string][]string{zshrc: {"### soft-ver-man", `[[ -s "$HOME/.soft-ver-man/.svmrc" ]] && source "$HOME/.soft-ver-man/.svmrc"`, ""}},
+			expectedContent: map[string][]string{zshrc: {"### soft-ver-man", `[[ -s "$HOME/.soft-ver-man/.svmmainrc" ]] && source "$HOME/.soft-ver-man/.svmmainrc"`, ""}},
 		}, {
 			name:  "empty .bashrc and .zshrc",
 			files: map[string][]string{zshrc: {}, bashrc: {}},
 			expectedContent: map[string][]string{
-				zshrc:  {"### soft-ver-man", `[[ -s "$HOME/.soft-ver-man/.svmrc" ]] && source "$HOME/.soft-ver-man/.svmrc"`, ""},
-				bashrc: {"### soft-ver-man", `[[ -s "$HOME/.soft-ver-man/.svmrc" ]] && source "$HOME/.soft-ver-man/.svmrc"`, ""}},
+				zshrc:  {"### soft-ver-man", `[[ -s "$HOME/.soft-ver-man/.svmmainrc" ]] && source "$HOME/.soft-ver-man/.svmmainrc"`, ""},
+				bashrc: {"### soft-ver-man", `[[ -s "$HOME/.soft-ver-man/.svmmainrc" ]] && source "$HOME/.soft-ver-man/.svmmainrc"`, ""}},
 		},
 		{
 			name:            "existing bashrc",
 			files:           map[string][]string{bashrc: {"### soft-ver-man", ""}},
-			expectedContent: map[string][]string{bashrc: {"### soft-ver-man", "", "### soft-ver-man", `[[ -s "$HOME/.soft-ver-man/.svmrc" ]] && source "$HOME/.soft-ver-man/.svmrc"`, ""}},
+			expectedContent: map[string][]string{bashrc: {"### soft-ver-man", "", "### soft-ver-man", `[[ -s "$HOME/.soft-ver-man/.svmmainrc" ]] && source "$HOME/.soft-ver-man/.svmmainrc"`, ""}},
 		},
 		{
 			name:            "existing bashrc without new line",
 			files:           map[string][]string{bashrc: {"### soft-ver-man"}},
-			expectedContent: map[string][]string{bashrc: {"### soft-ver-man", "", "### soft-ver-man", `[[ -s "$HOME/.soft-ver-man/.svmrc" ]] && source "$HOME/.soft-ver-man/.svmrc"`, ""}},
+			expectedContent: map[string][]string{bashrc: {"### soft-ver-man", "", "### soft-ver-man", `[[ -s "$HOME/.soft-ver-man/.svmmainrc" ]] && source "$HOME/.soft-ver-man/.svmmainrc"`, ""}},
 		},
 	}
 

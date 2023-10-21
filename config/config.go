@@ -11,7 +11,7 @@ import (
 )
 
 const HomeConfigDir = ".soft-ver-man"
-const RcFile = ".svmrc"
+const RcFile = ".svmmainrc"
 const SoftwareDownloadDirKey = "software-directory-download"
 const SoftwareDirKey = "software-directory"
 const PackageHistorySuffix = "-domain"

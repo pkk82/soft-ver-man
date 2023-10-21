@@ -23,8 +23,8 @@ package kotlin
 
 import (
 	"fmt"
+	cmdUtil "github.com/pkk82/soft-ver-man/cmd"
 	"github.com/pkk82/soft-ver-man/config"
-	"github.com/pkk82/soft-ver-man/domain"
 	"github.com/pkk82/soft-ver-man/software/kotlin"
 	"github.com/pkk82/soft-ver-man/util/console"
 	"github.com/spf13/cobra"
@@ -36,12 +36,7 @@ var installCmd = &cobra.Command{
 	Aliases: []string{"i", "install"},
 	Short:   "Install kotlin package into software directory",
 	Long:    fmt.Sprintf("Install kotlin package (from GitHub releases) from %v into software directory", kotlin.ReleasesURL()),
-	Args: func(cmd *cobra.Command, args []string) error {
-		if err := cobra.ExactArgs(1)(cmd, args); err != nil {
-			return err
-		}
-		return domain.ValidateVersion(args[0])
-	},
+	Args:    cmdUtil.VersionArg,
 	Run: func(cmd *cobra.Command, args []string) {
 
 		config, err := config.Get()
@@ -49,7 +44,7 @@ var installCmd = &cobra.Command{
 			console.Fatal(err)
 		}
 
-		fetchedPackage, err := kotlin.Fetch(args[0], config.SoftwareDownloadDir)
+		fetchedPackage, err := kotlin.Fetch(cmdUtil.FirstOrEmpty(args), config.SoftwareDownloadDir)
 		if err != nil {
 			console.Fatal(err)
 		}

@@ -23,8 +23,8 @@ package java
 
 import (
 	"fmt"
+	cmdUtil "github.com/pkk82/soft-ver-man/cmd"
 	"github.com/pkk82/soft-ver-man/config"
-	"github.com/pkk82/soft-ver-man/domain"
 	"github.com/pkk82/soft-ver-man/software/java"
 	"github.com/pkk82/soft-ver-man/util/console"
 	"github.com/spf13/cobra"
@@ -38,20 +38,13 @@ var installCmd = &cobra.Command{
 	Aliases: []string{"i", "install"},
 	Short:   "Install java package into software directory",
 	Long:    fmt.Sprintf("Install java package (zulu from azul) from %v into software directory", java.PackagesAPIURL),
-	Args: func(cmd *cobra.Command, args []string) error {
-		if err := cobra.ExactArgs(1)(cmd, args); err != nil {
-			return err
-		}
-		return domain.ValidateVersion(args[0])
-	},
+	Args:    cmdUtil.VersionArg,
 	Run: func(cmd *cobra.Command, args []string) {
-
 		config, err := config.Get()
 		if err != nil {
 			console.Fatal(err)
 		}
-
-		fetchedPackage, err := java.Fetch(args[0], config.SoftwareDownloadDir, installVerify)
+		fetchedPackage, err := java.Fetch(cmdUtil.FirstOrEmpty(args), config.SoftwareDownloadDir, installVerify)
 		if err != nil {
 			console.Fatal(err)
 		}

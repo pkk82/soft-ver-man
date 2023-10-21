@@ -38,7 +38,7 @@ const (
 	VariableGranularityMinor VariableGranularity = "MINOR"
 )
 
-func initVariables(finder DirFinder, history domain.PackageHistory, granularity VariableGranularity) error {
+func initVariables(finder DirFinder, history domain.PackageHistory, executableDirName string, granularity VariableGranularity) error {
 	name := history.Name
 
 	homeDir, err := finder.HomeDir()
@@ -58,12 +58,12 @@ func initVariables(finder DirFinder, history domain.PackageHistory, granularity 
 
 	switch granularity {
 	case VariableGranularityMajor:
-		err = initSpecificRcRileWithMajorVariables(installedPackages, name, homeDir)
+		err = initSpecificRcRileWithMajorVariables(installedPackages, name, homeDir, executableDirName)
 		if err != nil {
 			return err
 		}
 	case VariableGranularityMinor:
-		err = initSpecificRcRileWithMinorVariables(installedPackages, name, homeDir)
+		err = initSpecificRcRileWithMinorVariables(installedPackages, name, homeDir, executableDirName)
 		if err != nil {
 			return err
 		}
@@ -95,7 +95,7 @@ func initSvmRcFile(name, homeDir string, finder DirFinder) error {
 	return nil
 }
 
-func initSpecificRcRileWithMajorVariables(installedPackages []domain.InstalledPackage, name string, homeDir string) error {
+func initSpecificRcRileWithMajorVariables(installedPackages []domain.InstalledPackage, name, homeDir, executableDirName string) error {
 	upperName := strings.ToUpper(name)
 
 	installedPackagesPerMajorVersions, err := toSortedMapPerVersion(installedPackages, MajorRounder)
@@ -132,7 +132,7 @@ func initSpecificRcRileWithMajorVariables(installedPackages []domain.InstalledPa
 
 	lines = append(lines, mainLine)
 
-	lines = append(lines, fmt.Sprintf("export PATH=\"$%v_HOME/bin:$PATH\"", strings.ToUpper(name)))
+	lines = append(lines, fmt.Sprintf("export PATH=\"$%v_HOME%v:$PATH\"", upperName, executableDirName))
 
 	err = overrideFileWithContent(path.Join(homeDir, config.HomeConfigDir, makeRcName(name)), lines)
 	if err != nil {
@@ -141,7 +141,7 @@ func initSpecificRcRileWithMajorVariables(installedPackages []domain.InstalledPa
 	return nil
 }
 
-func initSpecificRcRileWithMinorVariables(installedPackages []domain.InstalledPackage, name string, homeDir string) error {
+func initSpecificRcRileWithMinorVariables(installedPackages []domain.InstalledPackage, name, homeDir, executableDirName string) error {
 	upperName := strings.ToUpper(name)
 
 	installedPackagesPerMajorVersions, err := toSortedMapPerVersion(installedPackages, MinorRounder)
@@ -178,7 +178,7 @@ func initSpecificRcRileWithMinorVariables(installedPackages []domain.InstalledPa
 
 	lines = append(lines, mainLine)
 
-	lines = append(lines, fmt.Sprintf("export PATH=\"$%v_HOME/bin:$PATH\"", strings.ToUpper(name)))
+	lines = append(lines, fmt.Sprintf("export PATH=\"$%v_HOME%v:$PATH\"", upperName, executableDirName))
 
 	err = overrideFileWithContent(path.Join(homeDir, config.HomeConfigDir, makeRcName(name)), lines)
 	if err != nil {

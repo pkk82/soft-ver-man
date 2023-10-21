@@ -61,7 +61,7 @@ func Test_initVariablesInSvmRc(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			dir := test.CreateTestDir(t)
-			err := initVariables(test.TestDirs{Home: dir}, tt.args.history, VariableGranularityMajor)
+			err := initVariables(test.TestDirs{Home: dir}, tt.args.history, "/bin", VariableGranularityMajor)
 			if err != nil {
 				t.Errorf("Failed to init variables: %s", err)
 			}
@@ -71,8 +71,9 @@ func Test_initVariablesInSvmRc(t *testing.T) {
 }
 func Test_initVariablesInSpecificRc(t *testing.T) {
 	type args struct {
-		history     domain.PackageHistory
-		granularity VariableGranularity
+		history           domain.PackageHistory
+		granularity       VariableGranularity
+		executableDirName string
 	}
 	tests := []struct {
 		name                     string
@@ -94,7 +95,8 @@ func Test_initVariablesInSpecificRc(t *testing.T) {
 						},
 					},
 				},
-				granularity: VariableGranularityMajor,
+				granularity:       VariableGranularityMajor,
+				executableDirName: "/bin",
 			},
 			expectedSpecificFileName: ".noderc",
 			expectedSpecificContent: []string{
@@ -117,7 +119,8 @@ func Test_initVariablesInSpecificRc(t *testing.T) {
 						},
 					},
 				},
-				granularity: VariableGranularityMajor,
+				granularity:       VariableGranularityMajor,
+				executableDirName: "/bin",
 			},
 			expectedSpecificFileName: ".noderc",
 			expectedSpecificContent: []string{
@@ -154,7 +157,8 @@ func Test_initVariablesInSpecificRc(t *testing.T) {
 						},
 					},
 				},
-				granularity: VariableGranularityMajor,
+				granularity:       VariableGranularityMajor,
+				executableDirName: "/bin",
 			},
 			expectedSpecificFileName: ".noderc",
 			expectedSpecificContent: []string{
@@ -192,7 +196,8 @@ func Test_initVariablesInSpecificRc(t *testing.T) {
 						},
 					},
 				},
-				granularity: VariableGranularityMajor,
+				granularity:       VariableGranularityMajor,
+				executableDirName: "/bin",
 			},
 			expectedSpecificFileName: ".noderc",
 			expectedSpecificContent: []string{
@@ -221,7 +226,8 @@ func Test_initVariablesInSpecificRc(t *testing.T) {
 						},
 					},
 				},
-				granularity: VariableGranularityMajor,
+				granularity:       VariableGranularityMajor,
+				executableDirName: "/bin",
 			},
 			expectedSpecificFileName: ".noderc",
 			expectedSpecificContent: []string{
@@ -250,7 +256,8 @@ func Test_initVariablesInSpecificRc(t *testing.T) {
 						},
 					},
 				},
-				granularity: VariableGranularityMinor,
+				granularity:       VariableGranularityMinor,
+				executableDirName: "/bin",
 			},
 			expectedSpecificFileName: ".kotlinrc",
 			expectedSpecificContent: []string{
@@ -265,7 +272,7 @@ func Test_initVariablesInSpecificRc(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			dir := test.CreateTestDir(t)
-			err := initVariables(test.TestDirs{Home: dir}, tt.args.history, tt.args.granularity)
+			err := initVariables(test.TestDirs{Home: dir}, tt.args.history, tt.args.executableDirName, tt.args.granularity)
 			if err != nil {
 				t.Errorf("Failed to init variables: %s", err)
 			}

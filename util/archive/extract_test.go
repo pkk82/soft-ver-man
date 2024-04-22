@@ -88,6 +88,18 @@ func TestExtract(t *testing.T) {
 			},
 			wantPath: "files",
 		},
+		{
+			name: "tar.gz dir (duplicated dir)",
+			args: args{
+				fetchedPackage: domain.FetchedPackage{
+					Version:  domain.Version{Value: "v20.1.2"},
+					FilePath: filepath.Join("testdata", "duplicated-dir.tar.gz"),
+					Type:     domain.TAR_GZ,
+				},
+				strategy: TargetDirNameDefault,
+			},
+			wantPath: "dir",
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

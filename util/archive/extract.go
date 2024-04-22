@@ -269,7 +269,7 @@ func extractTopLevelDirInTarGzFile(tarGzFilePath string) (string, error) {
 		}
 
 		if header.Typeflag == tar.TypeDir {
-			if !strings.Contains(strings.TrimSuffix(header.Name, "/"), "/") {
+			if !strings.Contains(strings.TrimSuffix(header.Name, "/"), "/") && !contains(topLevelDirs, header.Name) {
 				topLevelDirs = append(topLevelDirs, header.Name)
 			}
 		}
@@ -328,4 +328,13 @@ func prepareTargetFilePathSupplier(archivePath, topLevelDirInArchive string, str
 		panic("Unknown target dir name strategy: " + string(strategy))
 	}
 
+}
+
+func contains(s []string, e string) bool {
+	for _, a := range s {
+		if a == e {
+			return true
+		}
+	}
+	return false
 }

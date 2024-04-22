@@ -25,6 +25,7 @@ import (
 	"fmt"
 	"github.com/pkk82/soft-ver-man/config"
 	"github.com/pkk82/soft-ver-man/domain"
+	"github.com/pkk82/soft-ver-man/util/file"
 	"path"
 	"path/filepath"
 	"sort"
@@ -134,7 +135,7 @@ func initSpecificRcRileWithMajorVariables(installedPackages []domain.InstalledPa
 
 	lines = append(lines, fmt.Sprintf("export PATH=\"$%v_HOME%v:$PATH\"", variablePartName, executableDirName))
 
-	err = overrideFileWithContent(path.Join(homeDir, config.HomeConfigDir, rcName(name)), lines)
+	err = file.OverrideFileWithContent(path.Join(homeDir, config.HomeConfigDir, rcName(name)), lines)
 	if err != nil {
 		return err
 	}
@@ -180,7 +181,7 @@ func initSpecificRcRileWithMinorVariables(installedPackages []domain.InstalledPa
 
 	lines = append(lines, fmt.Sprintf("export PATH=\"$%v_HOME%v:$PATH\"", variablePartName, executableDirName))
 
-	err = overrideFileWithContent(path.Join(homeDir, config.HomeConfigDir, rcName(name)), lines)
+	err = file.OverrideFileWithContent(path.Join(homeDir, config.HomeConfigDir, rcName(name)), lines)
 	if err != nil {
 		return err
 	}

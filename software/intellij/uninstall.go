@@ -19,41 +19,36 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
-
-package cmd
+package intellij
 
 import (
+	"github.com/pkk82/soft-ver-man/config"
 	"github.com/pkk82/soft-ver-man/domain"
-	"github.com/spf13/cobra"
+	"os"
 )
 
-func VersionArg(cmd *cobra.Command, args []string) error {
-	if err := cobra.MaximumNArgs(1)(cmd, args); err != nil {
+func Uninstall(inputVersion string) error {
+	version, err := domain.NewVersion(inputVersion)
+	if err != nil {
 		return err
 	}
-	firstArgOrEmpty := FirstOrEmpty(args)
-	if firstArgOrEmpty == "" {
-		return nil
-	}
-	return domain.ValidateVersion(firstArgOrEmpty)
-}
-func VersionMandatoryArg(cmd *cobra.Command, args []string) error {
-	if err := cobra.MinimumNArgs(1)(cmd, args); err != nil {
-		return err
-	}
-	if err := cobra.MaximumNArgs(1)(cmd, args); err != nil {
-		return err
-	}
-	firstArgOrEmpty := FirstOrEmpty(args)
-	if firstArgOrEmpty == "" {
-		return nil
-	}
-	return domain.ValidateVersion(firstArgOrEmpty)
-}
 
-func FirstOrEmpty(args []string) string {
-	if len(args) > 0 {
-		return args[0]
+	history, err := config.ReadHistoryConfig(Name)
+	if err != nil {
+		return err
 	}
-	return ""
+
+	updatedHistory, removedItem := history.RemoveByVersion(version)
+
+	err = os.RemoveAll(removedItem.Path)
+	if err != nil {
+		return err
+	}
+
+	err = config.WriteHistoryConfig(*updatedHistory)
+	if err != nil {
+		return err
+	}
+	return nil
+
 }

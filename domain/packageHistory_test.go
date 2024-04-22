@@ -247,3 +247,92 @@ func TestPackageHistory_Exists(t *testing.T) {
 	}
 
 }
+
+func TestPackageHistory_Remove(t *testing.T) {
+
+	tests := []struct {
+		name        string
+		ph          PackageHistory
+		want        PackageHistory
+		wantRemoved *PackageHistoryItem
+	}{
+		{
+			name:        "empty",
+			ph:          PackageHistory{Name: "node", Items: []PackageHistoryItem{}},
+			want:        PackageHistory{Name: "node", Items: []PackageHistoryItem{}},
+			wantRemoved: nil,
+		},
+		{
+			name: "with-one-item",
+			ph: PackageHistory{Name: "node", Items: []PackageHistoryItem{
+				{
+					Version:     "v20.1.3",
+					Path:        "/home/user/pf/node/node-v20.1.3-linux-x64",
+					Main:        true,
+					InstalledOn: 1689017267000,
+				},
+			}},
+			want: PackageHistory{Name: "node", Items: nil},
+			wantRemoved: &PackageHistoryItem{
+				Version:     "v20.1.3",
+				Path:        "/home/user/pf/node/node-v20.1.3-linux-x64",
+				Main:        true,
+				InstalledOn: 1689017267000,
+			},
+		},
+		{
+			name: "with-two-items",
+			ph: PackageHistory{Name: "node", Items: []PackageHistoryItem{
+				{
+					Version:     "v20.1.3",
+					Path:        "/home/user/pf/node/node-v20.1.3-linux-x64",
+					Main:        true,
+					InstalledOn: 1689017267000,
+				},
+				{
+					Version:     "v20.1.4",
+					Path:        "/home/user/pf/node/node-v20.1.4-linux-x64",
+					Main:        false,
+					InstalledOn: 1689017267000,
+				},
+			}},
+			want: PackageHistory{Name: "node", Items: []PackageHistoryItem{
+				{
+					Version:     "v20.1.4",
+					Path:        "/home/user/pf/node/node-v20.1.4-linux-x64",
+					Main:        false,
+					InstalledOn: 1689017267000,
+				},
+			}},
+			wantRemoved: &PackageHistoryItem{
+				Version:     "v20.1.3",
+				Path:        "/home/user/pf/node/node-v20.1.3-linux-x64",
+				Main:        true,
+				InstalledOn: 1689017267000,
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			ph := tt.ph
+			got, removed := ph.RemoveByVersion(
+				Version{
+					Value: "v20.1.3",
+				})
+
+			if len(got.Items) != 0 && !reflect.DeepEqual(*got, tt.want) {
+				//t.Errorf("RemoveByVersion().history = %v, want %v", *got, tt.want)
+				t.Errorf("RemoveByVersion().history = %v, want %v", *got, tt.want)
+			}
+			if got.Name != tt.want.Name || (len(got.Items) != len(tt.want.Items)) {
+				t.Errorf("RemoveByVersion().history = %v, want %v", *got, tt.want)
+			}
+
+			if !reflect.DeepEqual(removed, tt.wantRemoved) {
+				t.Errorf("RemoveByVersion().removed = %v, want %v", removed, tt.wantRemoved)
+			}
+		})
+	}
+
+}

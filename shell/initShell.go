@@ -25,7 +25,7 @@ import (
 	"errors"
 	"github.com/pkk82/soft-ver-man/config"
 	"github.com/pkk82/soft-ver-man/util/console"
-	"io"
+	"github.com/pkk82/soft-ver-man/util/file"
 	"os"
 	"path/filepath"
 	"strings"
@@ -44,13 +44,13 @@ func initShell(finder DirFinder) error {
 	rcFiles := [2]string{".bashrc", ".zshrc"}
 	for _, rcFile := range rcFiles {
 		rcPath := filepath.Join(dir, rcFile)
-		exists, err := fileExists(rcPath)
+		exists, err := file.FileExists(rcPath)
 		if err != nil {
 			return err
 		}
 		if exists {
 			atLeastOneExists = true
-			content, err := readFile(rcPath)
+			content, err := file.ReadFile(rcPath)
 			if err != nil {
 				return err
 			}
@@ -75,7 +75,7 @@ func initShell(finder DirFinder) error {
 
 func assertFileWithContent(filePath string, seekLine string, contentToAdd []string) error {
 
-	exists, err := fileExists(filePath)
+	exists, err := file.FileExists(filePath)
 	if err != nil {
 		return err
 	}
@@ -93,13 +93,13 @@ func assertFileWithContent(filePath string, seekLine string, contentToAdd []stri
 		}
 	}
 
-	content, err := readFile(filePath)
+	content, err := file.ReadFile(filePath)
 	if err != nil {
 		return err
 	}
 
 	if !strings.Contains(content, seekLine) {
-		err := appendInFile(filePath, contentToAdd)
+		err := file.AppendInFile(filePath, contentToAdd)
 		if err != nil {
 			return err
 		}
@@ -108,88 +108,6 @@ func assertFileWithContent(filePath string, seekLine string, contentToAdd []stri
 
 	return nil
 
-}
-
-func overrideFileWithContent(filePath string, contentToAdd []string) error {
-
-	exists, err := fileExists(filePath)
-	if err != nil {
-		return err
-	}
-	if !exists {
-		parent, _ := filepath.Split(filePath)
-		err := os.MkdirAll(parent, 0755)
-		if err != nil {
-			return err
-		}
-	}
-
-	err = os.WriteFile(filePath, []byte(strings.Join(contentToAdd, "\n")), 0644)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func readFile(path string) (string, error) {
-	file, err := os.Open(path)
-	if err != nil {
-		return "", err
-	}
-	defer func(file *os.File) {
-		err := file.Close()
-		if err != nil {
-			console.Error(err)
-		}
-	}(file)
-
-	content, err := io.ReadAll(file)
-	if err != nil {
-		return "", err
-	}
-
-	return string(content), nil
-}
-
-func appendInFile(path string, lines []string) error {
-	file, err := os.OpenFile(path, os.O_APPEND|os.O_WRONLY, 0644)
-	if err != nil {
-		return err
-	}
-	defer func(file *os.File) {
-		err := file.Close()
-		if err != nil {
-			console.Error(err)
-		}
-	}(file)
-
-	for _, line := range lines {
-		_, err = file.WriteString(line + "\n")
-		if err != nil {
-			return err
-		}
-	}
-	return nil
-}
-
-func fileExists(filePath string) (bool, error) {
-	fileinfo, err := os.Stat(filePath)
-
-	if os.IsNotExist(err) {
-		return false, nil
-	}
-
-	if err != nil {
-		return false, err
-	}
-
-	mode := fileinfo.Mode()
-	if !mode.IsRegular() {
-		return false, errors.New("Not a regular file: " + filePath)
-	}
-
-	return true, nil
 }
 
 func createFile(filePath string) error {

@@ -50,6 +50,21 @@ func (ph *PackageHistory) Add(installedPackage InstalledPackage) *PackageHistory
 	return ph
 }
 
+func (ph *PackageHistory) RemoveByVersion(version Version) (*PackageHistory, *PackageHistoryItem) {
+	newItems := make([]PackageHistoryItem, 0)
+	var itemToRemove *PackageHistoryItem = nil
+	for _, item := range ph.Items {
+		if item.Version != version.Value {
+			newItems = append(newItems, item)
+		} else {
+			copyItem := item
+			itemToRemove = &copyItem
+		}
+	}
+	ph.Items = newItems
+	return ph, itemToRemove
+}
+
 func (ph *PackageHistory) IsInstalled(version Version) bool {
 	for _, item := range ph.Items {
 		if item.Version == version.Value {

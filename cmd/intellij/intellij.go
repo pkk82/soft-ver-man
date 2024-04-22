@@ -19,41 +19,25 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
-
-package cmd
+package intellij
 
 import (
-	"github.com/pkk82/soft-ver-man/domain"
+	"fmt"
+	"github.com/pkk82/soft-ver-man/cmd"
 	"github.com/spf13/cobra"
 )
 
-func VersionArg(cmd *cobra.Command, args []string) error {
-	if err := cobra.MaximumNArgs(1)(cmd, args); err != nil {
-		return err
-	}
-	firstArgOrEmpty := FirstOrEmpty(args)
-	if firstArgOrEmpty == "" {
-		return nil
-	}
-	return domain.ValidateVersion(firstArgOrEmpty)
-}
-func VersionMandatoryArg(cmd *cobra.Command, args []string) error {
-	if err := cobra.MinimumNArgs(1)(cmd, args); err != nil {
-		return err
-	}
-	if err := cobra.MaximumNArgs(1)(cmd, args); err != nil {
-		return err
-	}
-	firstArgOrEmpty := FirstOrEmpty(args)
-	if firstArgOrEmpty == "" {
-		return nil
-	}
-	return domain.ValidateVersion(firstArgOrEmpty)
+// Cmd represents the java command
+var Cmd = &cobra.Command{
+	Use:     "intellij",
+	Short:   "Software: Intellij IDEA",
+	Long:    `Download and configure Intellij Idea (Ultimate)`,
+	Aliases: []string{"intellij", "idea, intellij-idea, ii"},
+	Run: func(cmd *cobra.Command, args []string) {
+		fmt.Println("Use --help to display Intellij IDEA subcommands")
+	},
 }
 
-func FirstOrEmpty(args []string) string {
-	if len(args) > 0 {
-		return args[0]
-	}
-	return ""
+func init() {
+	cmd.RootCmd.AddCommand(Cmd)
 }

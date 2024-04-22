@@ -29,6 +29,7 @@ import (
 const (
 	TAR_GZ  = "tar.gz"
 	ZIP     = "zip"
+	DMG     = "dmg"
 	RAW     = "raw"
 	UNKNOWN = "unknown"
 )

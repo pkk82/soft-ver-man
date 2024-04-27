@@ -19,36 +19,21 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
-package intellij
+package cmd
 
 import (
-	"github.com/pkk82/soft-ver-man/config"
-	"github.com/pkk82/soft-ver-man/domain"
-	"os"
+	"fmt"
+	"github.com/spf13/cobra"
 )
 
-func Uninstall(inputVersion string) error {
-	version, err := domain.NewVersion(inputVersion)
-	if err != nil {
-		return err
+func MainCmd(name, longName string, aliases []string) *cobra.Command {
+	return &cobra.Command{
+		Use:     name,
+		Short:   fmt.Sprintf("Software: %v", longName),
+		Long:    fmt.Sprintf("Download and install %v", longName),
+		Aliases: aliases,
+		Run: func(cmd *cobra.Command, args []string) {
+			fmt.Println("Use --help to display subcommands")
+		},
 	}
-
-	history, err := config.ReadHistoryConfig(Name)
-	if err != nil {
-		return err
-	}
-
-	updatedHistory, removedItem := history.RemoveByVersion(version)
-
-	err = os.RemoveAll(removedItem.Path)
-	if err != nil {
-		return err
-	}
-
-	err = config.WriteHistoryConfig(*updatedHistory)
-	if err != nil {
-		return err
-	}
-	return nil
-
 }

@@ -22,22 +22,13 @@ THE SOFTWARE.
 package java
 
 import (
-	"fmt"
 	"github.com/pkk82/soft-ver-man/cmd"
-	"github.com/spf13/cobra"
+	"github.com/pkk82/soft-ver-man/software/java"
 )
 
-// Cmd represents the java command
-var Cmd = &cobra.Command{
-	Use:     "java",
-	Short:   "Software: java",
-	Long:    `Download and configure java (azul)`,
-	Aliases: []string{"jdk"},
-	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("Use --help to display java subcommands")
-	},
-}
+var Cmd = cmd.MainCmd(java.Name, java.LongName, java.Aliases)
 
 func init() {
 	cmd.RootCmd.AddCommand(Cmd)
+	Cmd.AddCommand(cmd.UninstallCmd(java.Name, java.LongName))
 }

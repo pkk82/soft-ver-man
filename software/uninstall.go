@@ -19,30 +19,36 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
-package intellij
+package software
 
 import (
-	"fmt"
-	cmdUtil "github.com/pkk82/soft-ver-man/cmd"
-	"github.com/pkk82/soft-ver-man/software/intellij"
-	"github.com/pkk82/soft-ver-man/util/console"
-	"github.com/spf13/cobra"
+	"github.com/pkk82/soft-ver-man/config"
+	"github.com/pkk82/soft-ver-man/domain"
+	"os"
 )
 
-var uninstallCmd = &cobra.Command{
-	Use:     "uninstall [version]",
-	Aliases: []string{"u", "uninstall"},
-	Short:   "Uninstall Ultimate Intellij IDEA package from software directory",
-	Long:    fmt.Sprintf("Unistall Ultimate Intellij IDEA from software directory"),
-	Args:    cmdUtil.VersionMandatoryArg,
-	Run: func(cmd *cobra.Command, args []string) {
-		err := intellij.Uninstall(cmdUtil.FirstOrEmpty(args))
-		if err != nil {
-			console.Fatal(err)
-		}
-	},
-}
+func Uninstall(name, inputVersion string) error {
+	version, err := domain.NewVersion(inputVersion)
+	if err != nil {
+		return err
+	}
 
-func init() {
-	Cmd.AddCommand(uninstallCmd)
+	history, err := config.ReadHistoryConfig(name)
+	if err != nil {
+		return err
+	}
+
+	updatedHistory, removedItem := history.RemoveByVersion(version)
+
+	err = os.RemoveAll(removedItem.Path)
+	if err != nil {
+		return err
+	}
+
+	err = config.WriteHistoryConfig(*updatedHistory)
+	if err != nil {
+		return err
+	}
+	return nil
+
 }

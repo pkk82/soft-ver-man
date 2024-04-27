@@ -22,22 +22,13 @@ THE SOFTWARE.
 package kotlin
 
 import (
-	"fmt"
 	"github.com/pkk82/soft-ver-man/cmd"
-
-	"github.com/spf13/cobra"
+	"github.com/pkk82/soft-ver-man/software/kotlin"
 )
 
-// Cmd represents the java command
-var Cmd = &cobra.Command{
-	Use:   "kotlin",
-	Short: "Software: kotlin",
-	Long:  `Download and configure kotlin`,
-	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("Use --help to display kotlin subcommands")
-	},
-}
+var Cmd = cmd.MainCmd(kotlin.Name, kotlin.Name, kotlin.Aliases)
 
 func init() {
 	cmd.RootCmd.AddCommand(Cmd)
+	Cmd.AddCommand(cmd.UninstallCmd(kotlin.Name, kotlin.Name))
 }

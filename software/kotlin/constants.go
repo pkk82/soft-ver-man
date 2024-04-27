@@ -9,6 +9,8 @@ const PageSize = 100
 
 const Name = "kotlin"
 
+var Aliases = []string{"kotlin", "kt"}
+
 func ReleasesURL() string {
 	return github.URL(RepoOwner, RepoName)
 }

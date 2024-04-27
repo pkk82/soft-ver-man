@@ -19,17 +19,27 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
-package svm
+package cmd
 
 import (
-	"github.com/pkk82/soft-ver-man/cmd"
-	"github.com/pkk82/soft-ver-man/software/svm"
+	"fmt"
+	"github.com/pkk82/soft-ver-man/software"
+	"github.com/pkk82/soft-ver-man/util/console"
+	"github.com/spf13/cobra"
 )
 
-// Cmd represents the java command
-
-var Cmd = cmd.MainCmd(svm.Name, svm.LongName, svm.Aliases)
-
-func init() {
-	cmd.RootCmd.AddCommand(Cmd)
+func UninstallCmd(name, longName string) *cobra.Command {
+	return &cobra.Command{
+		Use:     "uninstall [version]",
+		Aliases: []string{"u", "uninstall"},
+		Short:   "Uninstall software package from software directory",
+		Long:    fmt.Sprintf("Uninstall %v from software directory", longName),
+		Args:    VersionMandatoryArg,
+		Run: func(cmd *cobra.Command, args []string) {
+			err := software.Uninstall(name, FirstOrEmpty(args))
+			if err != nil {
+				console.Fatal(err)
+			}
+		},
+	}
 }

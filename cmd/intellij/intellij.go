@@ -22,22 +22,13 @@ THE SOFTWARE.
 package intellij
 
 import (
-	"fmt"
 	"github.com/pkk82/soft-ver-man/cmd"
-	"github.com/spf13/cobra"
+	"github.com/pkk82/soft-ver-man/software/intellij"
 )
 
-// Cmd represents the java command
-var Cmd = &cobra.Command{
-	Use:     "intellij",
-	Short:   "Software: Intellij IDEA",
-	Long:    `Download and configure Intellij Idea (Ultimate)`,
-	Aliases: []string{"intellij", "idea", "intellij-idea", "ii"},
-	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("Use --help to display Intellij IDEA subcommands")
-	},
-}
+var Cmd = cmd.MainCmd(intellij.Name, intellij.LongName, intellij.Aliases)
 
 func init() {
 	cmd.RootCmd.AddCommand(Cmd)
+	Cmd.AddCommand(cmd.UninstallCmd(intellij.Name, intellij.LongName))
 }

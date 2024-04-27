@@ -22,21 +22,13 @@ THE SOFTWARE.
 package node
 
 import (
-	"fmt"
 	"github.com/pkk82/soft-ver-man/cmd"
-	"github.com/spf13/cobra"
+	"github.com/pkk82/soft-ver-man/software/node"
 )
 
-var Cmd = &cobra.Command{
-	Use:     "node",
-	Short:   "Software: node.js",
-	Long:    `Download and configure node.js`,
-	Aliases: []string{"node.js", "nodejs"},
-	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("Use --help to display node.js subcommands")
-	},
-}
+var Cmd = cmd.MainCmd(node.Name, node.LongName, node.Aliases)
 
 func init() {
 	cmd.RootCmd.AddCommand(Cmd)
+	Cmd.AddCommand(cmd.UninstallCmd(node.Name, node.LongName))
 }

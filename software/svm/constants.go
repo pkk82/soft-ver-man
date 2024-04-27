@@ -8,6 +8,9 @@ const RepoName = "soft-ver-man"
 const PageSize = 1000
 
 const Name = "soft-ver-man"
+const LongName = "soft-ver-man"
+
+var Aliases = []string{"svm", "soft-ver-man"}
 
 const FileName = "svm"
 

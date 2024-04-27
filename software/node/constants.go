@@ -1,6 +1,10 @@
 package node
 
 const Name = "node"
+const LongName = "Node.js"
+
+var Aliases = []string{"node", "nodejs", "node.js"}
+
 const DistURL = "https://nodejs.org/dist"
 const JsonFileURL = "https://nodejs.org/dist/index.json"
 const ShaSumFileName = "SHASUMS256.txt"

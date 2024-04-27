@@ -31,7 +31,7 @@ import (
 
 var uninstallCmd = &cobra.Command{
 	Use:     "uninstall [version]",
-	Aliases: []string{"i", "install"},
+	Aliases: []string{"u", "uninstall"},
 	Short:   "Uninstall Ultimate Intellij IDEA package from software directory",
 	Long:    fmt.Sprintf("Unistall Ultimate Intellij IDEA from software directory"),
 	Args:    cmdUtil.VersionMandatoryArg,

@@ -32,7 +32,7 @@ var Cmd = &cobra.Command{
 	Use:     "intellij",
 	Short:   "Software: Intellij IDEA",
 	Long:    `Download and configure Intellij Idea (Ultimate)`,
-	Aliases: []string{"intellij", "idea, intellij-idea, ii"},
+	Aliases: []string{"intellij", "idea", "intellij-idea", "ii"},
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println("Use --help to display Intellij IDEA subcommands")
 	},

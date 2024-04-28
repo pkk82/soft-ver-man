@@ -1,5 +1,5 @@
 /*
-Copyright © 2023 Piotr Kozak <piotrkrzysztofkozak@gmail.com>
+Copyright © 2024 Piotr Kozak <piotrkrzysztofkozak@gmail.com>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -19,32 +19,19 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
-package cmd
+package kotlin
 
 import (
-	"fmt"
+	"github.com/pkk82/soft-ver-man/domain"
 	"github.com/pkk82/soft-ver-man/software"
-	"github.com/pkk82/soft-ver-man/util/console"
-	"github.com/spf13/cobra"
 )
 
-func UninstallCmd(name, longName string) *cobra.Command {
-	return &cobra.Command{
-		Use:     "uninstall [version]",
-		Aliases: []string{"u", "uninstall"},
-		Short:   "Uninstall software package from software directory",
-		Long:    fmt.Sprintf("Uninstall %v from software directory", longName),
-		Args:    VersionMandatoryArg,
-		Run: func(cmd *cobra.Command, args []string) {
-			version, err := software.Uninstall(name, FirstOrEmpty(args))
-			if err != nil {
-				console.Fatal(err)
-			}
-			plugin := software.GetPlugin(name)
-			err = plugin.PostUninstall(version)
-			if err != nil {
-				console.Fatal(err)
-			}
+func init() {
+	var plugin = software.Plugin{
+		Name: Name,
+		PostUninstall: func(version domain.Version) error {
+			return nil
 		},
 	}
+	software.Register(plugin)
 }

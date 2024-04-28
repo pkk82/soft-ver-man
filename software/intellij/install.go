@@ -33,19 +33,6 @@ import (
 	"time"
 )
 
-/*
-	if err != nil {
-		console.Fatal(err)
-	}
-
-installedPackage, err := intellij.Install(cmdUtil.config.SoftwareDir)
-
-	if err != nil {
-		console.Fatal(err)
-	}
-
-err = intellij.CreateLauncher(installedPackage)
-*/
 func Install(inputVersion string) error {
 
 	version, err := domain.NewVersion(inputVersion)

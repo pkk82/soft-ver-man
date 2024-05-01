@@ -52,7 +52,7 @@ func initVariables(finder DirFinder, history domain.PackageHistory, executableDi
 		return err
 	}
 
-	installedPackages, err := convertHistoryToInstalledPackages(history)
+	installedPackages, err := history.ToInstalledPackages()
 	if err != nil {
 		return err
 	}
@@ -186,23 +186,6 @@ func initSpecificRcRileWithMinorVariables(installedPackages []domain.InstalledPa
 		return err
 	}
 	return nil
-}
-
-func convertHistoryToInstalledPackages(history domain.PackageHistory) ([]domain.InstalledPackage, error) {
-	installedPackages := make([]domain.InstalledPackage, 0)
-	for _, item := range history.Items {
-		v, err := domain.NewVersion(item.Version)
-		if err != nil {
-			return nil, err
-		}
-		installedPackages = append(installedPackages, domain.InstalledPackage{
-			Version:     v,
-			Path:        item.Path,
-			Main:        item.Main,
-			InstalledOn: item.InstalledOn,
-		})
-	}
-	return installedPackages, nil
 }
 
 type VersionRounder func(domain.InstalledPackage) (domain.Version, error)

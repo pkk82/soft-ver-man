@@ -336,3 +336,66 @@ func TestPackageHistory_Remove(t *testing.T) {
 	}
 
 }
+
+func TestToInstalledPackages(t *testing.T) {
+	tests := []struct {
+		name    string
+		arg     PackageHistory
+		want    []InstalledPackage
+		wantErr bool
+	}{
+		{
+			name: "empty string",
+			arg: PackageHistory{Name: "node", Items: []PackageHistoryItem{
+				{
+					Version:     "v20.1.3",
+					Path:        "/home/user/pf/node/node-v20.1.3-linux-x64",
+					Main:        true,
+					InstalledOn: 1689017267000,
+				},
+				{
+					Version:     "v20.1.4",
+					Path:        "/home/user/pf/node/node-v20.1.4-linux-x64",
+					Main:        false,
+					InstalledOn: 1689017268000,
+				},
+			}},
+			want: []InstalledPackage{
+				{
+					InstalledOn: 1689017267000,
+					Path:        "/home/user/pf/node/node-v20.1.3-linux-x64",
+					Version:     toVersion("v20.1.3", t),
+					Main:        true,
+				},
+				{
+					InstalledOn: 1689017268000,
+					Path:        "/home/user/pf/node/node-v20.1.4-linux-x64",
+					Version:     toVersion("v20.1.4", t),
+					Main:        false,
+				},
+			},
+			wantErr: false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := tt.arg.ToInstalledPackages()
+			if (err != nil) != tt.wantErr {
+				t.Errorf("PackageHistory.ToInstalledPackages() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("ackageHistory.ToInstalledPackages() got = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func toVersion(version string, t *testing.T) Version {
+	v, err := NewVersion(version)
+	if err != nil {
+		t.Fatal(err)
+	}
+	return v
+
+}

@@ -73,3 +73,20 @@ func (ph *PackageHistory) IsInstalled(version Version) bool {
 	}
 	return false
 }
+
+func (ph *PackageHistory) ToInstalledPackages() ([]InstalledPackage, error) {
+	installedPackages := make([]InstalledPackage, 0)
+	for _, item := range ph.Items {
+		v, err := NewVersion(item.Version)
+		if err != nil {
+			return nil, err
+		}
+		installedPackages = append(installedPackages, InstalledPackage{
+			Version:     v,
+			Path:        item.Path,
+			Main:        item.Main,
+			InstalledOn: item.InstalledOn,
+		})
+	}
+	return installedPackages, nil
+}

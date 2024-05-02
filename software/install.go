@@ -38,7 +38,7 @@ func Install(plugin domain.Plugin, inputVersion string) error {
 		console.Fatal(err)
 	}
 
-	extractedPackage, err := archive.Extract(fetchedPackage, path.Join(configuration.SoftwareDir, plugin.Name), archive.TargetDirNameArchiveReplace)
+	extractedPackage, err := archive.Extract(fetchedPackage, path.Join(configuration.SoftwareDir, plugin.Name), plugin.ExtractStrategy)
 	if err != nil {
 		return err
 	}

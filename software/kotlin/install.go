@@ -42,7 +42,7 @@ func Install(fetchedPackage domain.FetchedPackage, softwareDir string) error {
 		return errors.New("Version " + fetchedPackage.Version.Value + " is already installed")
 	}
 
-	extractedPackage, err := archive.Extract(fetchedPackage, path.Join(softwareDir, Name), archive.TargetDirNameArchiveReplace)
+	extractedPackage, err := archive.Extract(fetchedPackage, path.Join(softwareDir, Name), domain.ReplaceCompressedDirWithArchiveName)
 	installedPackage := domain.InstalledPackage{
 		Version:     extractedPackage.Version,
 		Path:        extractedPackage.Path,

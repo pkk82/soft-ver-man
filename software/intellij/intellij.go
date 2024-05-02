@@ -39,6 +39,7 @@ func init() {
 		CalculateDownloadedFileName: calculateDownloadedFileName,
 		ExecutableRelativePath:      "bin",
 		VersionGranularity:          domain.VersionGranularityMajor,
+		ExtractStrategy:             domain.ReplaceCompressedDirWithArchiveName,
 	}
 	domain.Register(plugin)
 }

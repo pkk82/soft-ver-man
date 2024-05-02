@@ -48,7 +48,6 @@ func (sl *SortedList[T]) Delete(value T) bool {
 
 func (sl *SortedList[T]) Get(index int) (T, bool) {
 	values := sl.values
-	println(len(values))
 	if index < 0 || index >= len(values) {
 		var t T
 		return t, false

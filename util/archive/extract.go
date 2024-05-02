@@ -41,21 +41,7 @@ type ExtractedPackage struct {
 	Path    string
 }
 
-type TargetDirNameStrategy string
-
-// how to extract archive
-const (
-
-	// TargetDirNameDefault - if archive contains only one top level directory, it will be used as target directory,
-	// otherwise archive name without extension will be used
-	TargetDirNameDefault TargetDirNameStrategy = "default"
-
-	// TargetDirNameArchiveReplace - archive name without extension will be used as target directory,
-	// and it will replace archive top level directory if there is only one
-	TargetDirNameArchiveReplace TargetDirNameStrategy = "archive_replace"
-)
-
-func Extract(fetchedPackage domain.FetchedPackage, softwareDir string, targetDirNameStrategy TargetDirNameStrategy) (ExtractedPackage, error) {
+func Extract(fetchedPackage domain.FetchedPackage, softwareDir string, targetDirNameStrategy domain.ExtractStrategy) (ExtractedPackage, error) {
 
 	var err error
 	var targetDirPath string
@@ -74,7 +60,7 @@ func Extract(fetchedPackage domain.FetchedPackage, softwareDir string, targetDir
 	}
 }
 
-func extractZip(zipPath string, dir string, strategy TargetDirNameStrategy) (string, error) {
+func extractZip(zipPath string, dir string, strategy domain.ExtractStrategy) (string, error) {
 	reader, err := zip.OpenReader(zipPath)
 	if err != nil {
 		return "", err
@@ -159,7 +145,7 @@ func extractZipFile(targetFilePath string, file *zip.File) error {
 	return nil
 }
 
-func extractTarGz(tarGzFilePath, dir string, strategy TargetDirNameStrategy) (string, error) {
+func extractTarGz(tarGzFilePath, dir string, strategy domain.ExtractStrategy) (string, error) {
 
 	topLevelDir, err := extractTopLevelDirInTarGzFile(tarGzFilePath)
 	if err != nil {
@@ -316,13 +302,13 @@ func (s *archiveReplaceTargetFilePathSupplier) supply(targetDir, archiveFilePath
 	}
 }
 
-func prepareTargetFilePathSupplier(archivePath, topLevelDirInArchive string, strategy TargetDirNameStrategy) targetFilePathSupplier {
+func prepareTargetFilePathSupplier(archivePath, topLevelDirInArchive string, strategy domain.ExtractStrategy) targetFilePathSupplier {
 
 	archiveNameWithoutExtension := archiveNameWithoutExtension(archivePath)
 	switch strategy {
-	case TargetDirNameDefault:
+	case domain.UseCompressedDirOrArchiveName:
 		return &defaultTargetFilePathSupplier{archiveNameWithoutExtension: archiveNameWithoutExtension, topLevelDirInArchive: topLevelDirInArchive}
-	case TargetDirNameArchiveReplace:
+	case domain.ReplaceCompressedDirWithArchiveName:
 		return &archiveReplaceTargetFilePathSupplier{archiveNameWithoutExtension: archiveNameWithoutExtension, topLevelDirInArchive: topLevelDirInArchive}
 	default:
 		panic("Unknown target dir name strategy: " + string(strategy))

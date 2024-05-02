@@ -13,7 +13,7 @@ import (
 func TestExtract(t *testing.T) {
 	type args struct {
 		fetchedPackage domain.FetchedPackage
-		strategy       TargetDirNameStrategy
+		strategy       domain.ExtractStrategy
 	}
 	tests := []struct {
 		name     string
@@ -28,7 +28,7 @@ func TestExtract(t *testing.T) {
 					FilePath: filepath.Join("testdata", "some-dir.tar.gz"),
 					Type:     domain.TAR_GZ,
 				},
-				strategy: TargetDirNameDefault,
+				strategy: domain.UseCompressedDirOrArchiveName,
 			},
 			wantPath: "dir",
 		}, {
@@ -39,7 +39,7 @@ func TestExtract(t *testing.T) {
 					FilePath: filepath.Join("testdata", "some-dir.tar.gz"),
 					Type:     domain.TAR_GZ,
 				},
-				strategy: TargetDirNameArchiveReplace,
+				strategy: domain.ReplaceCompressedDirWithArchiveName,
 			},
 			wantPath: "some-dir",
 		}, {
@@ -50,7 +50,7 @@ func TestExtract(t *testing.T) {
 					FilePath: filepath.Join("testdata", "some-dir.zip"),
 					Type:     domain.ZIP,
 				},
-				strategy: TargetDirNameDefault,
+				strategy: domain.UseCompressedDirOrArchiveName,
 			},
 			wantPath: "dir",
 		}, {
@@ -61,7 +61,7 @@ func TestExtract(t *testing.T) {
 					FilePath: filepath.Join("testdata", "some-dir.zip"),
 					Type:     domain.ZIP,
 				},
-				strategy: TargetDirNameArchiveReplace,
+				strategy: domain.ReplaceCompressedDirWithArchiveName,
 			},
 			wantPath: "some-dir",
 		}, {
@@ -72,7 +72,7 @@ func TestExtract(t *testing.T) {
 					FilePath: filepath.Join("testdata", "files.tar.gz"),
 					Type:     domain.TAR_GZ,
 				},
-				strategy: TargetDirNameDefault,
+				strategy: domain.UseCompressedDirOrArchiveName,
 			},
 
 			wantPath: "files",
@@ -84,7 +84,7 @@ func TestExtract(t *testing.T) {
 					FilePath: filepath.Join("testdata", "files.zip"),
 					Type:     domain.ZIP,
 				},
-				strategy: TargetDirNameDefault,
+				strategy: domain.UseCompressedDirOrArchiveName,
 			},
 			wantPath: "files",
 		},
@@ -96,7 +96,7 @@ func TestExtract(t *testing.T) {
 					FilePath: filepath.Join("testdata", "duplicated-dir.tar.gz"),
 					Type:     domain.TAR_GZ,
 				},
-				strategy: TargetDirNameDefault,
+				strategy: domain.UseCompressedDirOrArchiveName,
 			},
 			wantPath: "dir",
 		},

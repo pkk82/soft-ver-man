@@ -7,8 +7,16 @@ import (
 
 type SortedList[T constraints.Ordered] []T
 
-func NewSortedList[T constraints.Ordered]() SortedList[T] {
+func NewEmptySortedList[T constraints.Ordered]() SortedList[T] {
 	return make(SortedList[T], 0)
+}
+
+func NewSortedList[T constraints.Ordered](values []T) SortedList[T] {
+	result := make(SortedList[T], 0)
+	for _, v := range values {
+		result.Insert(v)
+	}
+	return result
 }
 
 func (sl *SortedList[T]) Insert(value T) {

@@ -183,8 +183,38 @@ func TestSortedList_Insert(t *testing.T) {
 	}
 }
 
+func TestNewSortedList(t *testing.T) {
+	type args[T constraints.Ordered] struct {
+		values []T
+	}
+	type testCase[T constraints.Ordered] struct {
+		name string
+		args args[T]
+		want SortedList[T]
+	}
+	tests := []testCase[string]{
+		{
+			name: "empty list",
+			args: args[string]{values: []string{}},
+			want: newList(),
+		},
+		{
+			name: "list",
+			args: args[string]{values: []string{"b", "a", "c"}},
+			want: newList("a", "b", "c"),
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := NewSortedList(tt.args.values); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("NewSortedList() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
 func newList(values ...string) SortedList[string] {
-	sl := NewSortedList[string]()
+	sl := NewEmptySortedList[string]()
 	for _, value := range values {
 		sl.Insert(value)
 	}

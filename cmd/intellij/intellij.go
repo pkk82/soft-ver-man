@@ -26,10 +26,15 @@ import (
 	"github.com/pkk82/soft-ver-man/software/intellij"
 )
 
+var verifyChecksum bool
+
 var Cmd = cmd.MainCmd(intellij.Name, intellij.LongName, intellij.Aliases)
 
 func init() {
 	cmd.RootCmd.AddCommand(Cmd)
-	Cmd.AddCommand(cmd.InstallCmd(intellij.Name, intellij.LongName))
+	installCmd := cmd.InstallCmd(intellij.Name, intellij.LongName, verifyChecksum)
+	Cmd.AddCommand(installCmd)
 	Cmd.AddCommand(cmd.UninstallCmd(intellij.Name, intellij.LongName))
+
+	installCmd.Flags().BoolVarP(&verifyChecksum, "verify-checksum", "vc", false, "Verify checksum of downloaded file")
 }

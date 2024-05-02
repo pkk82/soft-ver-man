@@ -7,7 +7,7 @@ import (
 	"runtime"
 )
 
-func fetch(plugin domain.Plugin, inputVersion, softwareDownloadDir string) (domain.FetchedPackage, error) {
+func fetch(plugin domain.Plugin, inputVersion, softwareDownloadDir string, verifyChecksum bool) (domain.FetchedPackage, error) {
 	version, err := domain.NewVersion(inputVersion)
 	if err != nil {
 		return domain.FetchedPackage{}, err
@@ -16,5 +16,15 @@ func fetch(plugin domain.Plugin, inputVersion, softwareDownloadDir string) (doma
 	downloadUrl, extension := plugin.CalculateDownloadUrl(version, runtime.GOOS, runtime.GOARCH)
 	filename := plugin.CalculateDownloadedFileName(version, extension)
 	fetchedPackagePath := download.FetchFile(downloadUrl, pluginDir, filename)
-	return domain.FetchedPackage{Version: version, FilePath: fetchedPackagePath, Type: extension}, nil
+	fetchedPackage := domain.FetchedPackage{Version: version, FilePath: fetchedPackagePath, Type: extension}
+
+	if verifyChecksum {
+		err = plugin.VerifyChecksum(fetchedPackage)
+		if err != nil {
+			return domain.FetchedPackage{}, err
+		}
+	}
+
+	return fetchedPackage, nil
+
 }

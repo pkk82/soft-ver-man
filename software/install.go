@@ -12,7 +12,7 @@ import (
 	"time"
 )
 
-func Install(plugin domain.Plugin, inputVersion string) error {
+func Install(plugin domain.Plugin, inputVersion string, verifyChecksum bool) error {
 
 	version, err := domain.NewVersion(inputVersion)
 	if err != nil {
@@ -33,7 +33,7 @@ func Install(plugin domain.Plugin, inputVersion string) error {
 		return err
 	}
 
-	fetchedPackage, err := fetch(plugin, inputVersion, configuration.SoftwareDownloadDir)
+	fetchedPackage, err := fetch(plugin, inputVersion, configuration.SoftwareDownloadDir, verifyChecksum)
 	if err != nil {
 		console.Fatal(err)
 	}

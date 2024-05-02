@@ -30,6 +30,7 @@ type Plugin struct {
 	CalculateDownloadedFileName func(version Version, extension Type) string
 	PostInstall                 func(installedPackage InstalledPackage) error
 	PostUninstall               func(version Version) error
+	VerifyChecksum              func(fetchedPackage FetchedPackage) error
 }
 
 var mainRegistry = make(map[string]Plugin)

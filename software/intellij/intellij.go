@@ -22,6 +22,7 @@ THE SOFTWARE.
 package intellij
 
 import (
+	"errors"
 	"fmt"
 	"github.com/pkk82/soft-ver-man/domain"
 )
@@ -34,6 +35,9 @@ func init() {
 		},
 		PostUninstall: func(version domain.Version) error {
 			return deleteLauncher(version)
+		},
+		VerifyChecksum: func(fetchedPackage domain.FetchedPackage) error {
+			return errors.New("verify checksum not supported")
 		},
 		CalculateDownloadUrl:        calculateDownloadUrl,
 		CalculateDownloadedFileName: calculateDownloadedFileName,

@@ -1,10 +1,8 @@
-package software
-
-import "github.com/pkk82/soft-ver-man/domain"
+package domain
 
 type Plugin struct {
 	Name          string
-	PostUninstall func(version domain.Version) error
+	PostUninstall func(version Version) error
 }
 
 var mainRegistry = make(map[string]Plugin)

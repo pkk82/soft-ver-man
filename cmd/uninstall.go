@@ -23,6 +23,7 @@ package cmd
 
 import (
 	"fmt"
+	"github.com/pkk82/soft-ver-man/domain"
 	"github.com/pkk82/soft-ver-man/software"
 	"github.com/pkk82/soft-ver-man/util/console"
 	"github.com/spf13/cobra"
@@ -40,7 +41,7 @@ func UninstallCmd(name, longName string) *cobra.Command {
 			if err != nil {
 				console.Fatal(err)
 			}
-			plugin := software.GetPlugin(name)
+			plugin := domain.GetPlugin(name)
 			err = plugin.PostUninstall(version)
 			if err != nil {
 				console.Fatal(err)

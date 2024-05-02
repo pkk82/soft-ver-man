@@ -5,14 +5,20 @@ import (
 	"sort"
 )
 
-type SortedList[T constraints.Ordered] []T
-
-func NewEmptySortedList[T constraints.Ordered]() SortedList[T] {
-	return make(SortedList[T], 0)
+type SortedList[T comparable] struct {
+	values []T
+	sort   func(i, j T) bool
 }
 
-func NewSortedList[T constraints.Ordered](values []T) SortedList[T] {
-	result := make(SortedList[T], 0)
+func NewEmptySortedList[T comparable](sort func(i, j T) bool) SortedList[T] {
+	return SortedList[T]{
+		values: make([]T, 0),
+		sort:   sort,
+	}
+}
+
+func NewSortedList[T constraints.Ordered](values []T, sort func(i, j T) bool) SortedList[T] {
+	result := NewEmptySortedList[T](sort)
 	for _, v := range values {
 		result.Insert(v)
 	}
@@ -20,16 +26,20 @@ func NewSortedList[T constraints.Ordered](values []T) SortedList[T] {
 }
 
 func (sl *SortedList[T]) Insert(value T) {
-	*sl = append(*sl, value)
-	sort.Slice(*sl, func(i, j int) bool {
-		return (*sl)[i] < (*sl)[j]
+	values := sl.values
+	values = append(values, value)
+	sort.Slice(values, func(i, j int) bool {
+		return (*sl).sort(values[i], values[j])
 	})
+	sl.values = values
 }
 
 func (sl *SortedList[T]) Delete(value T) bool {
-	for i, v := range *sl {
+	values := sl.values
+	for i, v := range values {
 		if v == value {
-			*sl = append((*sl)[:i], (*sl)[i+1:]...)
+			values = append(values[:i], values[i+1:]...)
+			sl.values = values
 			return true
 		}
 	}
@@ -37,9 +47,11 @@ func (sl *SortedList[T]) Delete(value T) bool {
 }
 
 func (sl *SortedList[T]) Get(index int) (T, bool) {
-	if index < 0 || index >= len(*sl) {
+	values := sl.values
+	println(len(values))
+	if index < 0 || index >= len(values) {
 		var t T
 		return t, false
 	}
-	return (*sl)[index], true
+	return values[index], true
 }

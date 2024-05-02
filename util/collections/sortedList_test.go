@@ -123,7 +123,7 @@ func TestSortedList_Delete(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			found := tt.init.Delete(tt.args.value)
-			if !reflect.DeepEqual(tt.init, tt.want.value) {
+			if !reflect.DeepEqual(tt.init.values, tt.want.value.values) {
 				t.Errorf("Delete() got = %v, want %v", tt.init, tt.want.value)
 			}
 			if found != tt.want.found {
@@ -176,7 +176,7 @@ func TestSortedList_Insert(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			tt.init.Insert(tt.args.value)
-			if !reflect.DeepEqual(tt.init, tt.want) {
+			if !reflect.DeepEqual(tt.init.values, tt.want.values) {
 				t.Errorf("Get() got = %v, want %v", tt.init, tt.want)
 			}
 		})
@@ -206,7 +206,7 @@ func TestNewSortedList(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := NewSortedList(tt.args.values); !reflect.DeepEqual(got, tt.want) {
+			if got := NewSortedList(tt.args.values, func(a, b string) bool { return a < b }); !reflect.DeepEqual(got.values, tt.want.values) {
 				t.Errorf("NewSortedList() = %v, want %v", got, tt.want)
 			}
 		})
@@ -214,7 +214,7 @@ func TestNewSortedList(t *testing.T) {
 }
 
 func newList(values ...string) SortedList[string] {
-	sl := NewEmptySortedList[string]()
+	sl := NewEmptySortedList[string](func(a, b string) bool { return a < b })
 	for _, value := range values {
 		sl.Insert(value)
 	}

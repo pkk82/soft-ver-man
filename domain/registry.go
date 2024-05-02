@@ -1,16 +1,16 @@
 package domain
 
-type EnvVariableGranularity string
+type VersionGranularity string
 
 const (
-	EnvVariableGranularityMajor EnvVariableGranularity = "MAJOR"
-	EnvVariableGranularityMinor EnvVariableGranularity = "MINOR"
+	VersionGranularityMajor VersionGranularity = "MAJOR"
+	VersionGranularityMinor VersionGranularity = "MINOR"
 )
 
 type Plugin struct {
 	Name                        string
 	ExecutableRelativePath      string
-	EnvVariableGranularity      EnvVariableGranularity
+	VersionGranularity          VersionGranularity
 	CalculateDownloadUrl        func(version Version, os, arch string) (string, Type)
 	CalculateDownloadedFileName func(version Version, extension Type) string
 	PostInstall                 func(installedPackage InstalledPackage) error

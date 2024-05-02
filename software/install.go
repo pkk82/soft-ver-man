@@ -56,7 +56,7 @@ func Install(plugin domain.Plugin, inputVersion string) error {
 	}
 
 	finder := shell.ProdDirFinder{SoftwareDir: viper.GetString(config.SoftwareDirKey)}
-	err = shell.AddVariables(finder, history, plugin.ExecutableRelativePath, plugin.EnvVariableGranularity)
+	err = shell.AddVariables(finder, history, plugin.ExecutableRelativePath, plugin.VersionGranularity)
 	if err != nil {
 		return err
 	}

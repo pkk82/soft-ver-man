@@ -32,7 +32,7 @@ import (
 	"strings"
 )
 
-func initVariables(finder DirFinder, history domain.PackageHistory, executableDirName string, granularity domain.EnvVariableGranularity) error {
+func initVariables(finder DirFinder, history domain.PackageHistory, executableDirName string, granularity domain.VersionGranularity) error {
 	name := history.Name
 
 	homeDir, err := finder.HomeDir()
@@ -51,12 +51,12 @@ func initVariables(finder DirFinder, history domain.PackageHistory, executableDi
 	}
 
 	switch granularity {
-	case domain.EnvVariableGranularityMajor:
+	case domain.VersionGranularityMajor:
 		err = initSpecificRcRileWithMajorVariables(installedPackages, name, homeDir, executableDirName)
 		if err != nil {
 			return err
 		}
-	case domain.EnvVariableGranularityMinor:
+	case domain.VersionGranularityMinor:
 		err = initSpecificRcRileWithMinorVariables(installedPackages, name, homeDir, executableDirName)
 		if err != nil {
 			return err

@@ -38,7 +38,7 @@ func init() {
 		CalculateDownloadUrl:        calculateDownloadUrl,
 		CalculateDownloadedFileName: calculateDownloadedFileName,
 		ExecutableRelativePath:      "bin",
-		EnvVariableGranularity:      domain.EnvVariableGranularityMajor,
+		VersionGranularity:          domain.VersionGranularityMajor,
 	}
 	domain.Register(plugin)
 }

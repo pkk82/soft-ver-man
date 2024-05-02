@@ -71,7 +71,7 @@ func TestRoundVersion(t *testing.T) {
 	}
 	type args struct {
 		installedPackage InstalledPackage
-		granularity      EnvVariableGranularity
+		granularity      VersionGranularity
 	}
 	tests := []struct {
 		name    string
@@ -83,7 +83,7 @@ func TestRoundVersion(t *testing.T) {
 			name: "major",
 			args: args{
 				installedPackage: installedPackage,
-				granularity:      EnvVariableGranularityMajor,
+				granularity:      VersionGranularityMajor,
 			},
 			wantErr: false,
 			want:    toVersion("20", t),
@@ -92,7 +92,7 @@ func TestRoundVersion(t *testing.T) {
 			name: "minor",
 			args: args{
 				installedPackage: installedPackage,
-				granularity:      EnvVariableGranularityMinor,
+				granularity:      VersionGranularityMinor,
 			},
 			wantErr: false,
 			want:    toVersion("20.1", t),

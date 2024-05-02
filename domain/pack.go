@@ -59,11 +59,11 @@ type InstalledPackage struct {
 	Main        bool
 }
 
-func (ip *InstalledPackage) RoundVersion(envVariableGranularity EnvVariableGranularity) (Version, error) {
-	if envVariableGranularity == EnvVariableGranularityMajor {
+func (ip *InstalledPackage) RoundVersion(versionGranularity VersionGranularity) (Version, error) {
+	if versionGranularity == VersionGranularityMajor {
 		return NewVersion(fmt.Sprintf("%d", ip.Version.Major()))
-	} else if envVariableGranularity == EnvVariableGranularityMinor {
+	} else if versionGranularity == VersionGranularityMinor {
 		return NewVersion(fmt.Sprintf("%d.%d", ip.Version.Major(), ip.Version.Minor()))
 	}
-	return Version{}, errors.New(string(envVariableGranularity + " is not supported"))
+	return Version{}, errors.New(string(versionGranularity + " is not supported"))
 }

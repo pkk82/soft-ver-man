@@ -22,15 +22,53 @@ THE SOFTWARE.
 package intellij
 
 import (
+	"fmt"
 	"github.com/pkk82/soft-ver-man/domain"
 )
 
 func init() {
 	var plugin = domain.Plugin{
 		Name: Name,
+		PostInstall: func(installedPackage domain.InstalledPackage) error {
+			return createLauncher(installedPackage)
+		},
 		PostUninstall: func(version domain.Version) error {
 			return deleteLauncher(version)
 		},
+		CalculateDownloadUrl:        calculateDownloadUrl,
+		CalculateDownloadedFileName: calculateDownloadedFileName,
+		ExecutableRelativePath:      "bin",
+		EnvVariableGranularity:      domain.EnvVariableGranularityMajor,
 	}
 	domain.Register(plugin)
+}
+
+func calculateDownloadUrl(version domain.Version, os string, arch string) (string, domain.Type) {
+	extension := toExtension(os)
+	url := fmt.Sprintf("%s/ideaIU-%s%s.%s", DownloadURLPrefix, version.Value, toArch(os, arch), toExtension(os))
+	return url, extension
+}
+
+func toExtension(os string) domain.Type {
+	if os == "windows" {
+		return domain.ZIP
+	}
+	if os == "darwin" {
+		return domain.DMG
+	}
+	return domain.TAR_GZ
+}
+
+func toArch(os string, arch string) string {
+	if os == "windows" {
+		return ".win"
+	}
+	if arch == "arm64" {
+		return "-aarch64"
+	}
+	return ""
+}
+
+func calculateDownloadedFileName(version domain.Version, extension domain.Type) string {
+	return fmt.Sprintf("intellij-idea-ultimate-%s.%s", version.Value, extension)
 }

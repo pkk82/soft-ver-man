@@ -32,14 +32,7 @@ import (
 	"strings"
 )
 
-type VariableGranularity string
-
-const (
-	VariableGranularityMajor VariableGranularity = "MAJOR"
-	VariableGranularityMinor VariableGranularity = "MINOR"
-)
-
-func initVariables(finder DirFinder, history domain.PackageHistory, executableDirName string, granularity VariableGranularity) error {
+func initVariables(finder DirFinder, history domain.PackageHistory, executableDirName string, granularity domain.EnvVariableGranularity) error {
 	name := history.Name
 
 	homeDir, err := finder.HomeDir()
@@ -58,12 +51,12 @@ func initVariables(finder DirFinder, history domain.PackageHistory, executableDi
 	}
 
 	switch granularity {
-	case VariableGranularityMajor:
+	case domain.EnvVariableGranularityMajor:
 		err = initSpecificRcRileWithMajorVariables(installedPackages, name, homeDir, executableDirName)
 		if err != nil {
 			return err
 		}
-	case VariableGranularityMinor:
+	case domain.EnvVariableGranularityMinor:
 		err = initSpecificRcRileWithMinorVariables(installedPackages, name, homeDir, executableDirName)
 		if err != nil {
 			return err
@@ -133,7 +126,7 @@ func initSpecificRcRileWithMajorVariables(installedPackages []domain.InstalledPa
 
 	lines = append(lines, mainLine)
 
-	lines = append(lines, fmt.Sprintf("export PATH=\"$%v_HOME%v:$PATH\"", variablePartName, executableDirName))
+	lines = append(lines, fmt.Sprintf("export PATH=\"$%v_HOME/%v:$PATH\"", variablePartName, executableDirName))
 
 	err = file.OverrideFileWithContent(path.Join(homeDir, config.HomeConfigDir, rcName(name)), lines)
 	if err != nil {

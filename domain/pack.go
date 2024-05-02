@@ -22,6 +22,8 @@ THE SOFTWARE.
 package domain
 
 import (
+	"errors"
+	"fmt"
 	"path/filepath"
 	"strings"
 )
@@ -55,4 +57,13 @@ type InstalledPackage struct {
 	Path        string
 	InstalledOn int64
 	Main        bool
+}
+
+func (ip *InstalledPackage) RoundVersion(envVariableGranularity EnvVariableGranularity) (Version, error) {
+	if envVariableGranularity == EnvVariableGranularityMajor {
+		return NewVersion(fmt.Sprintf("%d", ip.Version.Major()))
+	} else if envVariableGranularity == EnvVariableGranularityMinor {
+		return NewVersion(fmt.Sprintf("%d.%d", ip.Version.Major(), ip.Version.Minor()))
+	}
+	return Version{}, errors.New(string(envVariableGranularity + " is not supported"))
 }

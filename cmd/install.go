@@ -19,30 +19,29 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
-package intellij
+package cmd
 
 import (
 	"fmt"
-	cmdUtil "github.com/pkk82/soft-ver-man/cmd"
-	"github.com/pkk82/soft-ver-man/software/intellij"
+	"github.com/pkk82/soft-ver-man/domain"
+	"github.com/pkk82/soft-ver-man/software"
 	"github.com/pkk82/soft-ver-man/util/console"
 	"github.com/spf13/cobra"
 )
 
-var installCmd = &cobra.Command{
-	Use:     "install [version]",
-	Aliases: []string{"i", "install"},
-	Short:   "Install Intellij IDEA package into software directory",
-	Long:    fmt.Sprintf("Install Ultimate Intellij IDEA from %v into software directory", intellij.DownloadURLPrefix),
-	Args:    cmdUtil.VersionMandatoryArg,
-	Run: func(cmd *cobra.Command, args []string) {
-		err := intellij.Install(cmdUtil.FirstOrEmpty(args))
-		if err != nil {
-			console.Fatal(err)
-		}
-	},
-}
-
-func init() {
-	Cmd.AddCommand(installCmd)
+func InstallCmd(name, longName string) *cobra.Command {
+	return &cobra.Command{
+		Use:     "install [version]",
+		Aliases: []string{"i", "install"},
+		Short:   "Install software package from software directory",
+		Long:    fmt.Sprintf("Install %v from software directory", longName),
+		Args:    VersionArg,
+		Run: func(cmd *cobra.Command, args []string) {
+			plugin := domain.GetPlugin(name)
+			err := software.Install(plugin, FirstOrEmpty(args))
+			if err != nil {
+				console.Fatal(err)
+			}
+		},
+	}
 }

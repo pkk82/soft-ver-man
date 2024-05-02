@@ -22,6 +22,7 @@ THE SOFTWARE.
 package domain
 
 import (
+	"reflect"
 	"testing"
 )
 
@@ -59,5 +60,63 @@ func TestFetchedPackage(t *testing.T) {
 			t.Errorf("Expected: %v, got: %v", expected[i], actual)
 		}
 	}
+}
 
+func TestRoundVersion(t *testing.T) {
+	installedPackage := InstalledPackage{
+		InstalledOn: 1689017267000,
+		Path:        "/home/user/pf/node/node-v20.1.3-linux-x64",
+		Version:     toVersion("v20.1.3", t),
+		Main:        true,
+	}
+	type args struct {
+		installedPackage InstalledPackage
+		granularity      EnvVariableGranularity
+	}
+	tests := []struct {
+		name    string
+		args    args
+		wantErr bool
+		want    Version
+	}{
+		{
+			name: "major",
+			args: args{
+				installedPackage: installedPackage,
+				granularity:      EnvVariableGranularityMajor,
+			},
+			wantErr: false,
+			want:    toVersion("20", t),
+		},
+		{
+			name: "minor",
+			args: args{
+				installedPackage: installedPackage,
+				granularity:      EnvVariableGranularityMinor,
+			},
+			wantErr: false,
+			want:    toVersion("20.1", t),
+		},
+		{
+			name: "minor",
+			args: args{
+				installedPackage: installedPackage,
+				granularity:      "unknown",
+			},
+			wantErr: true,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := tt.args.installedPackage.RoundVersion(tt.args.granularity)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("InstalledPackage.RoundVersion() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("InstalledPackage.RoundVersion() got = %v, want %v", got, tt.want)
+			}
+		})
+	}
 }

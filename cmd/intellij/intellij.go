@@ -30,5 +30,6 @@ var Cmd = cmd.MainCmd(intellij.Name, intellij.LongName, intellij.Aliases)
 
 func init() {
 	cmd.RootCmd.AddCommand(Cmd)
+	Cmd.AddCommand(cmd.InstallCmd(intellij.Name, intellij.LongName))
 	Cmd.AddCommand(cmd.UninstallCmd(intellij.Name, intellij.LongName))
 }

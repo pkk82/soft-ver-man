@@ -27,28 +27,34 @@ import (
 	"os"
 )
 
-func Uninstall(name, inputVersion string) (domain.Version, error) {
+func Uninstall(plugin domain.Plugin, inputVersion string) error {
 	version, err := domain.NewVersion(inputVersion)
 	if err != nil {
-		return domain.Version{}, err
+		return err
 	}
 
-	history, err := config.ReadHistoryConfig(name)
+	history, err := config.ReadHistoryConfig(plugin.Name)
 	if err != nil {
-		return domain.Version{}, err
+		return err
 	}
 
 	updatedHistory, removedItem := history.RemoveByVersion(version)
 
 	err = os.RemoveAll(removedItem.Path)
 	if err != nil {
-		return domain.Version{}, err
+		return err
 	}
 
 	err = config.WriteHistoryConfig(*updatedHistory)
 	if err != nil {
-		return domain.Version{}, err
+		return err
 	}
-	return version, nil
+
+	err = plugin.PostUninstall(version)
+	if err != nil {
+		return err
+	}
+
+	return nil
 
 }

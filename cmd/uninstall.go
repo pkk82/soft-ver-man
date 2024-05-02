@@ -37,12 +37,8 @@ func UninstallCmd(name, longName string) *cobra.Command {
 		Long:    fmt.Sprintf("Uninstall %v from software directory", longName),
 		Args:    VersionMandatoryArg,
 		Run: func(cmd *cobra.Command, args []string) {
-			version, err := software.Uninstall(name, FirstOrEmpty(args))
-			if err != nil {
-				console.Fatal(err)
-			}
 			plugin := domain.GetPlugin(name)
-			err = plugin.PostUninstall(version)
+			err := software.Uninstall(plugin, FirstOrEmpty(args))
 			if err != nil {
 				console.Fatal(err)
 			}

@@ -23,15 +23,14 @@ package node
 
 import (
 	"github.com/pkk82/soft-ver-man/domain"
-	"github.com/pkk82/soft-ver-man/software"
 )
 
 func init() {
-	var plugin = software.Plugin{
+	var plugin = domain.Plugin{
 		Name: Name,
 		PostUninstall: func(version domain.Version) error {
 			return nil
 		},
 	}
-	software.Register(plugin)
+	domain.Register(plugin)
 }

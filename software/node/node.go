@@ -22,15 +22,60 @@ THE SOFTWARE.
 package node
 
 import (
+	"fmt"
 	"github.com/pkk82/soft-ver-man/domain"
+	"github.com/pkk82/soft-ver-man/util/download"
+	"github.com/pkk82/soft-ver-man/util/pgp"
+	"path/filepath"
 )
 
 func init() {
 	var plugin = domain.Plugin{
-		Name: Name,
+		Name:               Name,
+		GetAvailableAssets: getAvailableAssets,
+		VerifyChecksum:     verifyChecksum,
 		PostUninstall: func(version domain.Version) error {
 			return nil
 		},
+		PostInstall: func(installedPackage domain.InstalledPackage) error {
+			return nil
+		},
+		CalculateDownloadedFileName: calculateDownloadFileName,
+		ExtractStrategy:             domain.UseCompressedDirOrArchiveName,
+		ExecutableRelativePath:      "bin",
+		VersionGranularity:          domain.VersionGranularityMajor,
 	}
 	domain.Register(plugin)
+}
+
+func calculateDownloadFileName(asset domain.Asset) string {
+	return asset.Name
+}
+
+func getAvailableAssets() ([]domain.Asset, error) {
+	packages := getSupportedPackages()
+	assets := make([]domain.Asset, len(packages))
+	for i, p := range packages {
+		assets[i] = domain.Asset{
+			Name:            p.FileName,
+			Version:         p.Version,
+			Url:             p.DownloadLink(),
+			Type:            p.Type,
+			ExtraProperties: map[string]string{"sumsLink": p.SumsLink(), "sumsSigLink": p.SumsSigLink()},
+		}
+	}
+	return assets, nil
+}
+
+func verifyChecksum(asset domain.Asset, fetchedPackage domain.FetchedPackage) error {
+	nodeDownloadDir := filepath.Dir(fetchedPackage.FilePath)
+	softwareDownloadDir := filepath.Dir(nodeDownloadDir)
+	version := fetchedPackage.Version
+	publicKeyPaths := fetchPGPKeys(softwareDownloadDir)
+	shaSumFileName := fmt.Sprintf("%v-%v-%v", Name, version.Value, ShaSumFileName)
+	shaSumFilePath := download.FetchFileSilently(asset.ExtraProperties["sumsLink"], nodeDownloadDir, shaSumFileName)
+	shaSumSigFileName := fmt.Sprintf("%v-%v-%v", Name, version.Value, ShaSumSigFileName)
+	shaSumSigFilePath := download.FetchFileSilently(asset.ExtraProperties["sumsSigLink"], nodeDownloadDir, shaSumSigFileName)
+	pgp.VerifySignature(shaSumFilePath, shaSumSigFilePath, publicKeyPaths)
+	return verifySha(fetchedPackage.FilePath, shaSumFilePath)
 }

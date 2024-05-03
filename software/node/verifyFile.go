@@ -10,7 +10,7 @@ import (
 	"regexp"
 )
 
-func verifySha(filePath, signatureFilePath string) {
+func verifySha(filePath, signatureFilePath string) error {
 
 	expectedHash := readHashes(signatureFilePath)[filepath.Base(filePath)]
 	err := verification.VerifySha256(filePath, expectedHash)
@@ -18,8 +18,9 @@ func verifySha(filePath, signatureFilePath string) {
 	if err == nil {
 		console.Info(filePath + " is correct file")
 	} else {
-		console.Fatal(fmt.Errorf(filePath + " is corrupted file"))
+		console.Error(fmt.Errorf(filePath + " is corrupted file"))
 	}
+	return err
 }
 
 func readHashes(signatureFilePath string) map[string]string {

@@ -54,18 +54,18 @@ func getAvailableAssets() ([]domain.Asset, error) {
 	assets := make([]domain.Asset, len(packages))
 	for i, p := range packages {
 		assets[i] = domain.Asset{
-			Name:              p.Name,
-			Version:           p.version(),
-			Url:               p.DownloadUrl,
-			Type:              p.packagingType(),
-			ExternalReference: p.Id,
+			Name:            p.Name,
+			Version:         p.version(),
+			Url:             p.DownloadUrl,
+			Type:            p.packagingType(),
+			ExtraProperties: map[string]string{"packageId": p.Id},
 		}
 	}
 	return assets, nil
 }
 
 func verifyChecksum(asset domain.Asset, fetchedPackage domain.FetchedPackage) error {
-	extendedPackage, err := getExtendedPackage(asset.ExternalReference)
+	extendedPackage, err := getExtendedPackage(asset.ExtraProperties["packageId"])
 	if err != nil {
 		return err
 	}

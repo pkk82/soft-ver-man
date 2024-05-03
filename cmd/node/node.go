@@ -28,7 +28,16 @@ import (
 
 var Cmd = cmd.MainCmd(node.Name, node.LongName, node.Aliases)
 
+var verifyChecksumFetch bool
+var verifyChecksumInstall bool
+
 func init() {
 	cmd.RootCmd.AddCommand(Cmd)
+	fetchCmd := cmd.FetchCmd(node.Name, node.LongName, &verifyChecksumFetch)
+	fetchCmd.Flags().BoolVarP(&verifyChecksumFetch, "verify-checksum", "c", false, "Verify checksum of downloaded file")
+	Cmd.AddCommand(fetchCmd)
+	installCmd := cmd.InstallCmd(node.Name, node.LongName, &verifyChecksumInstall)
+	installCmd.Flags().BoolVarP(&verifyChecksumInstall, "verify-checksum", "c", false, "Verify checksum of downloaded file")
+	Cmd.AddCommand(installCmd)
 	Cmd.AddCommand(cmd.UninstallCmd(node.Name, node.LongName))
 }

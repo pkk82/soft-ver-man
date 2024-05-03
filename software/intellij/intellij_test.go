@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/pkk82/soft-ver-man/domain"
 	"github.com/pkk82/soft-ver-man/software/intellij"
+	"github.com/pkk82/soft-ver-man/testutil"
 	"testing"
 )
 
@@ -18,34 +19,34 @@ func Test_calculateDownloadUrl(t *testing.T) {
 		expectedType domain.Type
 	}{
 		{
-			version:      version("2024.1", t),
+			version:      testutil.AsVersion("2024.1", t),
 			os:           "linux",
 			arch:         "amd64",
 			expectedPath: "https://download.jetbrains.com/idea/ideaIU-2024.1.tar.gz",
 			expectedType: domain.TAR_GZ,
 		}, {
-			version:      version("2023.3.6", t),
+			version:      testutil.AsVersion("2023.3.6", t),
 			os:           "linux",
 			arch:         "arm64",
 			expectedPath: "https://download.jetbrains.com/idea/ideaIU-2023.3.6-aarch64.tar.gz",
 			expectedType: domain.TAR_GZ,
 		},
 		{
-			version:      version("2023.1.6", t),
+			version:      testutil.AsVersion("2023.1.6", t),
 			os:           "windows",
 			arch:         "amd64",
 			expectedPath: "https://download.jetbrains.com/idea/ideaIU-2023.1.6.win.zip",
 			expectedType: domain.ZIP,
 		},
 		{
-			version:      version("2022.2.5", t),
+			version:      testutil.AsVersion("2022.2.5", t),
 			os:           "darwin",
 			arch:         "amd64",
 			expectedPath: "https://download.jetbrains.com/idea/ideaIU-2022.2.5.dmg",
 			expectedType: domain.DMG,
 		},
 		{
-			version:      version("2022.2.5", t),
+			version:      testutil.AsVersion("2022.2.5", t),
 			os:           "darwin",
 			arch:         "arm64",
 			expectedPath: "https://download.jetbrains.com/idea/ideaIU-2022.2.5-aarch64.dmg",
@@ -64,12 +65,4 @@ func Test_calculateDownloadUrl(t *testing.T) {
 			}
 		})
 	}
-}
-
-func version(version string, t *testing.T) domain.Version {
-	newVersion, err := domain.NewVersion(version)
-	if err != nil {
-		t.Errorf("Failed to create version: %s", err)
-	}
-	return newVersion
 }

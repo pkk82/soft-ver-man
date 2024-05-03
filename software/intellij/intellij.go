@@ -39,6 +39,9 @@ func init() {
 		VerifyChecksum: func(fetchedPackage domain.FetchedPackage) error {
 			return errors.New("verify checksum not supported")
 		},
+		GetAvailableAssets: func() ([]domain.Asset, error) {
+			return []domain.Asset{}, errors.New("get supported packages not supported")
+		},
 		CalculateDownloadUrl:        calculateDownloadUrl,
 		CalculateDownloadedFileName: calculateDownloadedFileName,
 		ExecutableRelativePath:      "bin",
@@ -74,6 +77,6 @@ func toArch(os string, arch string) string {
 	return ""
 }
 
-func calculateDownloadedFileName(version domain.Version, extension domain.Type) string {
-	return fmt.Sprintf("intellij-idea-ultimate-%s.%s", version.Value, extension)
+func calculateDownloadedFileName(asset domain.Asset) string {
+	return fmt.Sprintf("intellij-idea-ultimate-%s.%s", asset.Version, asset.Type)
 }

@@ -27,10 +27,11 @@ type Plugin struct {
 	VersionGranularity          VersionGranularity
 	ExtractStrategy             ExtractStrategy
 	CalculateDownloadUrl        func(version Version, os, arch string) (string, Type)
-	CalculateDownloadedFileName func(version Version, extension Type) string
+	CalculateDownloadedFileName func(asset Asset) string
 	PostInstall                 func(installedPackage InstalledPackage) error
 	PostUninstall               func(version Version) error
 	VerifyChecksum              func(fetchedPackage FetchedPackage) error
+	GetAvailableAssets          func() ([]Asset, error)
 }
 
 var mainRegistry = make(map[string]Plugin)

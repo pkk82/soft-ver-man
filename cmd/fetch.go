@@ -19,41 +19,34 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
-package java
+package cmd
 
 import (
 	"fmt"
-	cmdUtil "github.com/pkk82/soft-ver-man/cmd"
 	"github.com/pkk82/soft-ver-man/config"
-	"github.com/pkk82/soft-ver-man/software/java"
+	"github.com/pkk82/soft-ver-man/domain"
+	"github.com/pkk82/soft-ver-man/software"
 	"github.com/pkk82/soft-ver-man/util/console"
 	"github.com/spf13/cobra"
 )
 
-var fetchVerify bool
-
-// fetchCmd represents the fetch command
-var fetchCmd = &cobra.Command{
-	Use:     "fetch [version]",
-	Aliases: []string{"f", "fetch"},
-	Short:   "Fetch java package into download directory",
-	Long:    fmt.Sprintf("Fetch java package from %v into download directory", java.PackagesAPIURL),
-	Args:    cmdUtil.VersionArg,
-	Run: func(cmd *cobra.Command, args []string) {
-		config, err := config.Get()
-		if err != nil {
-			console.Fatal(err)
-		}
-		fetch, err := java.Fetch(cmdUtil.FirstOrEmpty(args), config.SoftwareDownloadDir, fetchVerify)
-		if err != nil {
-			console.Fatal(err)
-		} else {
-			console.Info(fmt.Sprintf("Downloaded file: %v", fetch.FilePath))
-		}
-	},
-}
-
-func init() {
-	Cmd.AddCommand(fetchCmd)
-	fetchCmd.Flags().BoolVarP(&fetchVerify, "verify", "", false, "Verify checksum of downloaded file")
+func FetchCmd(name, longName string, verifyChecksum *bool) *cobra.Command {
+	return &cobra.Command{
+		Use:     "fetch [version]",
+		Aliases: []string{"f", "fetch"},
+		Short:   "Fetch software package into download directory",
+		Long:    fmt.Sprintf("Fetch %v into download directory", longName),
+		Args:    VersionArg,
+		Run: func(cmd *cobra.Command, args []string) {
+			plugin := domain.GetPlugin(name)
+			configuration, err := config.Get()
+			if err != nil {
+				console.Fatal(err)
+			}
+			_, err = software.Fetch(plugin, FirstOrEmpty(args), configuration.SoftwareDownloadDir, *verifyChecksum)
+			if err != nil {
+				console.Fatal(err)
+			}
+		},
+	}
 }

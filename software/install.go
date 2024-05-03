@@ -33,7 +33,7 @@ func Install(plugin domain.Plugin, inputVersion string, verifyChecksum bool) err
 		return err
 	}
 
-	fetchedPackage, err := fetch(plugin, inputVersion, configuration.SoftwareDownloadDir, verifyChecksum)
+	fetchedPackage, err := Fetch(plugin, inputVersion, configuration.SoftwareDownloadDir, verifyChecksum)
 	if err != nil {
 		console.Fatal(err)
 	}

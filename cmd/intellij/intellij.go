@@ -32,9 +32,9 @@ var Cmd = cmd.MainCmd(intellij.Name, intellij.LongName, intellij.Aliases)
 
 func init() {
 	cmd.RootCmd.AddCommand(Cmd)
-	installCmd := cmd.InstallCmd(intellij.Name, intellij.LongName, verifyChecksum)
+	installCmd := cmd.InstallCmd(intellij.Name, intellij.LongName, &verifyChecksum)
 	Cmd.AddCommand(installCmd)
 	Cmd.AddCommand(cmd.UninstallCmd(intellij.Name, intellij.LongName))
 
-	installCmd.Flags().BoolVarP(&verifyChecksum, "verify-checksum", "vc", false, "Verify checksum of downloaded file")
+	installCmd.Flags().BoolVarP(&verifyChecksum, "verify-checksum", "c", false, "Verify checksum of downloaded file")
 }

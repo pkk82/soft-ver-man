@@ -36,7 +36,7 @@ func init() {
 		PostUninstall: func(version domain.Version) error {
 			return deleteLauncher(version)
 		},
-		VerifyChecksum: func(fetchedPackage domain.FetchedPackage) error {
+		VerifyChecksum: func(asset domain.Asset, fetchedPackage domain.FetchedPackage) error {
 			return errors.New("verify checksum not supported")
 		},
 		GetAvailableAssets: func() ([]domain.Asset, error) {

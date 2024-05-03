@@ -2,12 +2,13 @@ package software
 
 import (
 	"github.com/pkk82/soft-ver-man/domain"
+	"github.com/pkk82/soft-ver-man/util/console"
 	"github.com/pkk82/soft-ver-man/util/download"
 	"path/filepath"
 	"runtime"
 )
 
-func fetch(plugin domain.Plugin, inputVersion, softwareDownloadDir string, verifyChecksum bool) (domain.FetchedPackage, error) {
+func Fetch(plugin domain.Plugin, inputVersion, softwareDownloadDir string, verifyChecksum bool) (domain.FetchedPackage, error) {
 
 	var version domain.Version
 	var asset domain.Asset
@@ -37,13 +38,16 @@ func fetch(plugin domain.Plugin, inputVersion, softwareDownloadDir string, verif
 	pluginDir := filepath.Join(softwareDownloadDir, plugin.Name)
 
 	filename := plugin.CalculateDownloadedFileName(asset)
+
 	fetchedPackagePath := download.FetchFile(asset.Url, pluginDir, filename)
 	fetchedPackage := domain.FetchedPackage{Version: version, FilePath: fetchedPackagePath, Type: asset.Type}
 
 	if verifyChecksum {
-		err = plugin.VerifyChecksum(fetchedPackage)
+		err = plugin.VerifyChecksum(asset, fetchedPackage)
 		if err != nil {
 			return domain.FetchedPackage{}, err
+		} else {
+			console.Info("Checksum verified: OK")
 		}
 	}
 

@@ -23,14 +23,56 @@ package java
 
 import (
 	"github.com/pkk82/soft-ver-man/domain"
+	"github.com/pkk82/soft-ver-man/util/verification"
 )
 
 func init() {
 	var plugin = domain.Plugin{
-		Name: Name,
+		Name:               Name,
+		GetAvailableAssets: getAvailableAssets,
+		VerifyChecksum:     verifyChecksum,
 		PostUninstall: func(version domain.Version) error {
 			return nil
 		},
+		PostInstall: func(installedPackage domain.InstalledPackage) error {
+			return nil
+		},
+		CalculateDownloadedFileName: calculateDownloadFileName,
+		ExtractStrategy:             domain.UseCompressedDirOrArchiveName,
+		ExecutableRelativePath:      "bin",
+		VersionGranularity:          domain.VersionGranularityMajor,
 	}
 	domain.Register(plugin)
+}
+
+func calculateDownloadFileName(asset domain.Asset) string {
+	return asset.Name
+}
+
+func getAvailableAssets() ([]domain.Asset, error) {
+	packages := getSupportedPackages()
+	assets := make([]domain.Asset, len(packages))
+	for i, p := range packages {
+		assets[i] = domain.Asset{
+			Name:              p.Name,
+			Version:           p.version(),
+			Url:               p.DownloadUrl,
+			Type:              p.packagingType(),
+			ExternalReference: p.Id,
+		}
+	}
+	return assets, nil
+}
+
+func verifyChecksum(asset domain.Asset, fetchedPackage domain.FetchedPackage) error {
+	extendedPackage, err := getExtendedPackage(asset.ExternalReference)
+	if err != nil {
+		return err
+	}
+	err = verification.VerifySha256(fetchedPackage.FilePath, extendedPackage.Sha256)
+	if err != nil {
+		return err
+	}
+	return nil
+
 }

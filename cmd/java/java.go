@@ -28,7 +28,17 @@ import (
 
 var Cmd = cmd.MainCmd(java.Name, java.LongName, java.Aliases)
 
+var verifyChecksumFetch bool
+var verifyChecksumInstall bool
+
 func init() {
 	cmd.RootCmd.AddCommand(Cmd)
+	fetchCmd := cmd.FetchCmd(java.Name, java.LongName, &verifyChecksumFetch)
+	fetchCmd.Flags().BoolVarP(&verifyChecksumFetch, "verify-checksum", "c", false, "Verify checksum of downloaded file")
+	Cmd.AddCommand(fetchCmd)
+	installCmd := cmd.InstallCmd(java.Name, java.LongName, &verifyChecksumInstall)
+	installCmd.Flags().BoolVarP(&verifyChecksumInstall, "verify-checksum", "c", false, "Verify checksum of downloaded file")
+	Cmd.AddCommand(installCmd)
 	Cmd.AddCommand(cmd.UninstallCmd(java.Name, java.LongName))
+
 }

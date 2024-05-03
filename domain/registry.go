@@ -30,7 +30,7 @@ type Plugin struct {
 	CalculateDownloadedFileName func(asset Asset) string
 	PostInstall                 func(installedPackage InstalledPackage) error
 	PostUninstall               func(version Version) error
-	VerifyChecksum              func(fetchedPackage FetchedPackage) error
+	VerifyChecksum              func(asset Asset, fetchedPackage FetchedPackage) error
 	GetAvailableAssets          func() ([]Asset, error)
 }
 

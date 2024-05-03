@@ -106,7 +106,7 @@ func Test_fetch(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			testDir := test.CreateTestDir(t)
-			got, err := fetch(tt.args.plugin, tt.args.inputVersion, testDir, tt.args.verifyChecksum)
+			got, err := Fetch(tt.args.plugin, tt.args.inputVersion, testDir, tt.args.verifyChecksum)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("fetch() error = %v, wantErr %v", err, tt.wantErr)
 				return

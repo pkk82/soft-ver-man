@@ -26,6 +26,7 @@ type Plugin struct {
 	ExecutableRelativePath      string
 	VersionGranularity          VersionGranularity
 	ExtractStrategy             ExtractStrategy
+	RawExecutableName           string
 	CalculateDownloadUrl        func(version Version, os, arch string) (string, Type)
 	CalculateDownloadedFileName func(asset Asset) string
 	PostInstall                 func(installedPackage InstalledPackage) error

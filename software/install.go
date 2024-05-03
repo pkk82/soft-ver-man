@@ -7,6 +7,7 @@ import (
 	"github.com/pkk82/soft-ver-man/shell"
 	"github.com/pkk82/soft-ver-man/util/archive"
 	"github.com/pkk82/soft-ver-man/util/console"
+	"github.com/pkk82/soft-ver-man/util/copy"
 	"github.com/spf13/viper"
 	"path"
 	"time"
@@ -38,15 +39,30 @@ func Install(plugin domain.Plugin, inputVersion string, verifyChecksum bool) err
 		console.Fatal(err)
 	}
 
-	extractedPackage, err := archive.Extract(fetchedPackage, path.Join(configuration.SoftwareDir, plugin.Name), plugin.ExtractStrategy)
-	if err != nil {
-		return err
-	}
-	installedPackage := domain.InstalledPackage{
-		Version:     extractedPackage.Version,
-		Path:        extractedPackage.Path,
-		Main:        false,
-		InstalledOn: time.Now().UnixMilli(),
+	var installedPackage domain.InstalledPackage
+	if fetchedPackage.Type == domain.RAW {
+		copiedPackage, err := copy.Copy(fetchedPackage, path.Join(configuration.SoftwareDir, plugin.Name, plugin.Name+"-"+fetchedPackage.Version.Value), plugin.RawExecutableName)
+		if err != nil {
+			return err
+		}
+		installedPackage = domain.InstalledPackage{
+			Version:     copiedPackage.Version,
+			Path:        copiedPackage.PathToFile,
+			Main:        false,
+			InstalledOn: time.Now().UnixMilli(),
+		}
+	} else {
+
+		extractedPackage, err := archive.Extract(fetchedPackage, path.Join(configuration.SoftwareDir, plugin.Name), plugin.ExtractStrategy)
+		if err != nil {
+			return err
+		}
+		installedPackage = domain.InstalledPackage{
+			Version:     extractedPackage.Version,
+			Path:        extractedPackage.Path,
+			Main:        false,
+			InstalledOn: time.Now().UnixMilli(),
+		}
 	}
 	history.Add(installedPackage)
 

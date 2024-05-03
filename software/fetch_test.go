@@ -17,7 +17,7 @@ import (
 )
 
 func FileHandler(w http.ResponseWriter, r *http.Request) {
-	pathSegments := strings.Split(r.URL.Path, "artifacts/")
+	pathSegments := strings.Split(r.URL.Path, "/")
 	fileName := pathSegments[len(pathSegments)-1]
 	file, err := os.Open(filepath.Join("testdata", fileName))
 	if err != nil {
@@ -29,9 +29,7 @@ func FileHandler(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 		}
 	}(file)
-
 	w.Header().Set("Content-Type", "application/x-gzip")
-
 	_, err = io.Copy(w, file)
 	if err != nil {
 		http.Error(w, "Internal server error", http.StatusInternalServerError)
@@ -57,7 +55,7 @@ func Test_fetch(t *testing.T) {
 			name: "direct fetch",
 			args: args{
 				plugin: domain.Plugin{
-					Name: "dummy",
+					Name: "direct",
 					GetAvailableAssets: func() ([]domain.Asset, error) {
 						return []domain.Asset{}, errors.New("unsupported")
 					},
@@ -73,7 +71,33 @@ func Test_fetch(t *testing.T) {
 			wantErr: false,
 			want: domain.FetchedPackage{
 				Version:  testutil.AsVersion("1.0.0", t),
-				FilePath: "dummy/artifact.tar.gz",
+				FilePath: "direct/artifact.tar.gz",
+				Type:     domain.TAR_GZ,
+			},
+		},
+		{
+			name: "assets fetch first",
+			args: args{
+				plugin: domain.Plugin{
+					Name: "asset",
+					GetAvailableAssets: func() ([]domain.Asset, error) {
+						return []domain.Asset{
+							{Version: "1.0.0", Type: domain.TAR_GZ, Url: svr.URL + "/artifacts/artifact.tar.gz"},
+						}, nil
+					},
+					CalculateDownloadUrl: func(version domain.Version, os, arch string) (string, domain.Type) {
+						return svr.URL + "/artifacts/artifact.tar.gz", domain.TAR_GZ
+					},
+					CalculateDownloadedFileName: func(asset domain.Asset) string {
+						return "artifact.tar.gz"
+					},
+				},
+				inputVersion: "1.0.0",
+			},
+			wantErr: false,
+			want: domain.FetchedPackage{
+				Version:  testutil.AsVersion("1.0.0", t),
+				FilePath: "asset/artifact.tar.gz",
 				Type:     domain.TAR_GZ,
 			},
 		},

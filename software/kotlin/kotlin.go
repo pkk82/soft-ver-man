@@ -22,15 +22,48 @@ THE SOFTWARE.
 package kotlin
 
 import (
+	"errors"
 	"github.com/pkk82/soft-ver-man/domain"
 )
 
 func init() {
 	var plugin = domain.Plugin{
-		Name: Name,
+		Name:               Name,
+		GetAvailableAssets: getAvailableAssets,
+		VerifyChecksum: func(asset domain.Asset, fetchedPackage domain.FetchedPackage) error {
+			return errors.New("verify checksum not supported")
+		},
 		PostUninstall: func(version domain.Version) error {
 			return nil
 		},
+		PostInstall: func(installedPackage domain.InstalledPackage) error {
+			return nil
+		},
+		CalculateDownloadedFileName: calculateDownloadFileName,
+		ExtractStrategy:             domain.ReplaceCompressedDirWithArchiveName,
+		ExecutableRelativePath:      "bin",
+		VersionGranularity:          domain.VersionGranularityMinor,
 	}
 	domain.Register(plugin)
+}
+
+func calculateDownloadFileName(asset domain.Asset) string {
+	return asset.Name
+}
+
+func getAvailableAssets() ([]domain.Asset, error) {
+	packages, err := getSupportedPackages()
+	if err != nil {
+		return nil, err
+	}
+	assets := make([]domain.Asset, len(packages))
+	for i, p := range packages {
+		assets[i] = domain.Asset{
+			Name:    p.Name,
+			Version: p.Version.Value,
+			Url:     p.Url,
+			Type:    p.Type,
+		}
+	}
+	return assets, nil
 }

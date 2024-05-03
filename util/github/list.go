@@ -7,6 +7,7 @@ import (
 	"github.com/pkk82/soft-ver-man/util/console"
 	"io"
 	"net/http"
+	"path/filepath"
 	"regexp"
 	"strings"
 )
@@ -44,7 +45,7 @@ func GetSupportedAssets(repoOwner, repoName string, pageSize int, predicate func
 						Version: v,
 						Name:    asset.Name,
 						Url:     asset.Url,
-						Type:    toType(asset.ContentType),
+						Type:    toType(asset.ContentType, asset.Name),
 					}
 					allPackages = append(allPackages, compilerAsset)
 				}
@@ -57,7 +58,7 @@ func GetSupportedAssets(repoOwner, repoName string, pageSize int, predicate func
 	return allPackages, nil
 }
 
-func toType(contentType string) domain.Type {
+func toType(contentType string, name string) domain.Type {
 	switch contentType {
 	case "application/zip":
 		return domain.ZIP
@@ -65,6 +66,13 @@ func toType(contentType string) domain.Type {
 		return domain.TAR_GZ
 	case "raw":
 		return domain.RAW
+	}
+	extension := filepath.Ext(name)
+	switch extension {
+	case ".zip":
+		return domain.ZIP
+	case ".tar.gz":
+		return domain.TAR_GZ
 	}
 	return domain.UNKNOWN
 }

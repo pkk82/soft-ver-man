@@ -74,5 +74,4 @@ func verifyChecksum(asset domain.Asset, fetchedPackage domain.FetchedPackage) er
 		return err
 	}
 	return nil
-
 }

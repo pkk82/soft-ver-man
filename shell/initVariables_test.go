@@ -257,7 +257,7 @@ func Test_initVariablesInSpecificRc(t *testing.T) {
 					},
 				},
 				granularity:       domain.VersionGranularityMinor,
-				executableDirName: "/bin",
+				executableDirName: "bin",
 			},
 			expectedSpecificFileName: ".kotlinrc",
 			expectedSpecificContent: []string{

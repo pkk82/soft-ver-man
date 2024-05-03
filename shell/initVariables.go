@@ -26,6 +26,7 @@ import (
 	"github.com/pkk82/soft-ver-man/config"
 	"github.com/pkk82/soft-ver-man/domain"
 	"github.com/pkk82/soft-ver-man/util/file"
+	"os"
 	"path"
 	"path/filepath"
 	"sort"
@@ -126,7 +127,14 @@ func initSpecificRcRileWithMajorVariables(installedPackages []domain.InstalledPa
 
 	lines = append(lines, mainLine)
 
-	lines = append(lines, fmt.Sprintf("export PATH=\"$%v_HOME/%v:$PATH\"", variablePartName, executableDirName))
+	var relativeExecutablePath string
+	if executableDirName != "" && !strings.HasPrefix(executableDirName, string(os.PathSeparator)) {
+		relativeExecutablePath = path.Join(string(os.PathSeparator), executableDirName)
+	} else {
+		relativeExecutablePath = executableDirName
+	}
+
+	lines = append(lines, fmt.Sprintf("export PATH=\"$%v_HOME%v:$PATH\"", variablePartName, relativeExecutablePath))
 
 	err = file.OverrideFileWithContent(path.Join(homeDir, config.HomeConfigDir, rcName(name)), lines)
 	if err != nil {
@@ -172,7 +180,14 @@ func initSpecificRcRileWithMinorVariables(installedPackages []domain.InstalledPa
 
 	lines = append(lines, mainLine)
 
-	lines = append(lines, fmt.Sprintf("export PATH=\"$%v_HOME%v:$PATH\"", variablePartName, executableDirName))
+	var relativeExecutablePath string
+	if executableDirName != "" && !strings.HasPrefix(executableDirName, string(os.PathSeparator)) {
+		relativeExecutablePath = path.Join(string(os.PathSeparator), executableDirName)
+	} else {
+		relativeExecutablePath = executableDirName
+	}
+
+	lines = append(lines, fmt.Sprintf("export PATH=\"$%v_HOME%v:$PATH\"", variablePartName, relativeExecutablePath))
 
 	err = file.OverrideFileWithContent(path.Join(homeDir, config.HomeConfigDir, rcName(name)), lines)
 	if err != nil {

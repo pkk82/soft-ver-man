@@ -29,7 +29,8 @@ import (
 
 func init() {
 	var plugin = domain.Plugin{
-		Name: Name,
+		Name:          Name,
+		EnvNamePrefix: EnvNamePrefix,
 		PostInstall: func(installedPackage domain.InstalledPackage) error {
 			return createLauncher(installedPackage)
 		},

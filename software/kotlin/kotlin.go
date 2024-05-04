@@ -29,6 +29,7 @@ import (
 func init() {
 	var plugin = domain.Plugin{
 		Name:               Name,
+		EnvNamePrefix:      EnvNamePrefix,
 		GetAvailableAssets: getAvailableAssets,
 		VerifyChecksum: func(asset domain.Asset, fetchedPackage domain.FetchedPackage) error {
 			return errors.New("verify checksum not supported")

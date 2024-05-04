@@ -23,7 +23,11 @@ package domain
 
 import (
 	"errors"
+	"fmt"
+	"github.com/pkk82/soft-ver-man/util/collections"
+	"path/filepath"
 	"sort"
+	"strconv"
 )
 
 type InstalledPackages struct {
@@ -86,4 +90,100 @@ func (installedPackages *InstalledPackages) FoundMain() (*InstalledPackage, erro
 
 	return &items[0], nil
 
+}
+
+func (installedPackages *InstalledPackages) PrepareEnvVariables(plugin Plugin) (EnvVariables, error) {
+
+	var items = make([]InstalledPackage, len(installedPackages.Items))
+	copy(items, installedPackages.Items)
+
+	classifier := func(ip InstalledPackage) Version {
+		version, err := ip.RoundVersion(plugin.VersionGranularity)
+		if err != nil {
+			panic(err)
+		}
+		return version
+	}
+
+	packagesByRoundedVersion := collections.GroupByAndCollect(items, classifier, transformer)
+	roundedVersions := collections.Keys(packagesByRoundedVersion)
+	sort.Slice(roundedVersions, func(i, j int) bool {
+		return CompareAsc(roundedVersions[i], roundedVersions[j])
+	})
+
+	svmSoftDirVariable := EnvVariable{
+		Name: VarNameSvmSoftDir,
+	}
+
+	refVariable := EnvVariable{
+		Name:           fmt.Sprintf(VarNameSvmSoftPackageDirTemplate, plugin.EnvNamePrefix),
+		PrefixVariable: &svmSoftDirVariable,
+		SuffixValue:    plugin.Name,
+	}
+
+	envVariables := make([]EnvVariable, 0)
+	envVariables = append(envVariables, refVariable)
+
+	mainPackage, err := installedPackages.FoundMain()
+	if err != nil {
+		return EnvVariables{}, err
+	}
+
+	var mainVariableReference EnvVariable
+	for _, roundedVersion := range roundedVersions {
+		packages, _ := packagesByRoundedVersion[roundedVersion]
+		firstPackage, found := packages.Get(0)
+		if !found {
+			panic("No package found")
+		}
+
+		_, dirName := filepath.Split(firstPackage.Path)
+		envVariable := EnvVariable{
+			PrefixVariable: &refVariable,
+			SuffixValue:    dirName,
+			Name:           versionedHomeVariable(plugin, roundedVersion),
+		}
+
+		for _, p := range packages.Values {
+			if mainPackage.Version == p.Version {
+				mainVariableReference = envVariable
+			}
+		}
+		envVariables = append(envVariables, envVariable)
+	}
+
+	mainVariable := EnvVariable{
+		Name:           homeVariable(plugin),
+		PrefixVariable: &mainVariableReference,
+	}
+	envVariables = append(envVariables, mainVariable)
+
+	return EnvVariables{
+		Variables:              envVariables,
+		MainVariable:           &mainVariable,
+		ExecutableRelativePath: plugin.ExecutableRelativePath,
+	}, nil
+
+}
+
+func transformer(ips []InstalledPackage) collections.SortedList[InstalledPackage] {
+	return collections.NewSortedList(ips, func(i, j InstalledPackage) bool {
+		return CompareDesc(i.Version, j.Version)
+	})
+}
+
+func versionedHomeVariable(plugin Plugin, version Version) string {
+	var v string
+	switch plugin.VersionGranularity {
+	case VersionGranularityMajor:
+		v = strconv.Itoa(version.Major())
+	case VersionGranularityMinor:
+		v = fmt.Sprintf("%v_%v", version.Major(), version.Minor())
+
+	}
+	return fmt.Sprintf("%v_%v_HOME", plugin.EnvNamePrefix, v)
+}
+
+func homeVariable(plugin Plugin) string {
+	return fmt.Sprintf("%v_HOME", plugin.EnvNamePrefix)
 }

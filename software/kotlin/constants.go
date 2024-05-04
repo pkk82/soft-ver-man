@@ -28,5 +28,6 @@ const RepoName = "kotlin"
 const PageSize = 100
 
 const Name = "kotlin"
+const EnvNamePrefix = "KOTLIN"
 
 var Aliases = []string{"kotlin", "kt"}

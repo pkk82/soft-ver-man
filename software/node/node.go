@@ -32,6 +32,7 @@ import (
 func init() {
 	var plugin = domain.Plugin{
 		Name:               Name,
+		EnvNamePrefix:      EnvNamePrefix,
 		GetAvailableAssets: getAvailableAssets,
 		VerifyChecksum:     verifyChecksum,
 		PostUninstall: func(version domain.Version) error {

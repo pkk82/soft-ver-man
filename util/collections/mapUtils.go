@@ -39,3 +39,11 @@ func GroupByAndCollect[T, S any, K comparable](values []T, classifier func(T) K,
 	}
 	return groupedAndCollected
 }
+
+func Keys[T comparable, S any](m map[T]S) []T {
+	keys := make([]T, 0, len(m))
+	for k := range m {
+		keys = append(keys, k)
+	}
+	return keys
+}

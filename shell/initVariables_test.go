@@ -45,7 +45,7 @@ func Test_initVariablesInSvmRc(t *testing.T) {
 			name: "node installation",
 			args: args{
 				installedPackages: domain.InstalledPackages{
-					Plugin: domain.Plugin{Name: "node"},
+					Plugin: domain.Plugin{Name: "node", VersionGranularity: domain.VersionGranularityMajor, ExecutableRelativePath: "/bin"},
 					Items: []domain.InstalledPackage{
 						{
 							Version:     domain.Ver("v20.1.3", t),
@@ -105,7 +105,12 @@ func Test_initVariablesInSpecificRc(t *testing.T) {
 			name: "first installation as main",
 			args: args{
 				installedPackages: domain.InstalledPackages{
-					Plugin: domain.Plugin{Name: "node", VersionGranularity: domain.VersionGranularityMajor, ExecutableRelativePath: "bin"},
+					Plugin: domain.Plugin{
+						Name:                   "node",
+						EnvNamePrefix:          "NODE",
+						VersionGranularity:     domain.VersionGranularityMajor,
+						ExecutableRelativePath: "bin",
+					},
 					Items: []domain.InstalledPackage{
 						{
 							Version:     domain.Ver("v20.1.3", t),
@@ -120,14 +125,19 @@ func Test_initVariablesInSpecificRc(t *testing.T) {
 			expectedSpecificContent: []string{
 				"export SVM_SOFT_NODE_DIR=\"$SVM_SOFT_DIR/node\"",
 				"export NODE_20_HOME=\"$SVM_SOFT_NODE_DIR/node-v20.1.3-linux-x64\"",
-				"export NODE_HOME=\"$SVM_SOFT_NODE_DIR/node-v20.1.3-linux-x64\"",
+				"export NODE_HOME=\"$NODE_20_HOME\"",
 				"export PATH=\"$NODE_HOME/bin:$PATH\"",
 			},
 		}, {
 			name: "first installation - no main",
 			args: args{
 				installedPackages: domain.InstalledPackages{
-					Plugin: domain.Plugin{Name: "node", VersionGranularity: domain.VersionGranularityMajor, ExecutableRelativePath: "bin"},
+					Plugin: domain.Plugin{
+						Name:                   "node",
+						EnvNamePrefix:          "NODE",
+						VersionGranularity:     domain.VersionGranularityMajor,
+						ExecutableRelativePath: "bin",
+					},
 					Items: []domain.InstalledPackage{
 						{
 							Version:     domain.Ver("v20.1.3", t),
@@ -142,14 +152,19 @@ func Test_initVariablesInSpecificRc(t *testing.T) {
 			expectedSpecificContent: []string{
 				"export SVM_SOFT_NODE_DIR=\"$SVM_SOFT_DIR/node\"",
 				"export NODE_20_HOME=\"$SVM_SOFT_NODE_DIR/node-v20.1.3-linux-x64\"",
-				"export NODE_HOME=\"$SVM_SOFT_NODE_DIR/node-v20.1.3-linux-x64\"",
+				"export NODE_HOME=\"$NODE_20_HOME\"",
 				"export PATH=\"$NODE_HOME/bin:$PATH\"",
 			},
 		}, {
 			name: "another main installation",
 			args: args{
 				installedPackages: domain.InstalledPackages{
-					Plugin: domain.Plugin{Name: "node", VersionGranularity: domain.VersionGranularityMajor, ExecutableRelativePath: "bin"},
+					Plugin: domain.Plugin{
+						Name:                   "node",
+						EnvNamePrefix:          "NODE",
+						VersionGranularity:     domain.VersionGranularityMajor,
+						ExecutableRelativePath: "bin",
+					},
 					Items: []domain.InstalledPackage{
 
 						{
@@ -179,14 +194,19 @@ func Test_initVariablesInSpecificRc(t *testing.T) {
 				"export SVM_SOFT_NODE_DIR=\"$SVM_SOFT_DIR/node\"",
 				"export NODE_19_HOME=\"$SVM_SOFT_NODE_DIR/node-v19.1.4-linux-x64\"",
 				"export NODE_20_HOME=\"$SVM_SOFT_NODE_DIR/node-v20.1.3-linux-x64\"",
-				"export NODE_HOME=\"$SVM_SOFT_NODE_DIR/node-v20.1.3-linux-x64\"",
+				"export NODE_HOME=\"$NODE_20_HOME\"",
 				"export PATH=\"$NODE_HOME/bin:$PATH\"",
 			},
 		}, {
 			name: "another installation",
 			args: args{
 				installedPackages: domain.InstalledPackages{
-					Plugin: domain.Plugin{Name: "node", VersionGranularity: domain.VersionGranularityMajor, ExecutableRelativePath: "bin"},
+					Plugin: domain.Plugin{
+						Name:                   "node",
+						EnvNamePrefix:          "NODE",
+						VersionGranularity:     domain.VersionGranularityMajor,
+						ExecutableRelativePath: "bin",
+					},
 					Items: []domain.InstalledPackage{
 
 						{
@@ -216,14 +236,19 @@ func Test_initVariablesInSpecificRc(t *testing.T) {
 				"export SVM_SOFT_NODE_DIR=\"$SVM_SOFT_DIR/node\"",
 				"export NODE_19_HOME=\"$SVM_SOFT_NODE_DIR/node-v19.1.4-linux-x64\"",
 				"export NODE_20_HOME=\"$SVM_SOFT_NODE_DIR/node-v20.1.3-linux-x64\"",
-				"export NODE_HOME=\"$SVM_SOFT_NODE_DIR/node-v20.1.3-linux-x64\"",
+				"export NODE_HOME=\"$NODE_20_HOME\"",
 				"export PATH=\"$NODE_HOME/bin:$PATH\"",
 			},
 		}, {
 			name: "latest main installation - major granularity",
 			args: args{
 				installedPackages: domain.InstalledPackages{
-					Plugin: domain.Plugin{Name: "node", VersionGranularity: domain.VersionGranularityMajor, ExecutableRelativePath: "bin"},
+					Plugin: domain.Plugin{
+						Name:                   "node",
+						EnvNamePrefix:          "NODE",
+						VersionGranularity:     domain.VersionGranularityMajor,
+						ExecutableRelativePath: "bin",
+					},
 					Items: []domain.InstalledPackage{
 						{
 							Version:     domain.Ver("19.1.3", t),
@@ -244,14 +269,19 @@ func Test_initVariablesInSpecificRc(t *testing.T) {
 				"export SVM_SOFT_NODE_DIR=\"$SVM_SOFT_DIR/node\"",
 				"export NODE_19_HOME=\"$SVM_SOFT_NODE_DIR/node-v19.1.3-linux-x64\"",
 				"export NODE_20_HOME=\"$SVM_SOFT_NODE_DIR/node-v20.1.3-linux-x64\"",
-				"export NODE_HOME=\"$SVM_SOFT_NODE_DIR/node-v19.1.3-linux-x64\"",
+				"export NODE_HOME=\"$NODE_19_HOME\"",
 				"export PATH=\"$NODE_HOME/bin:$PATH\"",
 			},
 		}, {
 			name: "latest main installation - minor granularity",
 			args: args{
 				installedPackages: domain.InstalledPackages{
-					Plugin: domain.Plugin{Name: "kotlin", VersionGranularity: domain.VersionGranularityMinor, ExecutableRelativePath: "bin"},
+					Plugin: domain.Plugin{
+						Name:                   "kotlin",
+						EnvNamePrefix:          "KOTLIN",
+						VersionGranularity:     domain.VersionGranularityMinor,
+						ExecutableRelativePath: "bin",
+					},
 					Items: []domain.InstalledPackage{
 						{
 							Version:     domain.Ver("v1.8.22", t),
@@ -272,7 +302,7 @@ func Test_initVariablesInSpecificRc(t *testing.T) {
 				"export SVM_SOFT_KOTLIN_DIR=\"$SVM_SOFT_DIR/kotlin\"",
 				"export KOTLIN_1_8_HOME=\"$SVM_SOFT_KOTLIN_DIR/kotlin-compiler-1.8.22\"",
 				"export KOTLIN_1_9_HOME=\"$SVM_SOFT_KOTLIN_DIR/kotlin-compiler-1.9.0\"",
-				"export KOTLIN_HOME=\"$SVM_SOFT_KOTLIN_DIR/kotlin-compiler-1.8.22\"",
+				"export KOTLIN_HOME=\"$KOTLIN_1_8_HOME\"",
 				"export PATH=\"$KOTLIN_HOME/bin:$PATH\"",
 			},
 		},
@@ -280,7 +310,12 @@ func Test_initVariablesInSpecificRc(t *testing.T) {
 			name: "soft-ver-man",
 			args: args{
 				installedPackages: domain.InstalledPackages{
-					Plugin: domain.Plugin{Name: "soft-ver-man", VersionGranularity: domain.VersionGranularityMinor, ExecutableRelativePath: ""},
+					Plugin: domain.Plugin{
+						Name:                   "soft-ver-man",
+						EnvNamePrefix:          "SVM",
+						VersionGranularity:     domain.VersionGranularityMinor,
+						ExecutableRelativePath: "",
+					},
 					Items: []domain.InstalledPackage{
 						{
 							Version:     domain.Ver("v0.5.0", t),
@@ -295,7 +330,7 @@ func Test_initVariablesInSpecificRc(t *testing.T) {
 			expectedSpecificContent: []string{
 				"export SVM_SOFT_SVM_DIR=\"$SVM_SOFT_DIR/soft-ver-man\"",
 				"export SVM_0_5_HOME=\"$SVM_SOFT_SVM_DIR/soft-ver-man-0.5.0\"",
-				"export SVM_HOME=\"$SVM_SOFT_SVM_DIR/soft-ver-man-0.5.0\"",
+				"export SVM_HOME=\"$SVM_0_5_HOME\"",
 				"export PATH=\"$SVM_HOME:$PATH\"",
 			},
 		},

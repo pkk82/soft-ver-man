@@ -23,6 +23,7 @@
 package node
 
 const Name = "node"
+const EnvNamePrefix = "NODE"
 const LongName = "Node.js"
 
 var Aliases = []string{"node", "nodejs", "node.js"}

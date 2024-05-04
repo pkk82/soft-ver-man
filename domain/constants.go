@@ -19,12 +19,8 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package intellij
 
-const DownloadURLPrefix = "https://download.jetbrains.com/idea"
+package domain
 
-const Name = "intellij-idea"
-const EnvNamePrefix = "INTELLIJ_IDEA"
-const LongName = "Intellij IDEA Ultimate"
-
-var Aliases = []string{"intellij", "idea", "intellij-idea", "ii"}
+const VarNameSvmSoftDir = "SVM_SOFT_DIR"
+const VarNameSvmSoftPackageDirTemplate = "SVM_SOFT_%v_DIR"

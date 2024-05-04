@@ -22,14 +22,58 @@
 
 package domain
 
+import (
+	"fmt"
+	"os"
+	"path"
+	"strings"
+)
+
 type EnvVariable struct {
 	Name           string
 	PrefixVariable *EnvVariable
 	SuffixValue    string
 }
 
+func (v EnvVariable) toExport() string {
+	if v.PrefixVariable == nil {
+		return fmt.Sprintf("export %v=%v", v.Name, v.SuffixValue)
+	}
+	if v.SuffixValue == "" {
+		return fmt.Sprintf("export %v=\"$%v\"", v.Name, v.PrefixVariable.Name)
+	}
+
+	return fmt.Sprintf("export %v=\"$%v%v%v\"", v.Name, v.PrefixVariable.Name, string(os.PathSeparator), v.SuffixValue)
+}
+
 type EnvVariables struct {
 	Variables              []EnvVariable
 	MainVariable           *EnvVariable
 	ExecutableRelativePath string
+}
+
+func (envVariables EnvVariables) ToExport() []string {
+
+	lines := make([]string, len(envVariables.Variables)+1)
+
+	for i, envVariable := range envVariables.Variables {
+		lines[i] = envVariable.toExport()
+	}
+
+	mainVariable := *envVariables.MainVariable
+
+	var executableRelativePath string
+	if envVariables.ExecutableRelativePath == "" ||
+		strings.HasPrefix(envVariables.ExecutableRelativePath, string(os.PathSeparator)) {
+		executableRelativePath = envVariables.ExecutableRelativePath
+	} else {
+		executableRelativePath = path.Join(string(os.PathSeparator), envVariables.ExecutableRelativePath)
+	}
+
+	lines[len(lines)-1] = fmt.Sprintf("export PATH=\"$%v%v%v$PATH\"",
+		mainVariable.Name,
+		executableRelativePath,
+		string(os.PathListSeparator))
+
+	return lines
 }

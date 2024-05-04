@@ -21,37 +21,6 @@ THE SOFTWARE.
 */
 package domain
 
-import (
-	"errors"
-	"fmt"
-)
-
-const (
-	TAR_GZ  = "tar.gz"
-	ZIP     = "zip"
-	DMG     = "dmg"
-	RAW     = "raw"
-	UNKNOWN = "unknown"
-)
-
-type Type string
-
-type InstalledPackage struct {
-	Version     Version
-	Path        string
-	InstalledOn int64
-	Main        bool
-}
-
-func (ip *InstalledPackage) RoundVersion(versionGranularity VersionGranularity) (Version, error) {
-	if versionGranularity == VersionGranularityMajor {
-		return NewVersion(fmt.Sprintf("%d", ip.Version.Major()))
-	} else if versionGranularity == VersionGranularityMinor {
-		return NewVersion(fmt.Sprintf("%d.%d", ip.Version.Major(), ip.Version.Minor()))
-	}
-	return Version{}, errors.New(string(versionGranularity + " is not supported"))
-}
-
 type InstalledPackages struct {
 	Plugin Plugin
 	Items  []InstalledPackage

@@ -26,65 +26,6 @@ import (
 	"testing"
 )
 
-func Test_InstalledPackage_RoundVer(t *testing.T) {
-	installedPackage := InstalledPackage{
-		InstalledOn: 1689017267000,
-		Path:        "/home/user/pf/node/node-v20.1.3-linux-x64",
-		Version:     Ver("v20.1.3", t),
-		Main:        true,
-	}
-	type args struct {
-		installedPackage InstalledPackage
-		granularity      VersionGranularity
-	}
-	tests := []struct {
-		name    string
-		args    args
-		wantErr bool
-		want    Version
-	}{
-		{
-			name: "major",
-			args: args{
-				installedPackage: installedPackage,
-				granularity:      VersionGranularityMajor,
-			},
-			wantErr: false,
-			want:    Ver("20", t),
-		},
-		{
-			name: "minor",
-			args: args{
-				installedPackage: installedPackage,
-				granularity:      VersionGranularityMinor,
-			},
-			wantErr: false,
-			want:    Ver("20.1", t),
-		},
-		{
-			name: "minor",
-			args: args{
-				installedPackage: installedPackage,
-				granularity:      "unknown",
-			},
-			wantErr: true,
-		},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			got, err := tt.args.installedPackage.RoundVersion(tt.args.granularity)
-			if (err != nil) != tt.wantErr {
-				t.Errorf("InstalledPackage.RoundVer() error = %v, wantErr %v", err, tt.wantErr)
-				return
-			}
-			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("InstalledPackage.RoundVer() got = %v, want %v", got, tt.want)
-			}
-		})
-	}
-}
-
 func Test_InstalledPackages_IsInstalled(t *testing.T) {
 
 	tests := []struct {

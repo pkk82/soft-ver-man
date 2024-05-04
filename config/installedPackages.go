@@ -75,6 +75,21 @@ func DisplayInstalledPackages(name string) {
 
 }
 
+func LoadAllInstalledPackages() ([]domain.InstalledPackages, error) {
+	allInstalledPackages := make([]domain.InstalledPackages, 0)
+
+	plugins := domain.GetPlugins()
+	for _, plugin := range plugins {
+		json := readInstalledPackagesFromConfig(plugin.Name)
+		packages, err := domain.DeserializeInstalledPackages(plugin.Name, json)
+		if err != nil {
+			return nil, err
+		}
+		allInstalledPackages = append(allInstalledPackages, packages)
+	}
+	return allInstalledPackages, nil
+}
+
 func LoadInstalledPackages(name string) (domain.InstalledPackages, error) {
 	json := readInstalledPackagesFromConfig(name)
 	packages, err := domain.DeserializeInstalledPackages(name, json)

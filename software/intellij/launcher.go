@@ -23,12 +23,16 @@ package intellij
 
 import (
 	"fmt"
+	"github.com/pkk82/soft-ver-man/config"
 	"github.com/pkk82/soft-ver-man/domain"
+	"github.com/pkk82/soft-ver-man/shell"
 	"github.com/pkk82/soft-ver-man/util/file"
+	"github.com/spf13/viper"
 	"os"
 	"os/user"
 	"path"
 	"runtime"
+	"strings"
 )
 
 func createLauncher(installedPackage domain.InstalledPackage) error {
@@ -42,12 +46,16 @@ func createLauncher(installedPackage domain.InstalledPackage) error {
 		where := path.Join(current.HomeDir, ".local", "share", "applications", launcherFilename)
 		fmt.Printf("Creating launcher for Linux in %s\n", where)
 
-		err := file.OverrideFileWithContent(where, []string{
+		envVariables, err := prepareEnvVariables()
+		if err != nil {
+			return err
+		}
+
+		err = file.OverrideFileWithContent(where, []string{
 			"[Desktop Entry]",
 			"Name=IU " + version,
 			"Comment=Intellij Ultimate " + version,
-			// TODO provide shell variables
-			"Exec=" + path.Join(installedPackage.Path, "bin", "idea.sh"),
+			"Exec=" + envVariables + " " + path.Join(installedPackage.Path, "bin", "idea.sh"),
 			"Icon=" + path.Join(installedPackage.Path, "bin", "idea.png"),
 			"Terminal=false",
 			"Type=Application",
@@ -58,6 +66,32 @@ func createLauncher(installedPackage domain.InstalledPackage) error {
 
 	}
 	return nil
+}
+
+func prepareEnvVariables() (string, error) {
+	allInstalledPackages, err := config.LoadAllInstalledPackages()
+	if err != nil {
+		return "", err
+	}
+	lines := []string{}
+	lines = append(lines, "export ")
+	for _, installedPackages := range allInstalledPackages {
+		envVariables, err := installedPackages.PrepareEnvVariables(installedPackages.Plugin)
+		if err != nil {
+			return "", err
+		}
+
+		finder := shell.ProdDirFinder{SoftwareDir: viper.GetString(config.SoftwareDirKey)}
+		softDir, err := finder.SoftDir()
+		if err != nil {
+			return "", err
+		}
+		lines = append(lines, shell.PrepareSvmSoftDirEnvVariable(softDir).ToEnv())
+		for _, envVariable := range envVariables.Variables {
+			lines = append(lines, envVariable.ToEnv())
+		}
+	}
+	return strings.Join(lines, " "), nil
 }
 
 func deleteLauncher(version domain.Version) error {

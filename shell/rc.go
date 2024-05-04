@@ -37,22 +37,10 @@ func makeRcName(name string) string {
 	return fmt.Sprintf(".%vrc", name)
 }
 
-func exportVariable(name, value string) string {
-	return fmt.Sprintf("export %v=\"%v\"", name, value)
-}
+func PrepareSvmSoftDirEnvVariable(softDir string) domain.EnvVariable {
+	return domain.EnvVariable{
+		Name:        domain.VarNameSvmSoftDir,
+		SuffixValue: softDir,
+	}
 
-func exportRefPathVariable(name, refVar, path string) string {
-	return fmt.Sprintf("export %v=\"$%v/%v\"", name, refVar, path)
-}
-
-func exportHomeVariable(name, refVar, path string) string {
-	return fmt.Sprintf("export %v_HOME=\"$%v/%v\"", name, refVar, path)
-}
-
-func exportHomeMajorVersionVariable(name string, version domain.Version, refVar, path string) string {
-	return fmt.Sprintf("export %v_%v_HOME=\"$%v/%v\"", name, version.Major(), refVar, path)
-}
-
-func exportHomeMinorVersionVariable(name string, version domain.Version, refVar, path string) string {
-	return fmt.Sprintf("export %v_%v_%v_HOME=\"$%v/%v\"", name, version.Major(), version.Minor(), refVar, path)
 }

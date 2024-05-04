@@ -35,15 +35,23 @@ type EnvVariable struct {
 	SuffixValue    string
 }
 
-func (v EnvVariable) toExport() string {
+func (v EnvVariable) ToExport() string {
+	return fmt.Sprintf("export %s", v.toString())
+}
+
+func (v EnvVariable) ToEnv() string {
+	return fmt.Sprintf("env %s", v.toString())
+}
+
+func (v EnvVariable) toString() string {
 	if v.PrefixVariable == nil {
-		return fmt.Sprintf("export %v=%v", v.Name, v.SuffixValue)
+		return fmt.Sprintf("%v=\"%v\"", v.Name, v.SuffixValue)
 	}
 	if v.SuffixValue == "" {
-		return fmt.Sprintf("export %v=\"$%v\"", v.Name, v.PrefixVariable.Name)
+		return fmt.Sprintf("%v=\"$%v\"", v.Name, v.PrefixVariable.Name)
 	}
 
-	return fmt.Sprintf("export %v=\"$%v%v%v\"", v.Name, v.PrefixVariable.Name, string(os.PathSeparator), v.SuffixValue)
+	return fmt.Sprintf("%v=\"$%v%v%v\"", v.Name, v.PrefixVariable.Name, string(os.PathSeparator), v.SuffixValue)
 }
 
 type EnvVariables struct {
@@ -57,7 +65,7 @@ func (envVariables EnvVariables) ToExport() []string {
 	lines := make([]string, len(envVariables.Variables)+1)
 
 	for i, envVariable := range envVariables.Variables {
-		lines[i] = envVariable.toExport()
+		lines[i] = envVariable.ToExport()
 	}
 
 	mainVariable := *envVariables.MainVariable

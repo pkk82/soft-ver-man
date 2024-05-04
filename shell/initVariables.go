@@ -59,7 +59,7 @@ func initSvmRcFile(name, homeDir string, finder DirFinder) error {
 		return err
 	}
 
-	exportLine := exportVariable(domain.VarNameSvmSoftDir, softDir)
+	exportLine := PrepareSvmSoftDirEnvVariable(softDir).ToExport()
 	err = assertFileWithContent(path.Join(homeDir, config.HomeConfigDir, config.RcFile), exportLine,
 		[]string{exportLine})
 	if err != nil {

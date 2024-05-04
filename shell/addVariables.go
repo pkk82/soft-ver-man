@@ -25,13 +25,13 @@ import (
 	"github.com/pkk82/soft-ver-man/domain"
 )
 
-func AddVariables(finder DirFinder, history domain.PackageHistory, executableDirName string, granularity domain.VersionGranularity) error {
+func AddVariables(finder DirFinder, installedPackages domain.InstalledPackages) error {
 	err := initShell(finder)
 	if err != nil {
 		return err
 	}
 
-	err = initVariables(finder, history, executableDirName, granularity)
+	err = initVariables(finder, installedPackages)
 	if err != nil {
 		return err
 	}

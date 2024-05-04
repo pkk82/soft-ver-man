@@ -3,7 +3,6 @@ package software
 import (
 	"errors"
 	"github.com/pkk82/soft-ver-man/domain"
-	"github.com/pkk82/soft-ver-man/testutil"
 	"github.com/pkk82/soft-ver-man/util/test"
 	"io"
 	"net/http"
@@ -70,7 +69,7 @@ func Test_fetch(t *testing.T) {
 			},
 			wantErr: false,
 			want: domain.FetchedPackage{
-				Version:  testutil.AsVersion("1.0.0", t),
+				Version:  domain.Ver("1.0.0", t),
 				FilePath: "direct/artifact.tar.gz",
 				Type:     domain.TAR_GZ,
 			},
@@ -96,7 +95,7 @@ func Test_fetch(t *testing.T) {
 			},
 			wantErr: false,
 			want: domain.FetchedPackage{
-				Version:  testutil.AsVersion("1.0.0", t),
+				Version:  domain.Ver("1.0.0", t),
 				FilePath: "asset/artifact.tar.gz",
 				Type:     domain.TAR_GZ,
 			},

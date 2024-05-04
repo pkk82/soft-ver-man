@@ -33,8 +33,9 @@ import (
 	"strings"
 )
 
-func initVariables(finder DirFinder, history domain.PackageHistory, executableDirName string, granularity domain.VersionGranularity) error {
-	name := history.Name
+func initVariables(finder DirFinder, installedPackages domain.InstalledPackages) error {
+	plugin := installedPackages.Plugin
+	name := plugin.Name
 
 	homeDir, err := finder.HomeDir()
 	if err != nil {
@@ -46,19 +47,18 @@ func initVariables(finder DirFinder, history domain.PackageHistory, executableDi
 		return err
 	}
 
-	installedPackages, err := history.ToInstalledPackages()
 	if err != nil {
 		return err
 	}
 
-	switch granularity {
+	switch plugin.VersionGranularity {
 	case domain.VersionGranularityMajor:
-		err = initSpecificRcRileWithMajorVariables(installedPackages, name, homeDir, executableDirName)
+		err = initSpecificRcRileWithMajorVariables(installedPackages.Items, name, homeDir, plugin.ExecutableRelativePath)
 		if err != nil {
 			return err
 		}
 	case domain.VersionGranularityMinor:
-		err = initSpecificRcRileWithMinorVariables(installedPackages, name, homeDir, executableDirName)
+		err = initSpecificRcRileWithMinorVariables(installedPackages.Items, name, homeDir, plugin.ExecutableRelativePath)
 		if err != nil {
 			return err
 		}

@@ -16,12 +16,12 @@ func NewVersion(version string) (Version, error) {
 	return v, nil
 }
 
-func (receiver Version) Major() int {
-	return receiver.major
+func (version Version) Major() int {
+	return version.major
 }
 
-func (receiver Version) Minor() int {
-	return receiver.minor
+func (version Version) Minor() int {
+	return version.minor
 }
 
 func CompareDesc(v1, v2 Version) bool {

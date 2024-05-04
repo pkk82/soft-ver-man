@@ -24,8 +24,6 @@ package domain
 import (
 	"errors"
 	"fmt"
-	"path/filepath"
-	"strings"
 )
 
 const (
@@ -37,20 +35,6 @@ const (
 )
 
 type Type string
-
-type FetchedPackage struct {
-	Version  Version
-	FilePath string
-	Type     Type
-}
-
-func (fp FetchedPackage) getDirName() string {
-	base := filepath.Base(fp.FilePath)
-	if fp.Type == TAR_GZ && strings.HasSuffix(base, "."+TAR_GZ) {
-		return strings.TrimSuffix(base, ".tar.gz")
-	}
-	return strings.TrimSuffix(base, filepath.Ext(base))
-}
 
 type InstalledPackage struct {
 	Version     Version
@@ -66,4 +50,37 @@ func (ip *InstalledPackage) RoundVersion(versionGranularity VersionGranularity) 
 		return NewVersion(fmt.Sprintf("%d.%d", ip.Version.Major(), ip.Version.Minor()))
 	}
 	return Version{}, errors.New(string(versionGranularity + " is not supported"))
+}
+
+type InstalledPackages struct {
+	Plugin Plugin
+	Items  []InstalledPackage
+}
+
+func (installedPackages *InstalledPackages) IsInstalled(version Version) bool {
+	for _, item := range installedPackages.Items {
+		if item.Version == version {
+			return true
+		}
+	}
+	return false
+}
+
+func (installedPackages *InstalledPackages) Add(installedPackage InstalledPackage) {
+	installedPackages.Items = append(installedPackages.Items, installedPackage)
+}
+
+func (installedPackages *InstalledPackages) RemoveByVersion(version Version) *InstalledPackage {
+	newItems := make([]InstalledPackage, 0)
+	var itemToRemove *InstalledPackage = nil
+	for _, item := range installedPackages.Items {
+		if item.Version != version {
+			newItems = append(newItems, item)
+		} else {
+			copyItem := item
+			itemToRemove = &copyItem
+		}
+	}
+	installedPackages.Items = newItems
+	return itemToRemove
 }

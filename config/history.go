@@ -9,23 +9,9 @@ import (
 	"text/tabwriter"
 )
 
-func ReadHistoryConfig(name string) (domain.PackageHistory, error) {
-	if !viper.IsSet(name + PackageHistorySuffix) {
-		return domain.PackageHistory{Name: name, Items: []domain.PackageHistoryItem{}}, nil
-	}
-	repr := viper.GetString(name + PackageHistorySuffix)
-	return domain.ParseHistory(repr)
-}
-
-func WriteHistoryConfig(history domain.PackageHistory) error {
-	json := history.Serialize()
-	viper.Set(history.Name+PackageHistorySuffix, json)
-	return viper.WriteConfig()
-}
-
 func DisplayHistory(name string) {
 
-	history, err := ReadHistoryConfig(name)
+	history, err := LoadInstalledPackages(name)
 	if err != nil {
 		console.Fatal(err)
 	}
@@ -40,7 +26,7 @@ func DisplayHistory(name string) {
 		if item.Main {
 			main = " Yes"
 		}
-		_, err = fmt.Fprintf(w, "%s\t %s\t %s\n", item.Version, main, item.Path)
+		_, err = fmt.Fprintf(w, "%s\t %s\t %s\n", item.Version.Value, main, item.Path)
 		if err != nil {
 			console.Fatal(err)
 		}
@@ -50,4 +36,42 @@ func DisplayHistory(name string) {
 		console.Fatal(err)
 	}
 
+}
+
+func LoadInstalledPackages(name string) (domain.InstalledPackages, error) {
+	json := readInstalledPackagesFromConfig(name)
+	packages, err := domain.DeserializeInstalledPackages(name, json)
+	if err != nil {
+		return domain.InstalledPackages{}, err
+	}
+
+	return packages, nil
+}
+
+func StoreInstalledPackages(packages domain.InstalledPackages) error {
+
+	installedPackages, err := packages.SerializeInstalledPackages()
+	if err != nil {
+		return err
+	}
+
+	err = writeInstalledPackagesToConfig(packages.Plugin.Name, installedPackages)
+	if err != nil {
+		return err
+	}
+
+	return nil
+
+}
+
+func readInstalledPackagesFromConfig(name string) string {
+	if !viper.IsSet(name + InstalledPackagesSuffix) {
+		return ""
+	}
+	return viper.GetString(name + InstalledPackagesSuffix)
+}
+
+func writeInstalledPackagesToConfig(name, json string) error {
+	viper.Set(name+InstalledPackagesSuffix, json)
+	return viper.WriteConfig()
 }

@@ -20,12 +20,12 @@ func Install(plugin domain.Plugin, inputVersion string, verifyChecksum bool) err
 		return err
 	}
 
-	history, err := config.ReadHistoryConfig(plugin.Name)
+	installedPackages, err := config.LoadInstalledPackages(plugin.Name)
 	if err != nil {
 		return err
 	}
 
-	if history.IsInstalled(version) {
+	if installedPackages.IsInstalled(version) {
 		return errors.New("Version " + version.Value + " is already installed")
 	}
 
@@ -64,15 +64,15 @@ func Install(plugin domain.Plugin, inputVersion string, verifyChecksum bool) err
 			InstalledOn: time.Now().UnixMilli(),
 		}
 	}
-	history.Add(installedPackage)
+	installedPackages.Add(installedPackage)
 
-	err = config.WriteHistoryConfig(history)
+	err = config.StoreInstalledPackages(installedPackages)
 	if err != nil {
 		return err
 	}
 
 	finder := shell.ProdDirFinder{SoftwareDir: viper.GetString(config.SoftwareDirKey)}
-	err = shell.AddVariables(finder, history, plugin.ExecutableRelativePath, plugin.VersionGranularity)
+	err = shell.AddVariables(finder, installedPackages)
 	if err != nil {
 		return err
 	}

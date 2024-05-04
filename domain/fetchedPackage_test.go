@@ -19,42 +19,42 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
-package software
+package domain
 
-import (
-	"github.com/pkk82/soft-ver-man/config"
-	"github.com/pkk82/soft-ver-man/domain"
-	"os"
-)
+import "testing"
 
-func Uninstall(plugin domain.Plugin, inputVersion string) error {
-	version, err := domain.NewVersion(inputVersion)
-	if err != nil {
-		return err
+func Test_FetchedPackage_getDirName(t *testing.T) {
+
+	fetchedPackages := []FetchedPackage{
+		{
+			Version: Version{
+				Value: "v0.8.6",
+			},
+			Type:     TAR_GZ,
+			FilePath: "/tmp/node/node-v0.8.6-darwin-x64.tar.gz",
+		},
+		{
+			Version: Version{
+				Value: "v0.8.6",
+			},
+			Type:     TAR_GZ,
+			FilePath: "/tmp/node/node-v0.8.6-darwin-x64.tgz",
+		},
+		{
+			Version: Version{
+				Value: "v20.4.0",
+			},
+			Type:     ZIP,
+			FilePath: "/tmp/node/node-v20.4.0-win-x64.zip",
+		},
 	}
 
-	installedPackages, err := config.LoadInstalledPackages(plugin.Name)
-	if err != nil {
-		return err
+	expected := []string{"node-v0.8.6-darwin-x64", "node-v0.8.6-darwin-x64", "node-v20.4.0-win-x64"}
+
+	for i, fetchPackage := range fetchedPackages {
+		actual := fetchPackage.getDirName()
+		if actual != expected[i] {
+			t.Errorf("Expected: %v, got: %v", expected[i], actual)
+		}
 	}
-
-	removedItem := installedPackages.RemoveByVersion(version)
-
-	err = os.RemoveAll(removedItem.Path)
-	if err != nil {
-		return err
-	}
-
-	err = config.StoreInstalledPackages(installedPackages)
-	if err != nil {
-		return err
-	}
-
-	err = plugin.PostUninstall(version)
-	if err != nil {
-		return err
-	}
-
-	return nil
-
 }

@@ -26,47 +26,11 @@ import (
 	"testing"
 )
 
-func TestFetchedPackage(t *testing.T) {
-
-	fetchedPackages := []FetchedPackage{
-		{
-			Version: Version{
-				Value: "v0.8.6",
-			},
-			Type:     TAR_GZ,
-			FilePath: "/tmp/node/node-v0.8.6-darwin-x64.tar.gz",
-		},
-		{
-			Version: Version{
-				Value: "v0.8.6",
-			},
-			Type:     TAR_GZ,
-			FilePath: "/tmp/node/node-v0.8.6-darwin-x64.tgz",
-		},
-		{
-			Version: Version{
-				Value: "v20.4.0",
-			},
-			Type:     ZIP,
-			FilePath: "/tmp/node/node-v20.4.0-win-x64.zip",
-		},
-	}
-
-	expected := []string{"node-v0.8.6-darwin-x64", "node-v0.8.6-darwin-x64", "node-v20.4.0-win-x64"}
-
-	for i, fetchPackage := range fetchedPackages {
-		actual := fetchPackage.getDirName()
-		if actual != expected[i] {
-			t.Errorf("Expected: %v, got: %v", expected[i], actual)
-		}
-	}
-}
-
-func TestRoundVersion(t *testing.T) {
+func Test_InstalledPackage_RoundVer(t *testing.T) {
 	installedPackage := InstalledPackage{
 		InstalledOn: 1689017267000,
 		Path:        "/home/user/pf/node/node-v20.1.3-linux-x64",
-		Version:     toVersion("v20.1.3", t),
+		Version:     Ver("v20.1.3", t),
 		Main:        true,
 	}
 	type args struct {
@@ -86,7 +50,7 @@ func TestRoundVersion(t *testing.T) {
 				granularity:      VersionGranularityMajor,
 			},
 			wantErr: false,
-			want:    toVersion("20", t),
+			want:    Ver("20", t),
 		},
 		{
 			name: "minor",
@@ -95,7 +59,7 @@ func TestRoundVersion(t *testing.T) {
 				granularity:      VersionGranularityMinor,
 			},
 			wantErr: false,
-			want:    toVersion("20.1", t),
+			want:    Ver("20.1", t),
 		},
 		{
 			name: "minor",
@@ -111,12 +75,204 @@ func TestRoundVersion(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			got, err := tt.args.installedPackage.RoundVersion(tt.args.granularity)
 			if (err != nil) != tt.wantErr {
-				t.Errorf("InstalledPackage.RoundVersion() error = %v, wantErr %v", err, tt.wantErr)
+				t.Errorf("InstalledPackage.RoundVer() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
 			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("InstalledPackage.RoundVersion() got = %v, want %v", got, tt.want)
+				t.Errorf("InstalledPackage.RoundVer() got = %v, want %v", got, tt.want)
 			}
 		})
 	}
+}
+
+func Test_InstalledPackages_IsInstalled(t *testing.T) {
+
+	tests := []struct {
+		name              string
+		installedPackages InstalledPackages
+		version           Version
+		want              bool
+	}{
+		{
+			name:              "empty - false",
+			installedPackages: InstalledPackages{Plugin: Plugin{Name: "node"}, Items: []InstalledPackage{}},
+			version:           Ver("v20.1.4", t),
+			want:              false,
+		},
+		{
+			name: "one element - true",
+			installedPackages: InstalledPackages{Plugin: Plugin{Name: "node"}, Items: []InstalledPackage{
+				{
+					Version:     Ver("v20.1.3", t),
+					Path:        "/home/user/pf/node/node-v20.1.3-linux-x64",
+					Main:        true,
+					InstalledOn: 1689017267000,
+				},
+			}},
+			version: Ver("v20.1.3", t),
+			want:    true,
+		}, {
+			name: "one element -  false",
+			installedPackages: InstalledPackages{Plugin: Plugin{Name: "node"}, Items: []InstalledPackage{
+				{
+					Version:     Ver("v20.1.3", t),
+					Path:        "/home/user/pf/node/node-v20.1.3-linux-x64",
+					Main:        true,
+					InstalledOn: 1689017267000,
+				},
+			}},
+			version: Version{Value: "v20.1.4"},
+			want:    false,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			installedPackages := tt.installedPackages
+			got := installedPackages.IsInstalled(tt.version)
+			if got != tt.want {
+				t.Errorf("InstalledPackages.IsInstalled() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+
+}
+
+func Test_InstalledPackages_Add(t *testing.T) {
+
+	tests := []struct {
+		name              string
+		installedPackages InstalledPackages
+		want              []InstalledPackage
+	}{
+		{
+			name:              "empty",
+			installedPackages: InstalledPackages{Plugin: Plugin{Name: "node"}, Items: []InstalledPackage{}},
+			want: []InstalledPackage{
+				{
+					Version:     Ver("v20.1.4", t),
+					Path:        "/home/user/pf/node/node-v20.1.4-linux-x64",
+					Main:        false,
+					InstalledOn: 1689017268000,
+				},
+			},
+		},
+		{
+			name: "with-one-item",
+			installedPackages: InstalledPackages{Plugin: Plugin{Name: "node"}, Items: []InstalledPackage{
+				{
+					Version:     Ver("v20.1.3", t),
+					Path:        "/home/user/pf/node/node-v20.1.3-linux-x64",
+					Main:        true,
+					InstalledOn: 1689017267000,
+				},
+			}},
+			want: []InstalledPackage{{
+				Version:     Ver("v20.1.3", t),
+				Path:        "/home/user/pf/node/node-v20.1.3-linux-x64",
+				Main:        true,
+				InstalledOn: 1689017267000,
+			}, {
+				Version:     Ver("v20.1.4", t),
+				Path:        "/home/user/pf/node/node-v20.1.4-linux-x64",
+				Main:        false,
+				InstalledOn: 1689017268000,
+			}},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			installedPackages := tt.installedPackages
+			installedPackages.Add(InstalledPackage{
+				Version:     Ver("v20.1.4", t),
+				Path:        "/home/user/pf/node/node-v20.1.4-linux-x64",
+				InstalledOn: 1689017268000,
+			})
+			if !reflect.DeepEqual(installedPackages.Items, tt.want) {
+				t.Errorf("InstalledPackages.Add() = %v, want %v", installedPackages.Items, tt.want)
+			}
+		})
+	}
+
+}
+
+func Test_InstalledPackages_Remove(t *testing.T) {
+
+	tests := []struct {
+		name              string
+		installedPackages InstalledPackages
+		want              []InstalledPackage
+		wantRemoved       *InstalledPackage
+	}{
+		{
+			name:              "empty",
+			installedPackages: InstalledPackages{Plugin: Plugin{Name: "node"}, Items: []InstalledPackage{}},
+			want:              []InstalledPackage{},
+			wantRemoved:       nil,
+		},
+		{
+			name: "with-one-item",
+			installedPackages: InstalledPackages{Plugin: Plugin{Name: "node"}, Items: []InstalledPackage{
+				{
+					Version:     Ver("v20.1.3", t),
+					Path:        "/home/user/pf/node/node-v20.1.3-linux-x64",
+					Main:        true,
+					InstalledOn: 1689017267000,
+				},
+			}},
+			want: []InstalledPackage{},
+			wantRemoved: &InstalledPackage{
+				Version:     Ver("v20.1.3", t),
+				Path:        "/home/user/pf/node/node-v20.1.3-linux-x64",
+				Main:        true,
+				InstalledOn: 1689017267000,
+			},
+		},
+		{
+			name: "with-two-items",
+			installedPackages: InstalledPackages{Plugin: Plugin{Name: "node"}, Items: []InstalledPackage{
+				{
+					Version:     Ver("v20.1.3", t),
+					Path:        "/home/user/pf/node/node-v20.1.3-linux-x64",
+					Main:        true,
+					InstalledOn: 1689017267000,
+				},
+				{
+					Version:     Ver("v20.1.4", t),
+					Path:        "/home/user/pf/node/node-v20.1.4-linux-x64",
+					Main:        false,
+					InstalledOn: 1689017267000,
+				},
+			}},
+			want: []InstalledPackage{
+				{
+					Version:     Ver("v20.1.4", t),
+					Path:        "/home/user/pf/node/node-v20.1.4-linux-x64",
+					Main:        false,
+					InstalledOn: 1689017267000,
+				},
+			},
+			wantRemoved: &InstalledPackage{
+				Version:     Ver("v20.1.3", t),
+				Path:        "/home/user/pf/node/node-v20.1.3-linux-x64",
+				Main:        true,
+				InstalledOn: 1689017267000,
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			removed := tt.installedPackages.RemoveByVersion(Ver("v20.1.3", t))
+			if !reflect.DeepEqual(tt.installedPackages.Items, tt.want) {
+				t.Errorf("RemoveByVersion().Items = %v, want %v", tt.installedPackages.Items, tt.want)
+			}
+
+			if !reflect.DeepEqual(removed, tt.wantRemoved) {
+				t.Errorf("RemoveByVersion().Items = %v, want %v", removed, tt.wantRemoved)
+			}
+		})
+	}
+
 }

@@ -12,7 +12,7 @@ type expectedContentProvider func(dir string) []string
 
 func Test_initVariablesInSvmRc(t *testing.T) {
 	type args struct {
-		history domain.PackageHistory
+		installedPackages domain.InstalledPackages
 	}
 	tests := []struct {
 		name            string
@@ -22,11 +22,11 @@ func Test_initVariablesInSvmRc(t *testing.T) {
 		{
 			name: "node installation",
 			args: args{
-				history: domain.PackageHistory{
-					Name: "node",
-					Items: []domain.PackageHistoryItem{
+				installedPackages: domain.InstalledPackages{
+					Plugin: domain.Plugin{Name: "node"},
+					Items: []domain.InstalledPackage{
 						{
-							Version:     "v20.1.3",
+							Version:     domain.Ver("v20.1.3", t),
 							Path:        "/home/user/pf/node/node-v20.1.3-linux-x64",
 							Main:        true,
 							InstalledOn: 1689017267000,
@@ -40,12 +40,12 @@ func Test_initVariablesInSvmRc(t *testing.T) {
 		}, {
 			name: "go installation",
 			args: args{
-				history: domain.PackageHistory{
-					Name: "go",
-					Items: []domain.PackageHistoryItem{
+				installedPackages: domain.InstalledPackages{
+					Plugin: domain.Plugin{Name: "go", VersionGranularity: domain.VersionGranularityMajor, ExecutableRelativePath: "/bin"},
+					Items: []domain.InstalledPackage{
 
 						{
-							Version:     "1.20.1",
+							Version:     domain.Ver("1.20.1", t),
 							Path:        "/home/user/pf/go/go-v1.20.1-linux-x64",
 							Main:        true,
 							InstalledOn: 1689017267000,
@@ -61,7 +61,7 @@ func Test_initVariablesInSvmRc(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			dir := test.CreateTestDir(t)
-			err := initVariables(test.TestDirs{Home: dir}, tt.args.history, "/bin", domain.VersionGranularityMajor)
+			err := initVariables(test.TestDirs{Home: dir}, tt.args.installedPackages)
 			if err != nil {
 				t.Errorf("Failed to init variables: %s", err)
 			}
@@ -71,9 +71,7 @@ func Test_initVariablesInSvmRc(t *testing.T) {
 }
 func Test_initVariablesInSpecificRc(t *testing.T) {
 	type args struct {
-		history           domain.PackageHistory
-		granularity       domain.VersionGranularity
-		executableDirName string
+		installedPackages domain.InstalledPackages
 	}
 	tests := []struct {
 		name                     string
@@ -84,19 +82,17 @@ func Test_initVariablesInSpecificRc(t *testing.T) {
 		{
 			name: "first installation as main",
 			args: args{
-				history: domain.PackageHistory{
-					Name: "node",
-					Items: []domain.PackageHistoryItem{
+				installedPackages: domain.InstalledPackages{
+					Plugin: domain.Plugin{Name: "node", VersionGranularity: domain.VersionGranularityMajor, ExecutableRelativePath: "bin"},
+					Items: []domain.InstalledPackage{
 						{
-							Version:     "v20.1.3",
+							Version:     domain.Ver("v20.1.3", t),
 							Path:        "/home/user/pf/node/node-v20.1.3-linux-x64",
 							Main:        true,
 							InstalledOn: 1689017267000,
 						},
 					},
 				},
-				granularity:       domain.VersionGranularityMajor,
-				executableDirName: "bin",
 			},
 			expectedSpecificFileName: ".noderc",
 			expectedSpecificContent: []string{
@@ -108,19 +104,17 @@ func Test_initVariablesInSpecificRc(t *testing.T) {
 		}, {
 			name: "first installation - no main",
 			args: args{
-				history: domain.PackageHistory{
-					Name: "node",
-					Items: []domain.PackageHistoryItem{
+				installedPackages: domain.InstalledPackages{
+					Plugin: domain.Plugin{Name: "node", VersionGranularity: domain.VersionGranularityMajor, ExecutableRelativePath: "bin"},
+					Items: []domain.InstalledPackage{
 						{
-							Version:     "v20.1.3",
+							Version:     domain.Ver("v20.1.3", t),
 							Path:        "/home/user/pf/node/node-v20.1.3-linux-x64",
 							Main:        false,
 							InstalledOn: 1689017267000,
 						},
 					},
 				},
-				granularity:       domain.VersionGranularityMajor,
-				executableDirName: "bin",
 			},
 			expectedSpecificFileName: ".noderc",
 			expectedSpecificContent: []string{
@@ -132,33 +126,31 @@ func Test_initVariablesInSpecificRc(t *testing.T) {
 		}, {
 			name: "another main installation",
 			args: args{
-				history: domain.PackageHistory{
-					Name: "node",
-					Items: []domain.PackageHistoryItem{
+				installedPackages: domain.InstalledPackages{
+					Plugin: domain.Plugin{Name: "node", VersionGranularity: domain.VersionGranularityMajor, ExecutableRelativePath: "bin"},
+					Items: []domain.InstalledPackage{
 
 						{
-							Version:     "19.1.3",
+							Version:     domain.Ver("19.1.3", t),
 							Path:        "/home/user/pf/node/node-v19.1.3-linux-x64",
 							Main:        true,
 							InstalledOn: 1689017267000,
 						},
 						{
-							Version:     "19.1.4",
+							Version:     domain.Ver("19.1.4", t),
 							Path:        "/home/user/pf/node/node-v19.1.4-linux-x64",
 							Main:        false,
 							InstalledOn: 168901728000,
 						},
 
 						{
-							Version:     "v20.1.3",
+							Version:     domain.Ver("v20.1.3", t),
 							Path:        "/home/user/pf/node/node-v20.1.3-linux-x64",
 							Main:        true,
 							InstalledOn: 1689017269000,
 						},
 					},
 				},
-				granularity:       domain.VersionGranularityMajor,
-				executableDirName: "bin",
 			},
 			expectedSpecificFileName: ".noderc",
 			expectedSpecificContent: []string{
@@ -171,33 +163,31 @@ func Test_initVariablesInSpecificRc(t *testing.T) {
 		}, {
 			name: "another installation",
 			args: args{
-				history: domain.PackageHistory{
-					Name: "node",
-					Items: []domain.PackageHistoryItem{
+				installedPackages: domain.InstalledPackages{
+					Plugin: domain.Plugin{Name: "node", VersionGranularity: domain.VersionGranularityMajor, ExecutableRelativePath: "bin"},
+					Items: []domain.InstalledPackage{
 
 						{
-							Version:     "19.1.3",
+							Version:     domain.Ver("19.1.3", t),
 							Path:        "/home/user/pf/node/node-v19.1.3-linux-x64",
 							Main:        false,
 							InstalledOn: 168901728000,
 						},
 						{
-							Version:     "19.1.4",
+							Version:     domain.Ver("19.1.4", t),
 							Path:        "/home/user/pf/node/node-v19.1.4-linux-x64",
 							Main:        false,
 							InstalledOn: 168901727000,
 						},
 
 						{
-							Version:     "v20.1.3",
+							Version:     domain.Ver("v20.1.3", t),
 							Path:        "/home/user/pf/node/node-v20.1.3-linux-x64",
 							Main:        false,
 							InstalledOn: 168901726000,
 						},
 					},
 				},
-				granularity:       domain.VersionGranularityMajor,
-				executableDirName: "bin",
 			},
 			expectedSpecificFileName: ".noderc",
 			expectedSpecificContent: []string{
@@ -210,24 +200,22 @@ func Test_initVariablesInSpecificRc(t *testing.T) {
 		}, {
 			name: "latest main installation - major granularity",
 			args: args{
-				history: domain.PackageHistory{
-					Name: "node",
-					Items: []domain.PackageHistoryItem{
+				installedPackages: domain.InstalledPackages{
+					Plugin: domain.Plugin{Name: "node", VersionGranularity: domain.VersionGranularityMajor, ExecutableRelativePath: "bin"},
+					Items: []domain.InstalledPackage{
 						{
-							Version:     "19.1.3",
+							Version:     domain.Ver("19.1.3", t),
 							Path:        "/home/user/pf/node/node-v19.1.3-linux-x64",
 							Main:        true,
 							InstalledOn: 1689017268000,
 						}, {
-							Version:     "v20.1.3",
+							Version:     domain.Ver("v20.1.3", t),
 							Path:        "/home/user/pf/node/node-v20.1.3-linux-x64",
 							Main:        true,
 							InstalledOn: 1689017267000,
 						},
 					},
 				},
-				granularity:       domain.VersionGranularityMajor,
-				executableDirName: "bin",
 			},
 			expectedSpecificFileName: ".noderc",
 			expectedSpecificContent: []string{
@@ -240,24 +228,22 @@ func Test_initVariablesInSpecificRc(t *testing.T) {
 		}, {
 			name: "latest main installation - minor granularity",
 			args: args{
-				history: domain.PackageHistory{
-					Name: "kotlin",
-					Items: []domain.PackageHistoryItem{
+				installedPackages: domain.InstalledPackages{
+					Plugin: domain.Plugin{Name: "kotlin", VersionGranularity: domain.VersionGranularityMinor, ExecutableRelativePath: "bin"},
+					Items: []domain.InstalledPackage{
 						{
-							Version:     "v1.8.22",
+							Version:     domain.Ver("v1.8.22", t),
 							Path:        "/home/user/pf/kotlin/kotlin-compiler-1.8.22",
 							Main:        true,
 							InstalledOn: 1689017268000,
 						}, {
-							Version:     "v1.9.0",
+							Version:     domain.Ver("v1.9.0", t),
 							Path:        "/home/user/pf/kotlin/kotlin-compiler-1.9.0",
 							Main:        true,
 							InstalledOn: 1689017267000,
 						},
 					},
 				},
-				granularity:       domain.VersionGranularityMinor,
-				executableDirName: "bin",
 			},
 			expectedSpecificFileName: ".kotlinrc",
 			expectedSpecificContent: []string{
@@ -271,19 +257,17 @@ func Test_initVariablesInSpecificRc(t *testing.T) {
 		{
 			name: "soft-ver-man",
 			args: args{
-				history: domain.PackageHistory{
-					Name: "soft-ver-man",
-					Items: []domain.PackageHistoryItem{
+				installedPackages: domain.InstalledPackages{
+					Plugin: domain.Plugin{Name: "soft-ver-man", VersionGranularity: domain.VersionGranularityMinor, ExecutableRelativePath: ""},
+					Items: []domain.InstalledPackage{
 						{
-							Version:     "v0.5.0",
+							Version:     domain.Ver("v0.5.0", t),
 							Path:        "/home/user/pf/soft-ver-man/soft-ver-man-0.5.0",
 							Main:        true,
 							InstalledOn: 1689017268000,
 						},
 					},
 				},
-				executableDirName: "",
-				granularity:       domain.VersionGranularityMinor,
 			},
 			expectedSpecificFileName: ".svmrc",
 			expectedSpecificContent: []string{
@@ -297,7 +281,7 @@ func Test_initVariablesInSpecificRc(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			dir := test.CreateTestDir(t)
-			err := initVariables(test.TestDirs{Home: dir}, tt.args.history, tt.args.executableDirName, tt.args.granularity)
+			err := initVariables(test.TestDirs{Home: dir}, tt.args.installedPackages)
 			if err != nil {
 				t.Errorf("Failed to init variables: %s", err)
 			}

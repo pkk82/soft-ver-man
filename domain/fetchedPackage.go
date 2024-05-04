@@ -19,42 +19,23 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
-package software
+package domain
 
 import (
-	"github.com/pkk82/soft-ver-man/config"
-	"github.com/pkk82/soft-ver-man/domain"
-	"os"
+	"path/filepath"
+	"strings"
 )
 
-func Uninstall(plugin domain.Plugin, inputVersion string) error {
-	version, err := domain.NewVersion(inputVersion)
-	if err != nil {
-		return err
+type FetchedPackage struct {
+	Version  Version
+	FilePath string
+	Type     Type
+}
+
+func (fp FetchedPackage) getDirName() string {
+	base := filepath.Base(fp.FilePath)
+	if fp.Type == TAR_GZ && strings.HasSuffix(base, "."+TAR_GZ) {
+		return strings.TrimSuffix(base, ".tar.gz")
 	}
-
-	installedPackages, err := config.LoadInstalledPackages(plugin.Name)
-	if err != nil {
-		return err
-	}
-
-	removedItem := installedPackages.RemoveByVersion(version)
-
-	err = os.RemoveAll(removedItem.Path)
-	if err != nil {
-		return err
-	}
-
-	err = config.StoreInstalledPackages(installedPackages)
-	if err != nil {
-		return err
-	}
-
-	err = plugin.PostUninstall(version)
-	if err != nil {
-		return err
-	}
-
-	return nil
-
+	return strings.TrimSuffix(base, filepath.Ext(base))
 }

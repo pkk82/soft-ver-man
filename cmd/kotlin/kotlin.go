@@ -40,4 +40,5 @@ func init() {
 	installCmd.Flags().BoolVarP(&verifyChecksumInstall, "verify-checksum", "c", false, "Verify checksum of downloaded file")
 	Cmd.AddCommand(installCmd)
 	Cmd.AddCommand(cmd.UninstallCmd(kotlin.Name, kotlin.Name))
+	Cmd.AddCommand(cmd.InstalledCmd(kotlin.Name))
 }

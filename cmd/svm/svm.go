@@ -26,8 +26,6 @@ import (
 	"github.com/pkk82/soft-ver-man/software/svm"
 )
 
-// Cmd represents the java command
-
 var Cmd = cmd.MainCmd(svm.Name, svm.LongName, svm.Aliases)
 
 var verifyChecksumFetch bool
@@ -42,4 +40,5 @@ func init() {
 	installCmd.Flags().BoolVarP(&verifyChecksumInstall, "verify-checksum", "c", false, "Verify checksum of downloaded file")
 	Cmd.AddCommand(installCmd)
 	Cmd.AddCommand(cmd.UninstallCmd(svm.Name, svm.LongName))
+	Cmd.AddCommand(cmd.InstalledCmd(svm.Name))
 }

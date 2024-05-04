@@ -22,11 +22,13 @@ THE SOFTWARE.
 package cmd
 
 import (
+	"fmt"
 	"github.com/pkk82/soft-ver-man/config"
+	"github.com/pkk82/soft-ver-man/domain"
 	"github.com/spf13/cobra"
 )
 
-var installedCmd = &cobra.Command{
+var allInstalledCmd = &cobra.Command{
 	Use:   "installed",
 	Short: "Display installed packages",
 	Long:  "Display installed packages",
@@ -35,6 +37,18 @@ var installedCmd = &cobra.Command{
 	},
 }
 
+func InstalledCmd(name string) *cobra.Command {
+	return &cobra.Command{
+		Use:   "installed",
+		Short: "Display installed packages",
+		Long:  fmt.Sprintf("Display installed packages for %v", name),
+		Run: func(cmd *cobra.Command, args []string) {
+			plugin := domain.GetPlugin(name)
+			config.DisplayInstalledPackages(plugin.Name)
+		},
+	}
+}
+
 func init() {
-	RootCmd.AddCommand(installedCmd)
+	RootCmd.AddCommand(allInstalledCmd)
 }

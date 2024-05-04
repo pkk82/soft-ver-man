@@ -40,4 +40,5 @@ func init() {
 	installCmd.Flags().BoolVarP(&verifyChecksumInstall, "verify-checksum", "c", false, "Verify checksum of downloaded file")
 	Cmd.AddCommand(installCmd)
 	Cmd.AddCommand(cmd.UninstallCmd(java.Name, java.LongName))
+	Cmd.AddCommand(cmd.InstalledCmd(java.Name))
 }

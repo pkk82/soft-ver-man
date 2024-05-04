@@ -1,23 +1,22 @@
 package collections
 
 import (
-	"golang.org/x/exp/constraints"
 	"sort"
 )
 
 type SortedList[T comparable] struct {
-	values []T
+	Values []T
 	sort   func(i, j T) bool
 }
 
 func NewEmptySortedList[T comparable](sort func(i, j T) bool) SortedList[T] {
 	return SortedList[T]{
-		values: make([]T, 0),
+		Values: make([]T, 0),
 		sort:   sort,
 	}
 }
 
-func NewSortedList[T constraints.Ordered](values []T, sort func(i, j T) bool) SortedList[T] {
+func NewSortedList[T comparable](values []T, sort func(i, j T) bool) SortedList[T] {
 	result := NewEmptySortedList[T](sort)
 	for _, v := range values {
 		result.Insert(v)
@@ -26,20 +25,20 @@ func NewSortedList[T constraints.Ordered](values []T, sort func(i, j T) bool) So
 }
 
 func (sl *SortedList[T]) Insert(value T) {
-	values := sl.values
+	values := sl.Values
 	values = append(values, value)
 	sort.Slice(values, func(i, j int) bool {
 		return (*sl).sort(values[i], values[j])
 	})
-	sl.values = values
+	sl.Values = values
 }
 
 func (sl *SortedList[T]) Delete(value T) bool {
-	values := sl.values
+	values := sl.Values
 	for i, v := range values {
 		if v == value {
 			values = append(values[:i], values[i+1:]...)
-			sl.values = values
+			sl.Values = values
 			return true
 		}
 	}
@@ -47,7 +46,7 @@ func (sl *SortedList[T]) Delete(value T) bool {
 }
 
 func (sl *SortedList[T]) Get(index int) (T, bool) {
-	values := sl.values
+	values := sl.Values
 	if index < 0 || index >= len(values) {
 		var t T
 		return t, false

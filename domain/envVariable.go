@@ -86,11 +86,14 @@ func (envVariables EnvVariables) ToExport() []string {
 	return lines
 }
 
-func (envVariables EnvVariables) Resolve() (EnvVariables, error) {
+func (envVariables EnvVariables) Resolve(extraEnvVariables []EnvVariable) (EnvVariables, error) {
 
 	envVariablesByName := make(map[string]EnvVariable)
 	for _, envVariable := range envVariables.Variables {
 		envVariablesByName[envVariable.Name] = envVariable
+	}
+	for _, extraEnvVariables := range extraEnvVariables {
+		envVariablesByName[extraEnvVariables.Name] = extraEnvVariables
 	}
 
 	resolvedVariables := make([]EnvVariable, len(envVariables.Variables))

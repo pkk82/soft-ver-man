@@ -69,6 +69,11 @@ func createLauncher(installedPackage domain.InstalledPackage) error {
 }
 
 func prepareEnvVariables() (string, error) {
+	softwareDirEnvVariable, err := findSoftwareDirEnvVariable()
+	if err != nil {
+		return "", err
+	}
+
 	allInstalledPackages, err := config.LoadAllInstalledPackages()
 	if err != nil {
 		return "", err
@@ -83,22 +88,27 @@ func prepareEnvVariables() (string, error) {
 			return "", err
 		}
 
-		resolvedEnvVariables, err := envVariables.Resolve()
+		resolvedEnvVariables, err := envVariables.Resolve([]domain.EnvVariable{softwareDirEnvVariable})
 		if err != nil {
 			return "", err
 		}
 
-		finder := shell.ProdDirFinder{SoftwareDir: viper.GetString(config.SoftwareDirKey)}
-		softDir, err := finder.SoftDir()
-		if err != nil {
-			return "", err
-		}
-		lines = append(lines, shell.PrepareSvmSoftDirEnvVariable(softDir).ToEnv())
 		for _, envVariable := range resolvedEnvVariables.Variables {
 			lines = append(lines, envVariable.ToEnv())
 		}
+
 	}
+	lines = append(lines, softwareDirEnvVariable.ToEnv())
 	return strings.Join(lines, " "), nil
+}
+
+func findSoftwareDirEnvVariable() (domain.EnvVariable, error) {
+	finder := shell.ProdDirFinder{SoftwareDir: viper.GetString(config.SoftwareDirKey)}
+	softDir, err := finder.SoftDir()
+	if err != nil {
+		return domain.EnvVariable{}, err
+	}
+	return shell.PrepareSvmSoftDirEnvVariable(softDir), nil
 }
 
 func deleteLauncher(version domain.Version) error {

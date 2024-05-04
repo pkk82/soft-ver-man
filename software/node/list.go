@@ -54,13 +54,6 @@ func (v Package) SumsSigLink() string {
 	return fmt.Sprintf("%s/%s/%s", DistURL, v.Version, ShaSumSigFileName)
 }
 
-func List() {
-	packages := getSupportedPackages()
-	for _, p := range packages {
-		console.Info(p.Version)
-	}
-}
-
 func getSupportedPackages() []Package {
 	resp, err := http.Get(JsonFileURL)
 	if err != nil {

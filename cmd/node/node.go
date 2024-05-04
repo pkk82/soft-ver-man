@@ -41,4 +41,6 @@ func init() {
 	Cmd.AddCommand(installCmd)
 	Cmd.AddCommand(cmd.UninstallCmd(node.Name, node.LongName))
 	Cmd.AddCommand(cmd.InstalledCmd(node.Name))
+	Cmd.AddCommand(cmd.AvailableCmd(node.Name, node.LongName))
+
 }

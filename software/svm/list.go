@@ -6,10 +6,6 @@ import (
 	"strings"
 )
 
-func List() error {
-	return github.ListReleases(RepoOwner, RepoName, PageSize, predicate)
-}
-
 var predicate = func(name string) bool {
 	return strings.Contains(name, runtime.GOARCH+"-"+runtime.GOOS)
 }

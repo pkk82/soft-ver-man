@@ -5,10 +5,6 @@ import (
 	"strings"
 )
 
-func List() error {
-	return github.ListReleases("JetBrains", "kotlin", PageSize, predicate)
-}
-
 var predicate = func(name string) bool {
 	return strings.HasPrefix(name, "kotlin-compiler") && strings.HasSuffix(name, ".zip")
 }

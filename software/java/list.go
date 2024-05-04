@@ -11,13 +11,6 @@ import (
 	"strings"
 )
 
-func List() {
-	allPackages := getSupportedPackages()
-	for _, p := range allPackages {
-		console.Info(p.version())
-	}
-}
-
 func getSupportedPackages() []Package {
 	var allPackages []Package
 

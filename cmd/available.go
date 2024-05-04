@@ -19,25 +19,25 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
-package node
+package cmd
 
 import (
 	"fmt"
-	"github.com/pkk82/soft-ver-man/software/node"
+	"github.com/pkk82/soft-ver-man/domain"
+	"github.com/pkk82/soft-ver-man/software"
 	"github.com/spf13/cobra"
 )
 
-// lsCmd represents the ls command
-var lsCmd = &cobra.Command{
-	Use:     "list",
-	Aliases: []string{"ls", "list"},
-	Short:   "Display available version of node",
-	Long:    fmt.Sprintf("Display available versions of node.js using %v.", node.JsonFileURL),
-	Run: func(cmd *cobra.Command, args []string) {
-		node.List()
-	},
-}
-
-func init() {
-	Cmd.AddCommand(lsCmd)
+func AvailableCmd(name, longName string) *cobra.Command {
+	return &cobra.Command{
+		Use:     "available [version]",
+		Aliases: []string{"i", "install"},
+		Short:   fmt.Sprintf("Display available versions of %v", name),
+		Long:    fmt.Sprintf("Display available versions of %v", longName),
+		Args:    VersionArg,
+		Run: func(cmd *cobra.Command, args []string) {
+			plugin := domain.GetPlugin(name)
+			software.Available(plugin)
+		},
+	}
 }

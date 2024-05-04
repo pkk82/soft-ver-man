@@ -41,4 +41,5 @@ func init() {
 	Cmd.AddCommand(installCmd)
 	Cmd.AddCommand(cmd.UninstallCmd(svm.Name, svm.LongName))
 	Cmd.AddCommand(cmd.InstalledCmd(svm.Name))
+	Cmd.AddCommand(cmd.AvailableCmd(svm.Name, svm.LongName))
 }

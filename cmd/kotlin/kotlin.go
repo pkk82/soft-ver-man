@@ -41,4 +41,5 @@ func init() {
 	Cmd.AddCommand(installCmd)
 	Cmd.AddCommand(cmd.UninstallCmd(kotlin.Name, kotlin.Name))
 	Cmd.AddCommand(cmd.InstalledCmd(kotlin.Name))
+	Cmd.AddCommand(cmd.AvailableCmd(kotlin.Name, kotlin.Name))
 }

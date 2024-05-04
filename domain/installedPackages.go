@@ -134,7 +134,7 @@ func (installedPackages *InstalledPackages) PrepareEnvVariables(plugin Plugin) (
 		packages, _ := packagesByRoundedVersion[roundedVersion]
 		firstPackage, found := packages.Get(0)
 		if !found {
-			panic("No package found")
+			panic("no package found")
 		}
 
 		_, dirName := filepath.Split(firstPackage.Path)

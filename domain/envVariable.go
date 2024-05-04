@@ -85,3 +85,53 @@ func (envVariables EnvVariables) ToExport() []string {
 
 	return lines
 }
+
+func (envVariables EnvVariables) Resolve() (EnvVariables, error) {
+
+	envVariablesByName := make(map[string]EnvVariable)
+	for _, envVariable := range envVariables.Variables {
+		envVariablesByName[envVariable.Name] = envVariable
+	}
+
+	resolvedVariables := make([]EnvVariable, len(envVariables.Variables))
+	for index := range resolvedVariables {
+		resolveVariable, err := resolve(envVariables.Variables[index], envVariablesByName)
+		if err != nil {
+			return EnvVariables{}, err
+		}
+		resolvedVariables[index] = resolveVariable
+	}
+
+	return EnvVariables{
+		Variables:              resolvedVariables,
+		MainVariable:           nil,
+		ExecutableRelativePath: envVariables.ExecutableRelativePath,
+	}, nil
+
+}
+
+func resolve(variable EnvVariable, envVariablesByName map[string]EnvVariable) (EnvVariable, error) {
+
+	suffixValue := variable.SuffixValue
+	iVariable := variable
+	for iVariable.PrefixVariable != nil {
+
+		mapVariable, ok := envVariablesByName[iVariable.PrefixVariable.Name]
+		if !ok {
+			return EnvVariable{}, fmt.Errorf("variable %v not found", iVariable.PrefixVariable.Name)
+		}
+		iVariable = mapVariable
+
+		if suffixValue == "" {
+			suffixValue = iVariable.SuffixValue
+		} else {
+			suffixValue = iVariable.SuffixValue + string(os.PathSeparator) + suffixValue
+		}
+
+	}
+
+	return EnvVariable{
+		Name:        variable.Name,
+		SuffixValue: suffixValue,
+	}, nil
+}

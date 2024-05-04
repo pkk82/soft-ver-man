@@ -73,10 +73,17 @@ func prepareEnvVariables() (string, error) {
 	if err != nil {
 		return "", err
 	}
-	lines := []string{}
-	lines = append(lines, "export ")
+	var lines []string
 	for _, installedPackages := range allInstalledPackages {
+		if len(installedPackages.Items) == 0 {
+			continue
+		}
 		envVariables, err := installedPackages.PrepareEnvVariables(installedPackages.Plugin)
+		if err != nil {
+			return "", err
+		}
+
+		resolvedEnvVariables, err := envVariables.Resolve()
 		if err != nil {
 			return "", err
 		}
@@ -87,7 +94,7 @@ func prepareEnvVariables() (string, error) {
 			return "", err
 		}
 		lines = append(lines, shell.PrepareSvmSoftDirEnvVariable(softDir).ToEnv())
-		for _, envVariable := range envVariables.Variables {
+		for _, envVariable := range resolvedEnvVariables.Variables {
 			lines = append(lines, envVariable.ToEnv())
 		}
 	}

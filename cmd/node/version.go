@@ -35,7 +35,7 @@ var versionCmd = &cobra.Command{
 	Short:   "Display currently installed versions",
 	Long:    fmt.Sprintf("Display curerntly installed node.js versions"),
 	Run: func(cmd *cobra.Command, args []string) {
-		config.DisplayHistory(node.Name)
+		config.DisplayInstalledPackages(node.Name)
 	},
 }
 

@@ -34,7 +34,7 @@ var versionCmd = &cobra.Command{
 	Short:   "Display currently installed versions",
 	Long:    fmt.Sprintf("Display currently installed Java versions"),
 	Run: func(cmd *cobra.Command, args []string) {
-		config.DisplayHistory(java.Name)
+		config.DisplayInstalledPackages(java.Name)
 	},
 }
 

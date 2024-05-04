@@ -19,26 +19,22 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
-package kotlin
+package cmd
 
 import (
-	"fmt"
 	"github.com/pkk82/soft-ver-man/config"
-	"github.com/pkk82/soft-ver-man/software/kotlin"
 	"github.com/spf13/cobra"
 )
 
-// fetchCmd represents the fetch command
-var versionCmd = &cobra.Command{
-	Use:     "version",
-	Aliases: []string{"version", "v"},
-	Short:   "Display currently installed versions",
-	Long:    fmt.Sprintf("Display curerntly installed Kotlin versions"),
+var installedCmd = &cobra.Command{
+	Use:   "installed",
+	Short: "Display installed packages",
+	Long:  "Display installed packages",
 	Run: func(cmd *cobra.Command, args []string) {
-		config.DisplayInstalledPackages(kotlin.Name)
+		config.DisplayAllInstalledPackages()
 	},
 }
 
 func init() {
-	Cmd.AddCommand(versionCmd)
+	RootCmd.AddCommand(installedCmd)
 }

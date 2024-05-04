@@ -1,5 +1,7 @@
 package domain
 
+import "sort"
+
 type VersionGranularity string
 
 const (
@@ -43,4 +45,15 @@ func Register(plugin Plugin) {
 
 func GetPlugin(name string) Plugin {
 	return mainRegistry[name]
+}
+
+func GetPlugins() []Plugin {
+	plugins := make([]Plugin, 0)
+	for _, plugin := range mainRegistry {
+		plugins = append(plugins, plugin)
+	}
+	sort.Slice(plugins, func(i, j int) bool {
+		return plugins[i].Name < plugins[j].Name
+	})
+	return plugins
 }

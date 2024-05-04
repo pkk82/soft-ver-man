@@ -9,19 +9,34 @@ import (
 	"text/tabwriter"
 )
 
-func DisplayHistory(name string) {
+func DisplayAllInstalledPackages() {
 
-	history, err := LoadInstalledPackages(name)
+	plugins := domain.GetPlugins()
+	for _, plugin := range plugins {
+		fmt.Println()
+		fmt.Println("Installed packages for: ", plugin.Name)
+		DisplayInstalledPackages(plugin.Name)
+	}
+
+}
+
+func DisplayInstalledPackages(name string) {
+
+	installedPackages, err := LoadInstalledPackages(name)
 	if err != nil {
 		console.Fatal(err)
 	}
 
 	w := tabwriter.NewWriter(os.Stdout, 1, 1, 1, ' ', tabwriter.Debug)
-	_, err = fmt.Fprintln(w, "Version\t Main\t Path")
+	if len(installedPackages.Items) == 0 {
+		_, err = fmt.Fprintln(w, "There are no installed packages")
+	} else {
+		_, err = fmt.Fprintln(w, "Version\t Main\t Path")
+	}
 	if err != nil {
 		console.Fatal(err)
 	}
-	for _, item := range history.Items {
+	for _, item := range installedPackages.Items {
 		main := ""
 		if item.Main {
 			main = " Yes"

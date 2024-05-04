@@ -35,7 +35,7 @@ var versionCmd = &cobra.Command{
 	Short:   "Display currently installed versions",
 	Long:    fmt.Sprintf("Display currently installed soft-ver-man versions"),
 	Run: func(cmd *cobra.Command, args []string) {
-		config.DisplayHistory(svm.Name)
+		config.DisplayInstalledPackages(svm.Name)
 	},
 }
 

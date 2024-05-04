@@ -111,7 +111,7 @@ func assertFileWithContent(filePath string, seekLine string, contentToAdd []stri
 }
 
 func createFile(filePath string) error {
-	file, err := os.Create(filePath)
+	f, err := os.Create(filePath)
 	if err != nil {
 		return err
 	}
@@ -120,7 +120,7 @@ func createFile(filePath string) error {
 		if err != nil {
 			console.Error(err)
 		}
-	}(file)
+	}(f)
 
 	return nil
 }

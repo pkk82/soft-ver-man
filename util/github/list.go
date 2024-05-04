@@ -34,18 +34,6 @@ import (
 	"strings"
 )
 
-func ListReleases(repoOwner, repoName string, pageSize int, assetNamePredicate func(string) bool) error {
-
-	allAssets, err := GetSupportedAssets(repoOwner, repoName, pageSize, assetNamePredicate)
-	if err != nil {
-		return err
-	}
-	for _, asset := range allAssets {
-		console.Info(asset.Version.Value)
-	}
-	return nil
-}
-
 func GetSupportedAssets(repoOwner, repoName string, pageSize int, predicate func(string) bool) ([]Asset, error) {
 	nextPageUrl := URL(repoOwner, repoName) + fmt.Sprintf("?per_page=%d", pageSize)
 

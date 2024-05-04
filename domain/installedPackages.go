@@ -1,5 +1,5 @@
 /*
-Copyright © 2023 Piotr Kozak <piotrkrzysztofkozak@gmail.com>
+Copyright © 2024 Piotr Kozak <piotrkrzysztofkozak@gmail.com>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -20,6 +20,11 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 package domain
+
+import (
+	"errors"
+	"sort"
+)
 
 type InstalledPackages struct {
 	Plugin Plugin
@@ -52,4 +57,33 @@ func (installedPackages *InstalledPackages) RemoveByVersion(version Version) *In
 	}
 	installedPackages.Items = newItems
 	return itemToRemove
+}
+
+func (installedPackages *InstalledPackages) FoundMain() (*InstalledPackage, error) {
+
+	var items = make([]InstalledPackage, len(installedPackages.Items))
+	copy(items, installedPackages.Items)
+
+	if len(items) == 0 {
+		return nil, errors.New("no packages found")
+	}
+
+	// find latest main
+	sort.Slice(items, func(i, j int) bool {
+		return items[i].InstalledOn > items[j].InstalledOn
+	})
+
+	for _, p := range items {
+		if p.Main {
+			return &p, nil
+		}
+	}
+
+	// find latest version
+	sort.Slice(items, func(i, j int) bool {
+		return CompareDesc(items[i].Version, items[j].Version)
+	})
+
+	return &items[0], nil
+
 }

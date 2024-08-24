@@ -42,7 +42,7 @@ func init() {
 		},
 		CalculateDownloadedFileName: calculateDownloadFileName,
 		ExtractStrategy:             domain.ReplaceCompressedDirWithArchiveName,
-		ExecutableRelativePath:      "bin",
+		ExecutableRelativePath:      "",
 		VersionGranularity:          domain.VersionGranularityMinor,
 		RawExecutableName:           FileName,
 	}

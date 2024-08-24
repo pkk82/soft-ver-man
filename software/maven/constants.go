@@ -19,18 +19,12 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package main
+package maven
 
-import (
-	"github.com/pkk82/soft-ver-man/cmd"
-	_ "github.com/pkk82/soft-ver-man/cmd/intellij"
-	_ "github.com/pkk82/soft-ver-man/cmd/java"
-	_ "github.com/pkk82/soft-ver-man/cmd/kotlin"
-	_ "github.com/pkk82/soft-ver-man/cmd/maven"
-	_ "github.com/pkk82/soft-ver-man/cmd/node"
-	_ "github.com/pkk82/soft-ver-man/cmd/svm"
-)
+const DownloadURL = "https://archive.apache.org/dist/maven/maven-%s/%s/binaries/apache-maven-%s-bin.%s"
 
-func main() {
-	cmd.Execute()
-}
+const Name = "mvn"
+const EnvNamePrefix = "MVN"
+const LongName = "Maven"
+
+var Aliases = []string{"maven", "mvn"}

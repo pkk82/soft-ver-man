@@ -19,18 +19,22 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package main
+package maven
 
 import (
 	"github.com/pkk82/soft-ver-man/cmd"
-	_ "github.com/pkk82/soft-ver-man/cmd/intellij"
-	_ "github.com/pkk82/soft-ver-man/cmd/java"
-	_ "github.com/pkk82/soft-ver-man/cmd/kotlin"
-	_ "github.com/pkk82/soft-ver-man/cmd/maven"
-	_ "github.com/pkk82/soft-ver-man/cmd/node"
-	_ "github.com/pkk82/soft-ver-man/cmd/svm"
+	"github.com/pkk82/soft-ver-man/software/maven"
 )
 
-func main() {
-	cmd.Execute()
+var verifyChecksum bool
+
+var Cmd = cmd.MainCmd(maven.Name, maven.LongName, maven.Aliases)
+
+func init() {
+	cmd.RootCmd.AddCommand(Cmd)
+	installCmd := cmd.InstallCmd(maven.Name, maven.LongName, &verifyChecksum)
+	Cmd.AddCommand(installCmd)
+	Cmd.AddCommand(cmd.UninstallCmd(maven.Name, maven.LongName))
+
+	installCmd.Flags().BoolVarP(&verifyChecksum, "verify-checksum", "c", false, "Verify checksum of downloaded file")
 }

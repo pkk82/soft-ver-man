@@ -36,7 +36,7 @@ func init() {
 	fetchCmd := cmd.FetchCmd(java.Name, java.LongName, &verifyChecksumFetch)
 	fetchCmd.Flags().BoolVarP(&verifyChecksumFetch, "verify-checksum", "c", false, "Verify checksum of downloaded file")
 	Cmd.AddCommand(fetchCmd)
-	installCmd := cmd.InstallCmd(java.Name, java.LongName, &verifyChecksumInstall)
+	installCmd := cmd.InstallCmd(java.Name, java.LongName, cmd.InstallOptions{VerifyChecksum: &verifyChecksumInstall})
 	installCmd.Flags().BoolVarP(&verifyChecksumInstall, "verify-checksum", "c", false, "Verify checksum of downloaded file")
 	Cmd.AddCommand(installCmd)
 	Cmd.AddCommand(cmd.UninstallCmd(java.Name, java.LongName))

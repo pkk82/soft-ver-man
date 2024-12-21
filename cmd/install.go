@@ -29,7 +29,11 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func InstallCmd(name, longName string, verifyChecksum *bool) *cobra.Command {
+type InstallOptions struct {
+	VerifyChecksum *bool
+}
+
+func InstallCmd(name, longName string, options InstallOptions) *cobra.Command {
 	return &cobra.Command{
 		Use:     "install [version]",
 		Aliases: []string{"i", "install"},
@@ -38,7 +42,7 @@ func InstallCmd(name, longName string, verifyChecksum *bool) *cobra.Command {
 		Args:    VersionArg,
 		Run: func(cmd *cobra.Command, args []string) {
 			plugin := domain.GetPlugin(name)
-			err := software.Install(plugin, FirstOrEmpty(args), *verifyChecksum)
+			err := software.Install(plugin, FirstOrEmpty(args), *options.VerifyChecksum)
 			if err != nil {
 				console.Fatal(err)
 			}

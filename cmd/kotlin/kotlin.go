@@ -36,7 +36,7 @@ func init() {
 	fetchCmd := cmd.FetchCmd(kotlin.Name, kotlin.Name, &verifyChecksumFetch)
 	fetchCmd.Flags().BoolVarP(&verifyChecksumFetch, "verify-checksum", "c", false, "Verify checksum of downloaded file")
 	Cmd.AddCommand(fetchCmd)
-	installCmd := cmd.InstallCmd(kotlin.Name, kotlin.Name, &verifyChecksumInstall)
+	installCmd := cmd.InstallCmd(kotlin.Name, kotlin.Name, cmd.InstallOptions{VerifyChecksum: &verifyChecksumInstall})
 	installCmd.Flags().BoolVarP(&verifyChecksumInstall, "verify-checksum", "c", false, "Verify checksum of downloaded file")
 	Cmd.AddCommand(installCmd)
 	Cmd.AddCommand(cmd.UninstallCmd(kotlin.Name, kotlin.Name))

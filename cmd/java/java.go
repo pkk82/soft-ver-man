@@ -23,6 +23,7 @@ package java
 
 import (
 	"github.com/pkk82/soft-ver-man/cmd"
+	"github.com/pkk82/soft-ver-man/software"
 	"github.com/pkk82/soft-ver-man/software/java"
 )
 
@@ -30,14 +31,16 @@ var Cmd = cmd.MainCmd(java.Name, java.LongName, java.Aliases)
 
 var verifyChecksumFetch bool
 var verifyChecksumInstall bool
+var archivePath string
 
 func init() {
 	cmd.RootCmd.AddCommand(Cmd)
 	fetchCmd := cmd.FetchCmd(java.Name, java.LongName, &verifyChecksumFetch)
 	fetchCmd.Flags().BoolVarP(&verifyChecksumFetch, "verify-checksum", "c", false, "Verify checksum of downloaded file")
 	Cmd.AddCommand(fetchCmd)
-	installCmd := cmd.InstallCmd(java.Name, java.LongName, cmd.InstallOptions{VerifyChecksum: &verifyChecksumInstall})
+	installCmd := cmd.InstallCmd(java.Name, java.LongName, software.InstallOptions{VerifyChecksum: &verifyChecksumInstall, ArchivePath: &archivePath})
 	installCmd.Flags().BoolVarP(&verifyChecksumInstall, "verify-checksum", "c", false, "Verify checksum of downloaded file")
+	installCmd.Flags().StringVarP(&archivePath, "archive-path", "f", "", "Specify path to archive file")
 	Cmd.AddCommand(installCmd)
 	Cmd.AddCommand(cmd.UninstallCmd(java.Name, java.LongName))
 	Cmd.AddCommand(cmd.InstalledCmd(java.Name))

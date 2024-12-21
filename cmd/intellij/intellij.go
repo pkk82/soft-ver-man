@@ -23,6 +23,7 @@ package intellij
 
 import (
 	"github.com/pkk82/soft-ver-man/cmd"
+	"github.com/pkk82/soft-ver-man/software"
 	"github.com/pkk82/soft-ver-man/software/intellij"
 )
 
@@ -32,7 +33,7 @@ var Cmd = cmd.MainCmd(intellij.Name, intellij.LongName, intellij.Aliases)
 
 func init() {
 	cmd.RootCmd.AddCommand(Cmd)
-	installCmd := cmd.InstallCmd(intellij.Name, intellij.LongName, cmd.InstallOptions{VerifyChecksum: &verifyChecksum})
+	installCmd := cmd.InstallCmd(intellij.Name, intellij.LongName, software.InstallOptions{VerifyChecksum: &verifyChecksum})
 	Cmd.AddCommand(installCmd)
 	Cmd.AddCommand(cmd.UninstallCmd(intellij.Name, intellij.LongName))
 

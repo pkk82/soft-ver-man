@@ -23,6 +23,7 @@
 package file_test
 
 import (
+	"github.com/pkk82/soft-ver-man/domain"
 	"github.com/pkk82/soft-ver-man/util/file"
 	"github.com/pkk82/soft-ver-man/util/test"
 	"path/filepath"
@@ -105,6 +106,33 @@ func TestAppendFileWithContent(t *testing.T) {
 
 			if actualContent != strings.Join(tt.expectedContent, "\n") {
 				t.Errorf("Expected content: %s, got: %s", strings.Join(tt.expectedContent, "\n"), actualContent)
+			}
+
+		})
+	}
+}
+
+func TestExtension(t *testing.T) {
+
+	tests := []struct {
+		name         string
+		filename     string
+		expectedType domain.Type
+	}{
+		{"zip", "archive.zip", domain.ZIP}, {"tar.gz", "archive.tar.gz", domain.TAR_GZ},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			dir := test.CreateTestDir(t)
+			test.CreateFile(dir, tt.filename, []string{}, t)
+
+			filePath := filepath.Join(dir, tt.filename)
+
+			actualType := file.Extension(filePath)
+
+			if actualType != tt.expectedType {
+				t.Errorf("Expected type: %s, got: %s", tt.expectedType, actualType)
 			}
 
 		})

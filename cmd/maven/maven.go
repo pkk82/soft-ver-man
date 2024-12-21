@@ -23,6 +23,7 @@ package maven
 
 import (
 	"github.com/pkk82/soft-ver-man/cmd"
+	"github.com/pkk82/soft-ver-man/software"
 	"github.com/pkk82/soft-ver-man/software/maven"
 )
 
@@ -32,7 +33,7 @@ var Cmd = cmd.MainCmd(maven.Name, maven.LongName, maven.Aliases)
 
 func init() {
 	cmd.RootCmd.AddCommand(Cmd)
-	installCmd := cmd.InstallCmd(maven.Name, maven.LongName, cmd.InstallOptions{VerifyChecksum: &verifyChecksum})
+	installCmd := cmd.InstallCmd(maven.Name, maven.LongName, software.InstallOptions{VerifyChecksum: &verifyChecksum})
 	Cmd.AddCommand(installCmd)
 	Cmd.AddCommand(cmd.UninstallCmd(maven.Name, maven.LongName))
 

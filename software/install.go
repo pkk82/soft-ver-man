@@ -30,12 +30,18 @@ import (
 	"github.com/pkk82/soft-ver-man/util/archive"
 	"github.com/pkk82/soft-ver-man/util/console"
 	"github.com/pkk82/soft-ver-man/util/copy"
+	"github.com/pkk82/soft-ver-man/util/file"
 	"github.com/spf13/viper"
 	"path"
 	"time"
 )
 
-func Install(plugin domain.Plugin, inputVersion string, verifyChecksum bool) error {
+type InstallOptions struct {
+	VerifyChecksum *bool
+	ArchivePath    *string
+}
+
+func Install(plugin domain.Plugin, inputVersion string, options InstallOptions) error {
 
 	version, err := domain.NewVersion(inputVersion)
 	if err != nil {
@@ -56,9 +62,25 @@ func Install(plugin domain.Plugin, inputVersion string, verifyChecksum bool) err
 		return err
 	}
 
-	fetchedPackage, err := Fetch(plugin, inputVersion, configuration.SoftwareDownloadDir, verifyChecksum)
-	if err != nil {
-		console.Fatal(err)
+	var fetchedPackage domain.FetchedPackage
+	archivePath := *options.ArchivePath
+	if archivePath != "" {
+
+		version, err = domain.NewVersion(inputVersion)
+		if err != nil {
+			console.Fatal(err)
+		}
+
+		fetchedPackage = domain.FetchedPackage{
+			Version:  version,
+			FilePath: archivePath,
+			Type:     file.Extension(archivePath),
+		}
+	} else {
+		fetchedPackage, err = Fetch(plugin, inputVersion, configuration.SoftwareDownloadDir, *options.VerifyChecksum)
+		if err != nil {
+			console.Fatal(err)
+		}
 	}
 
 	var installedPackage domain.InstalledPackage

@@ -23,6 +23,7 @@ package node
 
 import (
 	"github.com/pkk82/soft-ver-man/cmd"
+	"github.com/pkk82/soft-ver-man/software"
 	"github.com/pkk82/soft-ver-man/software/node"
 )
 
@@ -36,7 +37,7 @@ func init() {
 	fetchCmd := cmd.FetchCmd(node.Name, node.LongName, &verifyChecksumFetch)
 	fetchCmd.Flags().BoolVarP(&verifyChecksumFetch, "verify-checksum", "c", false, "Verify checksum of downloaded file")
 	Cmd.AddCommand(fetchCmd)
-	installCmd := cmd.InstallCmd(node.Name, node.LongName, cmd.InstallOptions{VerifyChecksum: &verifyChecksumInstall})
+	installCmd := cmd.InstallCmd(node.Name, node.LongName, software.InstallOptions{VerifyChecksum: &verifyChecksumInstall})
 	installCmd.Flags().BoolVarP(&verifyChecksumInstall, "verify-checksum", "c", false, "Verify checksum of downloaded file")
 	Cmd.AddCommand(installCmd)
 	Cmd.AddCommand(cmd.UninstallCmd(node.Name, node.LongName))

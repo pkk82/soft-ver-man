@@ -24,6 +24,7 @@ package file
 
 import (
 	"errors"
+	"github.com/pkk82/soft-ver-man/domain"
 	"github.com/pkk82/soft-ver-man/util/console"
 	"io"
 	"os"
@@ -111,4 +112,16 @@ func FileExists(filePath string) (bool, error) {
 	}
 
 	return true, nil
+}
+
+func Extension(fp string) domain.Type {
+	ext := filepath.Ext(fp)
+	name := filepath.Base(fp)
+	if ext == ".zip" {
+		return domain.ZIP
+	} else if ext == ".gz" && strings.HasSuffix(name, ".tar.gz") {
+		return domain.TAR_GZ
+	} else {
+		return domain.UNKNOWN
+	}
 }

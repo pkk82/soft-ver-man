@@ -24,6 +24,7 @@ package shell
 import (
 	"errors"
 	"github.com/pkk82/soft-ver-man/config"
+	"github.com/pkk82/soft-ver-man/domain"
 	"github.com/pkk82/soft-ver-man/util/console"
 	"github.com/pkk82/soft-ver-man/util/file"
 	"os"
@@ -31,7 +32,7 @@ import (
 	"strings"
 )
 
-func initShell(finder DirFinder) error {
+func initShell(finder domain.DirFinder) error {
 	header := "### soft-ver-man"
 	initLine := bashToLoad(config.RcFile)
 	dir, err := finder.HomeDir()

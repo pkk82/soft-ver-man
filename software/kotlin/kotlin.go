@@ -41,6 +41,9 @@ func init() {
 		PostInstall: func(installedPackage domain.InstalledPackage) error {
 			return nil
 		},
+		ExtraVariables: func(homeDir string) domain.EnvVariables {
+			return domain.EnvVariables{}
+		},
 		CalculateDownloadedFileName: calculateDownloadFileName,
 		ExtractStrategy:             domain.ReplaceCompressedDirWithArchiveName,
 		ExecutableRelativePath:      "bin",

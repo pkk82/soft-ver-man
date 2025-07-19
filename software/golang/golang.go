@@ -23,6 +23,7 @@ package golang
 
 import (
 	"github.com/pkk82/soft-ver-man/domain"
+	"path"
 	"strings"
 )
 
@@ -36,15 +37,27 @@ func init() {
 		PostUninstall: func(version domain.Version) error {
 			return nil
 		},
+		ExtraVariables: calculateExtraVariables,
 		PostInstall: func(installedPackage domain.InstalledPackage) error {
 			return nil
 		},
 		CalculateDownloadedFileName: calculateDownloadFileName,
 		ExtractStrategy:             domain.ReplaceCompressedDirWithArchiveName,
-		ExecutableRelativePath:      "bin",
-		VersionGranularity:          domain.VersionGranularityMinor,
+
+		ExecutableRelativePath: "bin",
+		VersionGranularity:     domain.VersionGranularityMinor,
 	}
 	domain.Register(plugin)
+}
+
+func calculateExtraVariables(homedir string) domain.EnvVariables {
+	return domain.EnvVariables{
+		Variables: []domain.EnvVariable{
+			{
+				Name:        "GOPATH",
+				SuffixValue: path.Join(homedir, ".go"),
+			}},
+	}
 }
 
 func calculateDownloadFileName(asset domain.Asset) string {

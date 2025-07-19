@@ -22,7 +22,9 @@
 
 package domain
 
-import "sort"
+import (
+	"sort"
+)
 
 type VersionGranularity string
 
@@ -49,6 +51,7 @@ type Plugin struct {
 	Name                        string
 	EnvNamePrefix               string
 	EnvNameSuffix               string
+	ExtraVariables              func(homeDir string) EnvVariables
 	ExecutableRelativePath      string
 	VersionGranularity          VersionGranularity
 	ExtractStrategy             ExtractStrategy

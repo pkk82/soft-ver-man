@@ -346,9 +346,18 @@ func Test_initVariablesInSpecificRc(t *testing.T) {
 			args: args{
 				installedPackages: domain.InstalledPackages{
 					Plugin: domain.Plugin{
-						Name:                   "go",
-						EnvNamePrefix:          "GO",
-						EnvNameSuffix:          "PATH",
+						Name:          "go",
+						EnvNamePrefix: "GO",
+						EnvNameSuffix: "ROOT",
+						ExtraVariables: func(homedir string) domain.EnvVariables {
+							return domain.EnvVariables{
+								Variables: []domain.EnvVariable{
+									{
+										Name:        "GOPATH",
+										SuffixValue: "~/.go",
+									}},
+							}
+						},
 						VersionGranularity:     domain.VersionGranularityMinor,
 						ExecutableRelativePath: "",
 					},
@@ -365,9 +374,10 @@ func Test_initVariablesInSpecificRc(t *testing.T) {
 			expectedSpecificFileName: ".gorc",
 			expectedSpecificContent: []string{
 				"export SVM_SOFT_GO_DIR=\"$SVM_SOFT_DIR/go\"",
-				"export GO_1_24_PATH=\"$SVM_SOFT_GO_DIR/go-1.24.1\"",
-				"export GOPATH=\"$GO_1_24_PATH\"",
-				"export PATH=\"$GOPATH:$PATH\"",
+				"export GO_1_24_ROOT=\"$SVM_SOFT_GO_DIR/go-1.24.1\"",
+				"export GOROOT=\"$GO_1_24_ROOT\"",
+				"export PATH=\"$GOROOT:$PATH\"",
+				"export GOPATH=\"~/.go\"",
 			},
 		},
 	}

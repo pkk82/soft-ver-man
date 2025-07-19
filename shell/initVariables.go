@@ -29,7 +29,7 @@ import (
 	"strings"
 )
 
-func initVariables(finder DirFinder, installedPackages domain.InstalledPackages) error {
+func initVariables(finder domain.DirFinder, installedPackages domain.InstalledPackages) error {
 	plugin := installedPackages.Plugin
 	name := plugin.Name
 
@@ -52,7 +52,7 @@ func initVariables(finder DirFinder, installedPackages domain.InstalledPackages)
 
 }
 
-func initSvmRcFile(name, homeDir string, finder DirFinder) error {
+func initSvmRcFile(name, homeDir string, finder domain.DirFinder) error {
 
 	softDir, err := finder.SoftDir()
 	if err != nil {
@@ -80,8 +80,12 @@ func initSpecificRcRile(installedPackages domain.InstalledPackages, homeDir stri
 	if err != nil {
 		return err
 	}
-
+	extraVariables := domain.EnvVariables{}
+	if plugin.ExtraVariables != nil {
+		extraVariables = plugin.ExtraVariables(homeDir)
+	}
 	lines := variables.ToExport()
+	lines = append(lines, extraVariables.ToExport()...)
 
 	err = file.OverrideFileWithContent(path.Join(homeDir, config.HomeConfigDir, rcName(plugin.Name)), lines)
 	if err != nil {

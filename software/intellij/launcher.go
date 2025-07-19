@@ -103,7 +103,7 @@ func prepareEnvVariables() (string, error) {
 }
 
 func findSoftwareDirEnvVariable() (domain.EnvVariable, error) {
-	finder := shell.ProdDirFinder{SoftwareDir: viper.GetString(config.SoftwareDirKey)}
+	finder := domain.ProdDirFinder{SoftwareDir: viper.GetString(config.SoftwareDirKey)}
 	softDir, err := finder.SoftDir()
 	if err != nil {
 		return domain.EnvVariable{}, err

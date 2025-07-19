@@ -114,7 +114,7 @@ func Install(plugin domain.Plugin, inputVersion string, options InstallOptions) 
 		return err
 	}
 
-	finder := shell.ProdDirFinder{SoftwareDir: viper.GetString(config.SoftwareDirKey)}
+	finder := domain.ProdDirFinder{SoftwareDir: viper.GetString(config.SoftwareDirKey)}
 	err = shell.AddVariables(finder, installedPackages)
 	if err != nil {
 		return err

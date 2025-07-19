@@ -62,27 +62,35 @@ type EnvVariables struct {
 
 func (envVariables EnvVariables) ToExport() []string {
 
-	lines := make([]string, len(envVariables.Variables)+1)
+	mainVariable := EnvVariable{}
+	linesCount := len(envVariables.Variables)
+	if envVariables.MainVariable != nil {
+		mainVariable = *envVariables.MainVariable
+		linesCount++
+	}
+
+	lines := make([]string, linesCount)
 
 	for i, envVariable := range envVariables.Variables {
 		lines[i] = envVariable.ToExport()
 	}
 
-	mainVariable := *envVariables.MainVariable
+	if envVariables.MainVariable != nil {
 
-	var executableRelativePath string
-	if envVariables.ExecutableRelativePath == "" ||
-		strings.HasPrefix(envVariables.ExecutableRelativePath, string(os.PathSeparator)) {
-		executableRelativePath = envVariables.ExecutableRelativePath
-	} else {
-		executableRelativePath = path.Join(string(os.PathSeparator), envVariables.ExecutableRelativePath)
+		var executableRelativePath string
+		if envVariables.ExecutableRelativePath == "" ||
+			strings.HasPrefix(envVariables.ExecutableRelativePath, string(os.PathSeparator)) {
+			executableRelativePath = envVariables.ExecutableRelativePath
+		} else {
+			executableRelativePath = path.Join(string(os.PathSeparator), envVariables.ExecutableRelativePath)
+		}
+
+		lines[len(lines)-1] = fmt.Sprintf("export PATH=\"$%v%v%v$PATH\"",
+			mainVariable.Name,
+			executableRelativePath,
+			string(os.PathListSeparator))
+
 	}
-
-	lines[len(lines)-1] = fmt.Sprintf("export PATH=\"$%v%v%v$PATH\"",
-		mainVariable.Name,
-		executableRelativePath,
-		string(os.PathListSeparator))
-
 	return lines
 }
 

@@ -25,7 +25,7 @@ import (
 	"github.com/pkk82/soft-ver-man/domain"
 )
 
-func AddVariables(finder DirFinder, installedPackages domain.InstalledPackages) error {
+func AddVariables(finder domain.DirFinder, installedPackages domain.InstalledPackages) error {
 	err := initShell(finder)
 	if err != nil {
 		return err

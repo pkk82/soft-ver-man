@@ -23,6 +23,8 @@ package golang
 
 import (
 	"github.com/pkk82/soft-ver-man/domain"
+	"github.com/pkk82/soft-ver-man/util/console"
+	"os"
 	"path"
 	"strings"
 )
@@ -51,6 +53,10 @@ func init() {
 }
 
 func calculateExtraVariables(homedir string) domain.EnvVariables {
+	err := os.MkdirAll(path.Join(homedir, ".go"), 0755)
+	if err != nil {
+		console.Error(err)
+	}
 	return domain.EnvVariables{
 		Variables: []domain.EnvVariable{
 			{

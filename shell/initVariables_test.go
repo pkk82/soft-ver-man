@@ -108,6 +108,7 @@ func Test_initVariablesInSpecificRc(t *testing.T) {
 					Plugin: domain.Plugin{
 						Name:                   "node",
 						EnvNamePrefix:          "NODE",
+						EnvNameSuffix:          "_HOME",
 						VersionGranularity:     domain.VersionGranularityMajor,
 						ExecutableRelativePath: "bin",
 					},
@@ -135,6 +136,7 @@ func Test_initVariablesInSpecificRc(t *testing.T) {
 					Plugin: domain.Plugin{
 						Name:                   "node",
 						EnvNamePrefix:          "NODE",
+						EnvNameSuffix:          "_HOME",
 						VersionGranularity:     domain.VersionGranularityMajor,
 						ExecutableRelativePath: "bin",
 					},
@@ -162,6 +164,7 @@ func Test_initVariablesInSpecificRc(t *testing.T) {
 					Plugin: domain.Plugin{
 						Name:                   "node",
 						EnvNamePrefix:          "NODE",
+						EnvNameSuffix:          "_HOME",
 						VersionGranularity:     domain.VersionGranularityMajor,
 						ExecutableRelativePath: "bin",
 					},
@@ -204,6 +207,7 @@ func Test_initVariablesInSpecificRc(t *testing.T) {
 					Plugin: domain.Plugin{
 						Name:                   "node",
 						EnvNamePrefix:          "NODE",
+						EnvNameSuffix:          "_HOME",
 						VersionGranularity:     domain.VersionGranularityMajor,
 						ExecutableRelativePath: "bin",
 					},
@@ -246,6 +250,7 @@ func Test_initVariablesInSpecificRc(t *testing.T) {
 					Plugin: domain.Plugin{
 						Name:                   "node",
 						EnvNamePrefix:          "NODE",
+						EnvNameSuffix:          "_HOME",
 						VersionGranularity:     domain.VersionGranularityMajor,
 						ExecutableRelativePath: "bin",
 					},
@@ -279,6 +284,7 @@ func Test_initVariablesInSpecificRc(t *testing.T) {
 					Plugin: domain.Plugin{
 						Name:                   "kotlin",
 						EnvNamePrefix:          "KOTLIN",
+						EnvNameSuffix:          "_HOME",
 						VersionGranularity:     domain.VersionGranularityMinor,
 						ExecutableRelativePath: "bin",
 					},
@@ -313,6 +319,7 @@ func Test_initVariablesInSpecificRc(t *testing.T) {
 					Plugin: domain.Plugin{
 						Name:                   "soft-ver-man",
 						EnvNamePrefix:          "SVM",
+						EnvNameSuffix:          "_HOME",
 						VersionGranularity:     domain.VersionGranularityMinor,
 						ExecutableRelativePath: "",
 					},
@@ -332,6 +339,35 @@ func Test_initVariablesInSpecificRc(t *testing.T) {
 				"export SVM_0_5_HOME=\"$SVM_SOFT_SVM_DIR/soft-ver-man-0.5.0\"",
 				"export SVM_HOME=\"$SVM_0_5_HOME\"",
 				"export PATH=\"$SVM_HOME:$PATH\"",
+			},
+		},
+		{
+			name: "go",
+			args: args{
+				installedPackages: domain.InstalledPackages{
+					Plugin: domain.Plugin{
+						Name:                   "go",
+						EnvNamePrefix:          "GO",
+						EnvNameSuffix:          "PATH",
+						VersionGranularity:     domain.VersionGranularityMinor,
+						ExecutableRelativePath: "",
+					},
+					Items: []domain.InstalledPackage{
+						{
+							Version:     domain.Ver("v1.24.1", t),
+							Path:        "/home/user/pf/go/go-1.24.1",
+							Main:        true,
+							InstalledOn: 1689017268000,
+						},
+					},
+				},
+			},
+			expectedSpecificFileName: ".gorc",
+			expectedSpecificContent: []string{
+				"export SVM_SOFT_GO_DIR=\"$SVM_SOFT_DIR/go\"",
+				"export GO_1_24_PATH=\"$SVM_SOFT_GO_DIR/go-1.24.1\"",
+				"export GOPATH=\"$GO_1_24_PATH\"",
+				"export PATH=\"$GOPATH:$PATH\"",
 			},
 		},
 	}

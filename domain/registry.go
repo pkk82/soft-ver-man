@@ -48,6 +48,7 @@ const (
 type Plugin struct {
 	Name                        string
 	EnvNamePrefix               string
+	EnvNameSuffix               string
 	ExecutableRelativePath      string
 	VersionGranularity          VersionGranularity
 	ExtractStrategy             ExtractStrategy

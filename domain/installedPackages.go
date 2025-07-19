@@ -28,6 +28,7 @@ import (
 	"path/filepath"
 	"sort"
 	"strconv"
+	"strings"
 )
 
 type InstalledPackages struct {
@@ -181,9 +182,13 @@ func versionedHomeVariable(plugin Plugin, version Version) string {
 		v = fmt.Sprintf("%v_%v", version.Major(), version.Minor())
 
 	}
-	return fmt.Sprintf("%v_%v_HOME", plugin.EnvNamePrefix, v)
+	envNameSuffix := plugin.EnvNameSuffix
+	if !strings.HasPrefix(envNameSuffix, "_") {
+		envNameSuffix = "_" + envNameSuffix
+	}
+	return fmt.Sprintf("%v_%v%v", plugin.EnvNamePrefix, v, envNameSuffix)
 }
 
 func homeVariable(plugin Plugin) string {
-	return fmt.Sprintf("%v_HOME", plugin.EnvNamePrefix)
+	return fmt.Sprintf("%v%v", plugin.EnvNamePrefix, plugin.EnvNameSuffix)
 }

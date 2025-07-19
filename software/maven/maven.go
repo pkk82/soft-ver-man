@@ -32,6 +32,7 @@ func init() {
 	var plugin = domain.Plugin{
 		Name:          Name,
 		EnvNamePrefix: EnvNamePrefix,
+		EnvNameSuffix: EnvNameSuffix,
 		PostInstall: func(installedPackage domain.InstalledPackage) error {
 			return nil
 		},

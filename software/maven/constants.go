@@ -25,6 +25,7 @@ const DownloadURL = "https://archive.apache.org/dist/maven/maven-%s/%s/binaries/
 
 const Name = "mvn"
 const EnvNamePrefix = "MVN"
+const EnvNameSuffix = "_HOME"
 const LongName = "Maven"
 
 var Aliases = []string{"maven", "mvn"}

@@ -29,6 +29,7 @@ const PageSize = 1000
 
 const Name = "soft-ver-man"
 const EnvNamePrefix = "SVM"
+const EnvNameSuffix = "_HOME"
 const LongName = "soft-ver-man"
 
 var Aliases = []string{"svm", "soft-ver-man"}

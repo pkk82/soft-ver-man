@@ -25,6 +25,7 @@ const DownloadURLPrefix = "https://download.jetbrains.com/idea"
 
 const Name = "intellij-idea"
 const EnvNamePrefix = "INTELLIJ_IDEA"
+const EnvNameSuffix = "_HOME"
 const LongName = "Intellij IDEA Ultimate"
 
 var Aliases = []string{"intellij", "idea", "intellij-idea", "ii"}

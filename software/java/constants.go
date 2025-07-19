@@ -29,5 +29,6 @@ const PageSize = 1000
 const Name = "java"
 const LongName = "JDK (Azul Zulu)"
 const EnvPrefix = "JAVA"
+const EnvSuffix = "_HOME"
 
 var Aliases = []string{"java", "jdk", "azul-jdk", "azul-java"}

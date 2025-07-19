@@ -29,5 +29,6 @@ const PageSize = 100
 
 const Name = "kotlin"
 const EnvNamePrefix = "KOTLIN"
+const EnvNameSuffix = "_HOME"
 
 var Aliases = []string{"kotlin", "kt"}

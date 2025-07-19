@@ -24,7 +24,7 @@ package golang
 
 const Name = "go"
 const EnvNamePrefix = "GO"
-const EnvNameSuffix = "PATH"
+const EnvNameSuffix = "ROOT"
 const LongName = "golang"
 
 var Aliases = []string{"go", "golang"}

@@ -25,7 +25,6 @@ import (
 	"github.com/pkk82/soft-ver-man/cmd"
 	"github.com/pkk82/soft-ver-man/software"
 	"github.com/pkk82/soft-ver-man/software/golang"
-	"github.com/pkk82/soft-ver-man/software/node"
 )
 
 var Cmd = cmd.MainCmd(golang.Name, golang.LongName, golang.Aliases)
@@ -38,7 +37,7 @@ func init() {
 	fetchCmd := cmd.FetchCmd(golang.Name, golang.LongName, &verifyChecksumFetch)
 	fetchCmd.Flags().BoolVarP(&verifyChecksumFetch, "verify-checksum", "c", false, "Verify checksum of downloaded file")
 	Cmd.AddCommand(fetchCmd)
-	installCmd := cmd.InstallCmd(node.Name, node.LongName, software.InstallOptions{VerifyChecksum: &verifyChecksumInstall, ArchivePath: nil})
+	installCmd := cmd.InstallCmd(golang.Name, golang.LongName, software.InstallOptions{VerifyChecksum: &verifyChecksumInstall, ArchivePath: nil})
 	installCmd.Flags().BoolVarP(&verifyChecksumInstall, "verify-checksum", "c", false, "Verify checksum of downloaded file")
 	Cmd.AddCommand(installCmd)
 	Cmd.AddCommand(cmd.UninstallCmd(golang.Name, golang.LongName))

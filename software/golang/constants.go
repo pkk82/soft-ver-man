@@ -1,5 +1,5 @@
 /*
- * Copyright © 2024 Piotr Kozak <piotrkrzysztofkozak@gmail.com>
+ * Copyright © 2025 Piotr Kozak <piotrkrzysztofkozak@gmail.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -19,19 +19,14 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package main
 
-import (
-	"github.com/pkk82/soft-ver-man/cmd"
-	_ "github.com/pkk82/soft-ver-man/cmd/golang"
-	_ "github.com/pkk82/soft-ver-man/cmd/intellij"
-	_ "github.com/pkk82/soft-ver-man/cmd/java"
-	_ "github.com/pkk82/soft-ver-man/cmd/kotlin"
-	_ "github.com/pkk82/soft-ver-man/cmd/maven"
-	_ "github.com/pkk82/soft-ver-man/cmd/node"
-	_ "github.com/pkk82/soft-ver-man/cmd/svm"
-)
+package golang
 
-func main() {
-	cmd.Execute()
-}
+const Name = "go"
+const EnvNamePrefix = "GO"
+const LongName = "golang"
+
+var Aliases = []string{"go", "golang"}
+
+const DistURL = "https://go.dev/dl"
+const JsonFileURL = "https://go.dev/dl/?mode=json&include=all"

@@ -19,19 +19,23 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package main
+
+package golang
 
 import (
-	"github.com/pkk82/soft-ver-man/cmd"
-	_ "github.com/pkk82/soft-ver-man/cmd/golang"
-	_ "github.com/pkk82/soft-ver-man/cmd/intellij"
-	_ "github.com/pkk82/soft-ver-man/cmd/java"
-	_ "github.com/pkk82/soft-ver-man/cmd/kotlin"
-	_ "github.com/pkk82/soft-ver-man/cmd/maven"
-	_ "github.com/pkk82/soft-ver-man/cmd/node"
-	_ "github.com/pkk82/soft-ver-man/cmd/svm"
+	"fmt"
+	"github.com/pkk82/soft-ver-man/util/console"
+	"github.com/pkk82/soft-ver-man/util/verification"
 )
 
-func main() {
-	cmd.Execute()
+func verifySha(filePath, expectedHash string) error {
+
+	err := verification.VerifySha256(filePath, expectedHash)
+
+	if err == nil {
+		console.Info(filePath + " is correct file")
+	} else {
+		console.Error(fmt.Errorf(filePath + " is corrupted file"))
+	}
+	return err
 }

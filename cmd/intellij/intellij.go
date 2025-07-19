@@ -33,7 +33,7 @@ var Cmd = cmd.MainCmd(intellij.Name, intellij.LongName, intellij.Aliases)
 
 func init() {
 	cmd.RootCmd.AddCommand(Cmd)
-	installCmd := cmd.InstallCmd(intellij.Name, intellij.LongName, software.InstallOptions{VerifyChecksum: &verifyChecksum})
+	installCmd := cmd.InstallCmd(intellij.Name, intellij.LongName, software.InstallOptions{VerifyChecksum: &verifyChecksum, ArchivePath: nil})
 	Cmd.AddCommand(installCmd)
 	Cmd.AddCommand(cmd.UninstallCmd(intellij.Name, intellij.LongName))
 

@@ -63,9 +63,8 @@ func Install(plugin domain.Plugin, inputVersion string, options InstallOptions) 
 	}
 
 	var fetchedPackage domain.FetchedPackage
-	archivePath := *options.ArchivePath
-	if archivePath != "" {
-
+	if options.ArchivePath != nil {
+		archivePath := *options.ArchivePath
 		version, err = domain.NewVersion(inputVersion)
 		if err != nil {
 			console.Fatal(err)

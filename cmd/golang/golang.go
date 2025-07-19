@@ -38,7 +38,7 @@ func init() {
 	fetchCmd := cmd.FetchCmd(golang.Name, golang.LongName, &verifyChecksumFetch)
 	fetchCmd.Flags().BoolVarP(&verifyChecksumFetch, "verify-checksum", "c", false, "Verify checksum of downloaded file")
 	Cmd.AddCommand(fetchCmd)
-	installCmd := cmd.InstallCmd(node.Name, node.LongName, software.InstallOptions{VerifyChecksum: &verifyChecksumInstall})
+	installCmd := cmd.InstallCmd(node.Name, node.LongName, software.InstallOptions{VerifyChecksum: &verifyChecksumInstall, ArchivePath: nil})
 	installCmd.Flags().BoolVarP(&verifyChecksumInstall, "verify-checksum", "c", false, "Verify checksum of downloaded file")
 	Cmd.AddCommand(installCmd)
 	Cmd.AddCommand(cmd.UninstallCmd(golang.Name, golang.LongName))

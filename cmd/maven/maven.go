@@ -33,7 +33,7 @@ var Cmd = cmd.MainCmd(maven.Name, maven.LongName, maven.Aliases)
 
 func init() {
 	cmd.RootCmd.AddCommand(Cmd)
-	installCmd := cmd.InstallCmd(maven.Name, maven.LongName, software.InstallOptions{VerifyChecksum: &verifyChecksum})
+	installCmd := cmd.InstallCmd(maven.Name, maven.LongName, software.InstallOptions{VerifyChecksum: &verifyChecksum, ArchivePath: nil})
 	Cmd.AddCommand(installCmd)
 	Cmd.AddCommand(cmd.UninstallCmd(maven.Name, maven.LongName))
 

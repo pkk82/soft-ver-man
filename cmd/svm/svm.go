@@ -37,7 +37,7 @@ func init() {
 	fetchCmd := cmd.FetchCmd(svm.Name, svm.LongName, &verifyChecksumFetch)
 	fetchCmd.Flags().BoolVarP(&verifyChecksumFetch, "verify-checksum", "c", false, "Verify checksum of downloaded file")
 	Cmd.AddCommand(fetchCmd)
-	installCmd := cmd.InstallCmd(svm.Name, svm.LongName, software.InstallOptions{VerifyChecksum: &verifyChecksumInstall})
+	installCmd := cmd.InstallCmd(svm.Name, svm.LongName, software.InstallOptions{VerifyChecksum: &verifyChecksumInstall, ArchivePath: nil})
 	installCmd.Flags().BoolVarP(&verifyChecksumInstall, "verify-checksum", "c", false, "Verify checksum of downloaded file")
 	Cmd.AddCommand(installCmd)
 	Cmd.AddCommand(cmd.UninstallCmd(svm.Name, svm.LongName))

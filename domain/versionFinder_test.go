@@ -85,6 +85,44 @@ func TestFindVersionForNode(t *testing.T) {
 		}
 	}
 }
+
+func TestFindVersionForGo(t *testing.T) {
+	versions := []string{
+		"1.25",
+		"1.25.rc2",
+		"1.25.rc1",
+		"1.25.beta1",
+		"1.24.5",
+		"1.24.4",
+		"1.24.3",
+		"1.24.2",
+		"1.24.1",
+		"1.24",
+		"1.9.2",
+		"1.9.2.rc2",
+	}
+	terms := map[string]string{
+		"":          "1.25",
+		"v":         "1.25",
+		"v1.25":     "1.25",
+		"v1.25.rc":  "1.25.rc2",
+		"1.25":      "1.25",
+		"1.24.4":    "1.24.4",
+		"1.24":      "1.24.5",
+		"1.9":       "1.9.2",
+		"1.9.2":     "1.9.2",
+		"1.9.2.rc2": "1.9.2.rc2",
+	}
+	for version, expected := range terms {
+		actual, _, err := ver.FindVersion(version, versions)
+		if err != nil {
+			t.Errorf("Error: %v", err)
+		}
+		if actual.Value != expected {
+			t.Errorf("Expected: %v,. but got: %v", expected, actual)
+		}
+	}
+}
 func TestFindVersionForJava(t *testing.T) {
 	versions := []string{
 		"20.0.2",

@@ -23,6 +23,7 @@ package domain
 
 import (
 	"errors"
+	"regexp"
 	"sort"
 	"strconv"
 	"strings"
@@ -45,7 +46,10 @@ func FindVersion(version string, versions []string) (Version, int, error) {
 	for _, v := range parsedVersions {
 		if (v.major == parsedVersion.major || parsedVersion.major == -1) &&
 			(v.minor == parsedVersion.minor || parsedVersion.minor == -1) &&
-			(v.patch == parsedVersion.patch || parsedVersion.patch == -1) {
+			(strings.HasPrefix(v.patchString, parsedVersion.patchString) || parsedVersion.patchString == "") &&
+			(v.patch == parsedVersion.patch || parsedVersion.patch == -1) &&
+			(strings.HasPrefix(v.buildString, parsedVersion.buildString) || parsedVersion.buildString == "") &&
+			(v.build == parsedVersion.build || parsedVersion.build == -1) {
 			matchingVersion = v
 			break
 		}
@@ -82,7 +86,8 @@ func parseVersion(version string) (Version, error) {
 
 	splitVersion := strings.Split(versionWithoutV, ".")
 	var major, minor, patch, build = -1, -1, -1, -1
-	var errVersion = Version{Value: version, major: major, minor: minor, patch: patch, build: build}
+	var patchString, buildString = "", ""
+	var errVersion = Version{Value: version, major: major, minor: minor, patchString: patchString, patch: patch, buildString: buildString, build: build}
 	var err error
 	if len(splitVersion) > 0 && splitVersion[0] != "" {
 		major, err = strconv.Atoi(splitVersion[0])
@@ -97,17 +102,27 @@ func parseVersion(version string) (Version, error) {
 		return errVersion, err
 	}
 	if len(splitVersion) > 2 && splitVersion[2] != "" {
-		patch, err = strconv.Atoi(splitVersion[2])
+		isDigit := regexp.MustCompile(`^\d+$`).MatchString(splitVersion[2])
+		if !isDigit {
+			patchString = splitVersion[2]
+		} else {
+			patch, err = strconv.Atoi(splitVersion[2])
+		}
 	}
 	if err != nil {
 		return errVersion, err
 	}
 	if len(splitVersion) > 3 && splitVersion[3] != "" {
-		build, err = strconv.Atoi(splitVersion[3])
+		isDigit := regexp.MustCompile(`^\d+$`).MatchString(splitVersion[3])
+		if !isDigit {
+			buildString = splitVersion[3]
+		} else {
+			build, err = strconv.Atoi(splitVersion[3])
+		}
 	}
 	if err != nil {
 		return errVersion, err
 	}
 
-	return Version{Value: version, major: major, minor: minor, patch: patch, build: build}, nil
+	return Version{Value: version, major: major, minor: minor, patchString: patchString, patch: patch, buildString: buildString, build: build}, nil
 }

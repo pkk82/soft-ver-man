@@ -23,11 +23,13 @@
 package domain
 
 type Version struct {
-	Value string
-	major int
-	minor int
-	patch int
-	build int
+	Value       string
+	major       int
+	minor       int
+	patchString string
+	patch       int
+	buildString string
+	build       int
 }
 
 func NewVersion(version string) (Version, error) {
@@ -49,8 +51,23 @@ func (version Version) Minor() int {
 func CompareDesc(v1, v2 Version) bool {
 	return v1.major > v2.major ||
 		(v1.major == v2.major && v1.minor > v2.minor) ||
-		(v1.major == v2.major && v1.minor == v2.minor && v1.patch > v2.patch) ||
-		(v1.major == v2.major && v1.minor == v2.minor && v1.patch == v2.patch && v1.build > v2.build)
+		(v1.major == v2.major && v1.minor == v2.minor && compareEmptyStringDesc(v1.patchString, v2.patchString)) ||
+		(v1.major == v2.major && v1.minor == v2.minor && v1.patchString == v2.patchString && v1.patch > v2.patch) ||
+		(v1.major == v2.major && v1.minor == v2.minor && v1.patchString == v2.patchString && v1.patch == v2.patch && compareEmptyStringDesc(v1.buildString, v2.buildString)) ||
+		(v1.major == v2.major && v1.minor == v2.minor && v1.patchString == v2.patchString && v1.patch == v2.patch && v1.buildString == v2.buildString && v1.build > v2.build)
+}
+
+func compareEmptyStringDesc(v1, v2 string) bool {
+	if v1 == "" && v2 != "" {
+		return true
+	}
+	if v1 != "" && v2 == "" {
+		return false
+	}
+	if v1 > v2 {
+		return true
+	}
+	return false
 }
 
 func CompareAsc(v1, v2 Version) bool {

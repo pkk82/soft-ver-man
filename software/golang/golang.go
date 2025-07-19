@@ -40,9 +40,9 @@ func init() {
 			return nil
 		},
 		CalculateDownloadedFileName: calculateDownloadFileName,
-		ExtractStrategy:             domain.UseCompressedDirOrArchiveName,
+		ExtractStrategy:             domain.ReplaceCompressedDirWithArchiveName,
 		ExecutableRelativePath:      "bin",
-		VersionGranularity:          domain.VersionGranularityMajor,
+		VersionGranularity:          domain.VersionGranularityMinor,
 	}
 	domain.Register(plugin)
 }

@@ -83,7 +83,7 @@ func Test_initVariablesInSvmRc(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			dir := test.CreateTestDir(t)
-			err := initVariables(test.TestDirs{Home: dir}, tt.args.installedPackages)
+			_, err := initVariables(test.TestDirs{Home: dir}, tt.args.installedPackages)
 			if err != nil {
 				t.Errorf("Failed to init variables: %s", err)
 			}
@@ -384,7 +384,7 @@ func Test_initVariablesInSpecificRc(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			dir := test.CreateTestDir(t)
-			err := initVariables(test.TestDirs{Home: dir}, tt.args.installedPackages)
+			_, err := initVariables(test.TestDirs{Home: dir}, tt.args.installedPackages)
 			if err != nil {
 				t.Errorf("Failed to init variables: %s", err)
 			}

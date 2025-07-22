@@ -128,3 +128,87 @@ func Test_EnvVariables_Resolve(t *testing.T) {
 		})
 	}
 }
+
+func Test_EvnVariables_extractToHere(t *testing.T) {
+	dirVariable := EnvVariable{Name: "SVM_SOFT_GO_DIR", SuffixValue: "/go"}
+	go115 := EnvVariable{Name: "GO_1_15_ROOT", PrefixVariable: &dirVariable, SuffixValue: "go1.15.15.linux-amd64"}
+	go114 := EnvVariable{Name: "GO_1_14_ROOT", PrefixVariable: &dirVariable, SuffixValue: "go1.14.15.linux-amd64"}
+	goMainTo115 := EnvVariable{Name: "GOROOT", PrefixVariable: &go115}
+
+	type fields struct {
+		Variables              []EnvVariable
+		MainVariable           *EnvVariable
+		ExecutableRelativePath string
+	}
+	type args struct {
+		suffixValue string
+	}
+	tests := []struct {
+		name    string
+		fields  fields
+		args    args
+		want    []string
+		wantErr bool
+	}{
+		{
+			name: "empty",
+			fields: fields{
+				Variables: make([]EnvVariable, 0),
+			},
+			args: args{
+				suffixValue: "test",
+			},
+			want:    []string{},
+			wantErr: true,
+		},
+		{
+			name: "not empty - not found",
+			fields: fields{
+				Variables: []EnvVariable{
+					dirVariable, goMainTo115, go114, go115,
+				},
+				MainVariable:           &goMainTo115,
+				ExecutableRelativePath: "bin",
+			},
+			args: args{
+				suffixValue: "go1.14.14.linux-amd64",
+			},
+			want:    []string{},
+			wantErr: true,
+		}, {
+			name: "not empty - found",
+			fields: fields{
+				Variables: []EnvVariable{
+					dirVariable, goMainTo115, go114, go115,
+				},
+				MainVariable:           &goMainTo115,
+				ExecutableRelativePath: "bin",
+			},
+			args: args{
+				suffixValue: "go1.14.15.linux-amd64",
+			},
+			want: []string{
+				"export GOROOT=\"$GO_1_14_ROOT\"",
+				"export PATH=\"$GOROOT/bin:$PATH\"",
+			},
+			wantErr: false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			envVariables := EnvVariables{
+				Variables:              tt.fields.Variables,
+				MainVariable:           tt.fields.MainVariable,
+				ExecutableRelativePath: tt.fields.ExecutableRelativePath,
+			}
+			got, err := envVariables.ExtractToHere(tt.args.suffixValue)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("EnvVariables.ExtractToHere() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if !reflect.DeepEqual(got.ToExport(), tt.want) {
+				t.Errorf("EnvVariables.ExtractToHere().ToExport() = %v, want %v", got.ToExport(), tt.want)
+			}
+		})
+	}
+}

@@ -28,14 +28,17 @@ import (
 )
 
 var verifyChecksum bool
-
+var main bool
+var here bool
 var Cmd = cmd.MainCmd(intellij.Name, intellij.LongName, intellij.Aliases)
 
 func init() {
 	cmd.RootCmd.AddCommand(Cmd)
-	installCmd := cmd.InstallCmd(intellij.Name, intellij.LongName, software.InstallOptions{VerifyChecksum: &verifyChecksum, ArchivePath: nil})
+	installCmd := cmd.InstallCmd(intellij.Name, intellij.LongName, software.InstallOptions{VerifyChecksum: &verifyChecksum, Main: &main, Here: &here})
 	Cmd.AddCommand(installCmd)
 	Cmd.AddCommand(cmd.UninstallCmd(intellij.Name, intellij.LongName))
 
 	installCmd.Flags().BoolVarP(&verifyChecksum, "verify-checksum", "c", false, "Verify checksum of downloaded file")
+	installCmd.Flags().BoolVarP(&main, "main", "m", false, "Make package main version (default: false)")
+	installCmd.Flags().BoolVarP(&here, "here", "x", false, "Use package in the current directory via .direnv (default: false)")
 }

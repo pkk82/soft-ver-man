@@ -29,26 +29,26 @@ import (
 	"strings"
 )
 
-func initVariables(finder domain.DirFinder, installedPackages domain.InstalledPackages) error {
+func initVariables(finder domain.DirFinder, installedPackages domain.InstalledPackages) (domain.EnvVariables, error) {
 	plugin := installedPackages.Plugin
 	name := plugin.Name
 
 	homeDir, err := finder.HomeDir()
 	if err != nil {
-		return err
+		return domain.EnvVariables{}, err
 	}
 
 	err = initSvmRcFile(name, homeDir, finder)
 	if err != nil {
-		return err
+		return domain.EnvVariables{}, err
 	}
 
-	err = initSpecificRcRile(installedPackages, homeDir, plugin)
+	envVariables, err := initSpecificRcRile(installedPackages, homeDir, plugin)
 	if err != nil {
-		return err
+		return domain.EnvVariables{}, err
 	}
 
-	return nil
+	return envVariables, nil
 
 }
 
@@ -60,13 +60,13 @@ func initSvmRcFile(name, homeDir string, finder domain.DirFinder) error {
 	}
 
 	exportLine := PrepareSvmSoftDirEnvVariable(softDir).ToExport()
-	err = assertFileWithContent(path.Join(homeDir, config.HomeConfigDir, config.RcFile), exportLine,
+	err = file.AssertFileWithContent(path.Join(homeDir, config.HomeConfigDir, config.RcFile), exportLine,
 		[]string{exportLine})
 	if err != nil {
 		return err
 	}
 	initLine := bashToLoad(rcName(name))
-	err = assertFileWithContent(path.Join(homeDir, config.HomeConfigDir, config.RcFile), initLine,
+	err = file.AssertFileWithContent(path.Join(homeDir, config.HomeConfigDir, config.RcFile), initLine,
 		[]string{initLine})
 	if err != nil {
 		return err
@@ -74,11 +74,11 @@ func initSvmRcFile(name, homeDir string, finder domain.DirFinder) error {
 	return nil
 }
 
-func initSpecificRcRile(installedPackages domain.InstalledPackages, homeDir string, plugin domain.Plugin) error {
+func initSpecificRcRile(installedPackages domain.InstalledPackages, homeDir string, plugin domain.Plugin) (domain.EnvVariables, error) {
 
 	variables, err := installedPackages.PrepareEnvVariables(plugin)
 	if err != nil {
-		return err
+		return domain.EnvVariables{}, err
 	}
 	extraVariables := domain.EnvVariables{}
 	if plugin.ExtraVariables != nil {
@@ -89,9 +89,9 @@ func initSpecificRcRile(installedPackages domain.InstalledPackages, homeDir stri
 
 	err = file.OverrideFileWithContent(path.Join(homeDir, config.HomeConfigDir, rcName(plugin.Name)), lines)
 	if err != nil {
-		return err
+		return domain.EnvVariables{}, err
 	}
-	return nil
+	return variables, nil
 }
 
 func transformName(name string) string {

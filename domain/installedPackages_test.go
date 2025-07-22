@@ -84,11 +84,18 @@ func Test_InstalledPackages_Add(t *testing.T) {
 	tests := []struct {
 		name              string
 		installedPackages InstalledPackages
+		newPackage        InstalledPackage
 		want              []InstalledPackage
 	}{
 		{
 			name:              "empty",
 			installedPackages: InstalledPackages{Plugin: Plugin{Name: "node"}, Items: []InstalledPackage{}},
+			newPackage: InstalledPackage{
+				Version:     Ver("v20.1.4", t),
+				Path:        "/home/user/pf/node/node-v20.1.4-linux-x64",
+				InstalledOn: 1689017268000,
+				Main:        false,
+			},
 			want: []InstalledPackage{
 				{
 					Version:     Ver("v20.1.4", t),
@@ -99,7 +106,25 @@ func Test_InstalledPackages_Add(t *testing.T) {
 			},
 		},
 		{
-			name: "with-one-item",
+			name:              "empty - add main",
+			installedPackages: InstalledPackages{Plugin: Plugin{Name: "node"}, Items: []InstalledPackage{}},
+			newPackage: InstalledPackage{
+				Version:     Ver("v20.1.4", t),
+				Path:        "/home/user/pf/node/node-v20.1.4-linux-x64",
+				InstalledOn: 1689017268000,
+				Main:        true,
+			},
+			want: []InstalledPackage{
+				{
+					Version:     Ver("v20.1.4", t),
+					Path:        "/home/user/pf/node/node-v20.1.4-linux-x64",
+					Main:        true,
+					InstalledOn: 1689017268000,
+				},
+			},
+		},
+		{
+			name: "with-one-item ",
 			installedPackages: InstalledPackages{Plugin: Plugin{Name: "node"}, Items: []InstalledPackage{
 				{
 					Version:     Ver("v20.1.3", t),
@@ -108,6 +133,12 @@ func Test_InstalledPackages_Add(t *testing.T) {
 					InstalledOn: 1689017267000,
 				},
 			}},
+			newPackage: InstalledPackage{
+				Version:     Ver("v20.1.4", t),
+				Path:        "/home/user/pf/node/node-v20.1.4-linux-x64",
+				InstalledOn: 1689017268000,
+				Main:        false,
+			},
 			want: []InstalledPackage{{
 				Version:     Ver("v20.1.3", t),
 				Path:        "/home/user/pf/node/node-v20.1.3-linux-x64",
@@ -119,17 +150,40 @@ func Test_InstalledPackages_Add(t *testing.T) {
 				Main:        false,
 				InstalledOn: 1689017268000,
 			}},
+		}, {
+			name: "with-one-item - add main",
+			installedPackages: InstalledPackages{Plugin: Plugin{Name: "node"}, Items: []InstalledPackage{
+				{
+					Version:     Ver("v20.1.3", t),
+					Path:        "/home/user/pf/node/node-v20.1.3-linux-x64",
+					Main:        true,
+					InstalledOn: 1689017267000,
+				},
+			}},
+			newPackage: InstalledPackage{
+				Version:     Ver("v20.1.4", t),
+				Path:        "/home/user/pf/node/node-v20.1.4-linux-x64",
+				InstalledOn: 1689017268000,
+				Main:        true,
+			},
+			want: []InstalledPackage{{
+				Version:     Ver("v20.1.3", t),
+				Path:        "/home/user/pf/node/node-v20.1.3-linux-x64",
+				Main:        false,
+				InstalledOn: 1689017267000,
+			}, {
+				Version:     Ver("v20.1.4", t),
+				Path:        "/home/user/pf/node/node-v20.1.4-linux-x64",
+				Main:        true,
+				InstalledOn: 1689017268000,
+			}},
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			installedPackages := tt.installedPackages
-			installedPackages.Add(InstalledPackage{
-				Version:     Ver("v20.1.4", t),
-				Path:        "/home/user/pf/node/node-v20.1.4-linux-x64",
-				InstalledOn: 1689017268000,
-			})
+			installedPackages.Add(tt.newPackage)
 			if !reflect.DeepEqual(installedPackages.Items, tt.want) {
 				t.Errorf("InstalledPackages.Add() = %v, want %v", installedPackages.Items, tt.want)
 			}

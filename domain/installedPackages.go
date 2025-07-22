@@ -46,6 +46,13 @@ func (installedPackages *InstalledPackages) IsInstalled(version Version) bool {
 }
 
 func (installedPackages *InstalledPackages) Add(installedPackage InstalledPackage) {
+	if installedPackage.Main {
+		for i, item := range installedPackages.Items {
+			if item.Main {
+				installedPackages.Items[i].Main = false
+			}
+		}
+	}
 	installedPackages.Items = append(installedPackages.Items, installedPackage)
 }
 

@@ -125,3 +125,55 @@ func Extension(fp string) domain.Type {
 		return domain.UNKNOWN
 	}
 }
+
+func createFile(filePath string) error {
+	f, err := os.Create(filePath)
+	if err != nil {
+		return err
+	}
+	defer func(file *os.File) {
+		err := file.Close()
+		if err != nil {
+			console.Error(err)
+		}
+	}(f)
+
+	return nil
+}
+
+func AssertFileWithContent(filePath string, seekLine string, contentToAdd []string) error {
+
+	exists, err := FileExists(filePath)
+	if err != nil {
+		return err
+	}
+	if !exists {
+
+		parent, _ := filepath.Split(filePath)
+		err := os.MkdirAll(parent, 0755)
+		if err != nil {
+			return err
+		}
+
+		err = createFile(filePath)
+		if err != nil {
+			return err
+		}
+	}
+
+	content, err := ReadFile(filePath)
+	if err != nil {
+		return err
+	}
+
+	if !strings.Contains(content, seekLine) {
+		err := AppendInFile(filePath, contentToAdd)
+		if err != nil {
+			return err
+		}
+
+	}
+
+	return nil
+
+}

@@ -39,6 +39,8 @@ import (
 type InstallOptions struct {
 	VerifyChecksum *bool
 	ArchivePath    *string
+	Main           *bool
+	Here           *bool
 }
 
 func Install(plugin domain.Plugin, inputVersion string, options InstallOptions) error {
@@ -82,6 +84,11 @@ func Install(plugin domain.Plugin, inputVersion string, options InstallOptions) 
 		}
 	}
 
+	main := false
+	if options.Main != nil {
+		main = *options.Main
+	}
+
 	var installedPackage domain.InstalledPackage
 	if fetchedPackage.Type == domain.RAW {
 		copiedPackage, err := copy.Copy(fetchedPackage, path.Join(configuration.SoftwareDir, plugin.Name, plugin.Name+"-"+fetchedPackage.Version.Value), plugin.RawExecutableName)
@@ -91,7 +98,7 @@ func Install(plugin domain.Plugin, inputVersion string, options InstallOptions) 
 		installedPackage = domain.InstalledPackage{
 			Version:     copiedPackage.Version,
 			Path:        copiedPackage.PathToFile,
-			Main:        false,
+			Main:        main,
 			InstalledOn: time.Now().UnixMilli(),
 		}
 	} else {
@@ -103,7 +110,7 @@ func Install(plugin domain.Plugin, inputVersion string, options InstallOptions) 
 		installedPackage = domain.InstalledPackage{
 			Version:     extractedPackage.Version,
 			Path:        extractedPackage.Path,
-			Main:        false,
+			Main:        main,
 			InstalledOn: time.Now().UnixMilli(),
 		}
 	}
@@ -115,9 +122,24 @@ func Install(plugin domain.Plugin, inputVersion string, options InstallOptions) 
 	}
 
 	finder := domain.ProdDirFinder{SoftwareDir: viper.GetString(config.SoftwareDirKey)}
-	err = shell.AddVariables(finder, installedPackages)
+	envVariables, err := shell.AddVariables(finder, installedPackages)
 	if err != nil {
 		return err
+	}
+
+	here := false
+	if options.Here != nil {
+		here = *options.Here
+	}
+	if here {
+		toHere, err := envVariables.ExtractToHere(path.Base(installedPackage.Path))
+		if err != nil {
+			return err
+		}
+		err = file.AppendInFile("./envrc", toHere.ToExport())
+		if err != nil {
+			return err
+		}
 	}
 
 	err = plugin.PostInstall(installedPackage)

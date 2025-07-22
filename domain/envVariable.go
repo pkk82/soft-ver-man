@@ -146,3 +146,28 @@ func resolve(variable EnvVariable, envVariablesByName map[string]EnvVariable) (E
 		SuffixValue: suffixValue,
 	}, nil
 }
+
+func (envVariables EnvVariables) ExtractToHere(suffixValue string) (EnvVariables, error) {
+
+	selectedVariable := EnvVariable{}
+	for _, variable := range envVariables.Variables {
+		if variable.SuffixValue == suffixValue {
+			selectedVariable = variable
+			break
+		}
+	}
+	if selectedVariable.Name == "" {
+		return EnvVariables{}, fmt.Errorf("variable with suffix %v not found", suffixValue)
+	}
+	mainVariable := EnvVariable{
+		Name:           envVariables.MainVariable.Name,
+		PrefixVariable: &selectedVariable,
+	}
+
+	return EnvVariables{
+		Variables:              []EnvVariable{mainVariable},
+		MainVariable:           &mainVariable,
+		ExecutableRelativePath: envVariables.ExecutableRelativePath,
+	}, nil
+
+}

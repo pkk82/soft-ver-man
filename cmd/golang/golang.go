@@ -31,14 +31,18 @@ var Cmd = cmd.MainCmd(golang.Name, golang.LongName, golang.Aliases)
 
 var verifyChecksumFetch bool
 var verifyChecksumInstall bool
+var main bool
+var here bool
 
 func init() {
 	cmd.RootCmd.AddCommand(Cmd)
 	fetchCmd := cmd.FetchCmd(golang.Name, golang.LongName, &verifyChecksumFetch)
 	fetchCmd.Flags().BoolVarP(&verifyChecksumFetch, "verify-checksum", "c", false, "Verify checksum of downloaded file")
 	Cmd.AddCommand(fetchCmd)
-	installCmd := cmd.InstallCmd(golang.Name, golang.LongName, software.InstallOptions{VerifyChecksum: &verifyChecksumInstall, ArchivePath: nil})
+	installCmd := cmd.InstallCmd(golang.Name, golang.LongName, software.InstallOptions{VerifyChecksum: &verifyChecksumInstall, Main: &main, Here: &here})
 	installCmd.Flags().BoolVarP(&verifyChecksumInstall, "verify-checksum", "c", false, "Verify checksum of downloaded file")
+	installCmd.Flags().BoolVarP(&main, "main", "m", false, "Make package main version (default: false)")
+	installCmd.Flags().BoolVarP(&here, "here", "x", false, "Use package in the current directory via .direnv (default: false)")
 	Cmd.AddCommand(installCmd)
 	Cmd.AddCommand(cmd.UninstallCmd(golang.Name, golang.LongName))
 	Cmd.AddCommand(cmd.InstalledCmd(golang.Name))

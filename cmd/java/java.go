@@ -32,14 +32,18 @@ var Cmd = cmd.MainCmd(java.Name, java.LongName, java.Aliases)
 var verifyChecksumFetch bool
 var verifyChecksumInstall bool
 var archivePath string
+var main bool
+var here bool
 
 func init() {
 	cmd.RootCmd.AddCommand(Cmd)
 	fetchCmd := cmd.FetchCmd(java.Name, java.LongName, &verifyChecksumFetch)
 	fetchCmd.Flags().BoolVarP(&verifyChecksumFetch, "verify-checksum", "c", false, "Verify checksum of downloaded file")
 	Cmd.AddCommand(fetchCmd)
-	installCmd := cmd.InstallCmd(java.Name, java.LongName, software.InstallOptions{VerifyChecksum: &verifyChecksumInstall, ArchivePath: &archivePath})
+	installCmd := cmd.InstallCmd(java.Name, java.LongName, software.InstallOptions{VerifyChecksum: &verifyChecksumInstall, ArchivePath: &archivePath, Main: &main, Here: &here})
 	installCmd.Flags().BoolVarP(&verifyChecksumInstall, "verify-checksum", "c", false, "Verify checksum of downloaded file")
+	installCmd.Flags().BoolVarP(&main, "main", "m", false, "Make package main version (default: false)")
+	installCmd.Flags().BoolVarP(&here, "here", "x", false, "Use package in the current directory via .direnv (default: false)")
 	installCmd.Flags().StringVarP(&archivePath, "archive-path", "f", "", "Specify path to archive file")
 	Cmd.AddCommand(installCmd)
 	Cmd.AddCommand(cmd.UninstallCmd(java.Name, java.LongName))

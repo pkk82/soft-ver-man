@@ -25,9 +25,7 @@ import (
 	"errors"
 	"github.com/pkk82/soft-ver-man/config"
 	"github.com/pkk82/soft-ver-man/domain"
-	"github.com/pkk82/soft-ver-man/util/console"
 	"github.com/pkk82/soft-ver-man/util/file"
-	"os"
 	"path/filepath"
 	"strings"
 )
@@ -61,7 +59,7 @@ func initShell(finder domain.DirFinder) error {
 				header = "\n\n" + header
 			}
 
-			err = assertFileWithContent(rcPath, initLine, []string{header, initLine})
+			err = file.AssertFileWithContent(rcPath, initLine, []string{header, initLine})
 			if err != nil {
 				return err
 			}
@@ -71,57 +69,5 @@ func initShell(finder domain.DirFinder) error {
 	if !atLeastOneExists {
 		return errors.New("at least of of the following files must exist: " + strings.Join(rcFiles[:], ", "))
 	}
-	return nil
-}
-
-func assertFileWithContent(filePath string, seekLine string, contentToAdd []string) error {
-
-	exists, err := file.FileExists(filePath)
-	if err != nil {
-		return err
-	}
-	if !exists {
-
-		parent, _ := filepath.Split(filePath)
-		err := os.MkdirAll(parent, 0755)
-		if err != nil {
-			return err
-		}
-
-		err = createFile(filePath)
-		if err != nil {
-			return err
-		}
-	}
-
-	content, err := file.ReadFile(filePath)
-	if err != nil {
-		return err
-	}
-
-	if !strings.Contains(content, seekLine) {
-		err := file.AppendInFile(filePath, contentToAdd)
-		if err != nil {
-			return err
-		}
-
-	}
-
-	return nil
-
-}
-
-func createFile(filePath string) error {
-	f, err := os.Create(filePath)
-	if err != nil {
-		return err
-	}
-	defer func(file *os.File) {
-		err := file.Close()
-		if err != nil {
-			console.Error(err)
-		}
-	}(f)
-
 	return nil
 }

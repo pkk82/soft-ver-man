@@ -136,7 +136,7 @@ func Install(plugin domain.Plugin, inputVersion string, options InstallOptions) 
 		if err != nil {
 			return err
 		}
-		err = file.AppendInFile("./envrc", toHere.ToExport())
+		err = file.AppendInFile(".envrc", toHere.ToExport())
 		if err != nil {
 			return err
 		}

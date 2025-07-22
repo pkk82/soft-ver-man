@@ -75,7 +75,7 @@ func ReadFile(path string) (string, error) {
 }
 
 func AppendInFile(path string, lines []string) error {
-	file, err := os.OpenFile(path, os.O_APPEND|os.O_WRONLY, 0644)
+	file, err := os.OpenFile(path, os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0644)
 	if err != nil {
 		return err
 	}

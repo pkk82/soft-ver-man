@@ -74,7 +74,8 @@ func Test_ShouldCreateDefaultConfigFile(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Error reading file: %v", err)
 	}
-	if !strings.Contains(string(content), "software-directory-download: /tmp/soft-ver-man") {
+	expectedDownloadDir := filepath.Join(os.TempDir(), "soft-ver-man")
+	if !strings.Contains(string(content), "software-directory-download: "+expectedDownloadDir) {
 		t.Errorf("File %v does not contain expected content", string(content))
 	}
 	dir, err := os.UserHomeDir()

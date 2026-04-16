@@ -33,6 +33,7 @@ import (
 	"github.com/pkk82/soft-ver-man/util/file"
 	"github.com/spf13/viper"
 	"path"
+	"strings"
 	"time"
 )
 
@@ -65,8 +66,8 @@ func Install(plugin domain.Plugin, inputVersion string, options InstallOptions) 
 	}
 
 	var fetchedPackage domain.FetchedPackage
-	if options.ArchivePath != nil {
-		archivePath := *options.ArchivePath
+	if options.ArchivePath != nil && strings.TrimSpace(*options.ArchivePath) != "" {
+		archivePath := strings.TrimSpace(*options.ArchivePath)
 		version, err = domain.NewVersion(inputVersion)
 		if err != nil {
 			console.Fatal(err)

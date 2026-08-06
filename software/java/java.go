@@ -24,6 +24,8 @@ package java
 import (
 	"github.com/pkk82/soft-ver-man/domain"
 	"github.com/pkk82/soft-ver-man/util/verification"
+	"os"
+	"path/filepath"
 )
 
 func init() {
@@ -37,7 +39,7 @@ func init() {
 			return nil
 		},
 		PostInstall: func(installedPackage domain.InstalledPackage) error {
-			return nil
+			return linkContentsHome(installedPackage.Path)
 		},
 		CalculateDownloadedFileName: calculateDownloadFileName,
 		ExtractStrategy:             domain.UseCompressedDirOrArchiveName,
@@ -49,6 +51,32 @@ func init() {
 
 func calculateDownloadFileName(asset domain.Asset) string {
 	return asset.Name
+}
+
+// Since JDK 26, macOS zulu archives no longer ship top-level symlinks
+// (bin, lib, ...) into Contents/Home - recreate them so that
+// ExecutableRelativePath and *_HOME variables keep working.
+func linkContentsHome(packageDir string) error {
+	homeDir := filepath.Join(packageDir, "Contents", "Home")
+	info, err := os.Stat(homeDir)
+	if err != nil || !info.IsDir() {
+		return nil
+	}
+	entries, err := os.ReadDir(homeDir)
+	if err != nil {
+		return err
+	}
+	for _, entry := range entries {
+		linkPath := filepath.Join(packageDir, entry.Name())
+		if _, err := os.Lstat(linkPath); err == nil {
+			continue
+		}
+		err = os.Symlink(filepath.Join("Contents", "Home", entry.Name()), linkPath)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 func getAvailableAssets() ([]domain.Asset, error) {

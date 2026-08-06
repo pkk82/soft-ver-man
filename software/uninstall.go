@@ -22,23 +22,32 @@
 package software
 
 import (
+	"errors"
 	"github.com/pkk82/soft-ver-man/config"
 	"github.com/pkk82/soft-ver-man/domain"
 	"os"
 )
 
 func Uninstall(plugin domain.Plugin, inputVersion string) error {
-	version, err := domain.NewVersion(inputVersion)
-	if err != nil {
-		return err
-	}
-
 	installedPackages, err := config.LoadInstalledPackages(plugin.Name)
 	if err != nil {
 		return err
 	}
 
+	versions := make([]string, len(installedPackages.Items))
+	for i, item := range installedPackages.Items {
+		versions[i] = item.Version.Value
+	}
+
+	version, _, err := domain.FindVersion(inputVersion, versions)
+	if err != nil {
+		return errors.New("Version " + inputVersion + " is not installed")
+	}
+
 	removedItem := installedPackages.RemoveByVersion(version)
+	if removedItem == nil {
+		return errors.New("Version " + inputVersion + " is not installed")
+	}
 
 	err = os.RemoveAll(removedItem.Path)
 	if err != nil {

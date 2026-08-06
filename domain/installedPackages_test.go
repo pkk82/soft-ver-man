@@ -271,6 +271,47 @@ func Test_InstalledPackages_Remove(t *testing.T) {
 	}
 }
 
+func Test_InstalledPackages_RemoveByFoundVersion(t *testing.T) {
+
+	installedPackages := InstalledPackages{Plugin: Plugin{Name: "java"}, Items: []InstalledPackage{
+		{
+			Version:     Ver("25.0.2", t),
+			Path:        "/home/user/pf/java/zulu25.32.21-ca-jdk25.0.2-macosx_aarch64",
+			Main:        false,
+			InstalledOn: 1689017267000,
+		},
+		{
+			Version:     Ver("26.0.2", t),
+			Path:        "/home/user/pf/java/zulu26.32.13-ca-jdk26.0.2-macosx_aarch64",
+			Main:        false,
+			InstalledOn: 1689017267000,
+		},
+	}}
+
+	versions := make([]string, len(installedPackages.Items))
+	for i, item := range installedPackages.Items {
+		versions[i] = item.Version.Value
+	}
+
+	version, _, err := FindVersion("26", versions)
+	if err != nil {
+		t.Errorf("FindVersion() error = %v", err)
+	}
+
+	removed := installedPackages.RemoveByVersion(version)
+	if removed == nil {
+		t.Fatalf("RemoveByVersion() = nil, want package 26.0.2")
+	}
+	if removed.Version.Value != "26.0.2" {
+		t.Errorf("RemoveByVersion().Version = %v, want 26.0.2", removed.Version.Value)
+	}
+
+	_, _, err = FindVersion("24", versions)
+	if err == nil {
+		t.Errorf("FindVersion() expected error for not installed version")
+	}
+}
+
 func Test_InstalledPackages_FoundMain(t *testing.T) {
 	tests := []struct {
 		name    string

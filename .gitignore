@@ -42,3 +42,5 @@ venv/
 # the app
 svm
 !svm/
+# claude code
+.claude/settings.local.json

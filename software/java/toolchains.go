@@ -36,6 +36,8 @@ import (
 
 const xmlDeclaration = `<?xml version="1.0" encoding="UTF-8"?>`
 
+const toolchainsIndent = "  "
+
 const defaultToolchainsOpeningTag = `<toolchains xmlns="http://maven.apache.org/TOOLCHAINS/1.1.0"
             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
             xsi:schemaLocation="http://maven.apache.org/TOOLCHAINS/1.1.0 https://maven.apache.org/xsd/toolchains-1.1.0.xsd">`
@@ -122,7 +124,7 @@ func upsertToolchainEntry(toolchainsPath string, major int, jdkHome string) erro
 			}
 			continue
 		}
-		entries = append(entries, renderVerbatim(item))
+		entries = append(entries, renderToolchain(item))
 	}
 	if !replaced {
 		entries = append(entries, newEntry)
@@ -142,7 +144,7 @@ func removeToolchainEntry(toolchainsPath string, major int) error {
 	entries := make([]string, 0, len(doc.Items))
 	for _, item := range doc.Items {
 		if !isJdkEntry(item, major) {
-			entries = append(entries, renderVerbatim(item))
+			entries = append(entries, renderToolchain(item))
 		}
 	}
 	return writeToolchains(toolchainsPath, content, entries)
@@ -170,7 +172,9 @@ func readToolchains(toolchainsPath string) (toolchainsDoc, string, error) {
 
 func writeToolchains(toolchainsPath, originalContent string, entries []string) error {
 	lines := []string{xmlDeclaration, toolchainsOpeningTag(originalContent)}
-	lines = append(lines, entries...)
+	for _, entry := range entries {
+		lines = append(lines, formatToolchainEntry(entry))
+	}
 	lines = append(lines, "</toolchains>", "")
 	return file.OverrideFileWithContent(toolchainsPath, lines)
 }
@@ -188,8 +192,103 @@ func isJdkEntry(item toolchainEntry, major int) bool {
 		strings.TrimSpace(item.Provides.Version) == strconv.Itoa(major)
 }
 
-func renderVerbatim(item toolchainEntry) string {
-	return "  <toolchain>" + item.InnerXML + "</toolchain>"
+func renderToolchain(item toolchainEntry) string {
+	return "<toolchain>" + item.InnerXML + "</toolchain>"
+}
+
+type xmlTokenKind int
+
+const (
+	xmlTagOpen xmlTokenKind = iota
+	xmlTagClose
+	xmlTagStandalone
+	xmlText
+)
+
+type xmlToken struct {
+	kind xmlTokenKind
+	text string
+}
+
+// formatToolchainEntry re-indents a single toolchain entry with
+// toolchainsIndent per level, one level deep inside the root element,
+// leaving tag content untouched
+func formatToolchainEntry(entry string) string {
+	tokens := tokenizeXml(entry)
+	lines := make([]string, 0, len(tokens))
+	depth := 1
+	for i := 0; i < len(tokens); i++ {
+		token := tokens[i]
+		indent := strings.Repeat(toolchainsIndent, depth)
+		switch token.kind {
+		case xmlTagOpen:
+			if i+2 < len(tokens) && tokens[i+1].kind == xmlText && tokens[i+2].kind == xmlTagClose {
+				lines = append(lines, indent+token.text+tokens[i+1].text+tokens[i+2].text)
+				i += 2
+			} else if i+1 < len(tokens) && tokens[i+1].kind == xmlTagClose {
+				lines = append(lines, indent+token.text+tokens[i+1].text)
+				i++
+			} else {
+				lines = append(lines, indent+token.text)
+				depth++
+			}
+		case xmlTagClose:
+			depth--
+			lines = append(lines, strings.Repeat(toolchainsIndent, depth)+token.text)
+		default:
+			lines = append(lines, indent+token.text)
+		}
+	}
+	return strings.Join(lines, "\n")
+}
+
+func tokenizeXml(fragment string) []xmlToken {
+	tokens := make([]xmlToken, 0)
+	rest := fragment
+	for len(rest) > 0 {
+		tagStart := strings.Index(rest, "<")
+		if tagStart == -1 {
+			tokens = appendTextToken(tokens, rest)
+			break
+		}
+		tokens = appendTextToken(tokens, rest[:tagStart])
+		rest = rest[tagStart:]
+		var tag string
+		if strings.HasPrefix(rest, "<!--") {
+			if end := strings.Index(rest, "-->"); end == -1 {
+				tag = rest
+			} else {
+				tag = rest[:end+len("-->")]
+			}
+		} else {
+			if end := strings.Index(rest, ">"); end == -1 {
+				tag = rest
+			} else {
+				tag = rest[:end+1]
+			}
+		}
+		rest = rest[len(tag):]
+		tokens = append(tokens, xmlToken{kind: classifyTag(tag), text: tag})
+	}
+	return tokens
+}
+
+func appendTextToken(tokens []xmlToken, text string) []xmlToken {
+	trimmed := strings.TrimSpace(text)
+	if trimmed == "" {
+		return tokens
+	}
+	return append(tokens, xmlToken{kind: xmlText, text: trimmed})
+}
+
+func classifyTag(tag string) xmlTokenKind {
+	if strings.HasPrefix(tag, "</") {
+		return xmlTagClose
+	}
+	if strings.HasPrefix(tag, "<!") || strings.HasPrefix(tag, "<?") || strings.HasSuffix(tag, "/>") {
+		return xmlTagStandalone
+	}
+	return xmlTagOpen
 }
 
 func renderJdkToolchain(major int, jdkHome string) string {

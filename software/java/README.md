@@ -11,5 +11,6 @@ as a `jdk` toolchain with the major version and vendor `zulu`.
 An existing `jdk` entry with the same major version is overridden.
 Uninstalling repoints the entry to the newest remaining installation
 with the same major version, or removes the entry when none is left.
-Other toolchain entries are preserved as they are.
+Other toolchain entries are preserved, and the whole file
+is reformatted with two-space indentation on every change.
 

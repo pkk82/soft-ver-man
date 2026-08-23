@@ -227,6 +227,53 @@ func Test_upsertToolchainEntry_preservesCustomOpeningTag(t *testing.T) {
 	assertFileContent(t, toolchainsPath, expected)
 }
 
+func Test_upsertToolchainEntry_reformatsExistingEntries(t *testing.T) {
+	toolchainsPath := filepath.Join(test.CreateTestDir(t), "toolchains.xml")
+	existing := xmlDeclaration + "\n" +
+		defaultToolchainsOpeningTag + `
+    <toolchain>
+	<type>netbeans</type>
+            <provides><version>12</version></provides>
+        <configuration>
+	        <!-- custom install dir -->
+            <installDir>/opt/netbeans</installDir></configuration>
+      </toolchain>
+</toolchains>
+`
+	writeFile(t, toolchainsPath, existing)
+
+	err := upsertToolchainEntry(toolchainsPath, 21, "/opt/jdk-21.0.4")
+	if err != nil {
+		t.Fatalf("Failed to upsert toolchain entry: %s", err)
+	}
+
+	expected := xmlDeclaration + "\n" +
+		defaultToolchainsOpeningTag + `
+  <toolchain>
+    <type>netbeans</type>
+    <provides>
+      <version>12</version>
+    </provides>
+    <configuration>
+      <!-- custom install dir -->
+      <installDir>/opt/netbeans</installDir>
+    </configuration>
+  </toolchain>
+  <toolchain>
+    <type>jdk</type>
+    <provides>
+      <version>21</version>
+      <vendor>zulu</vendor>
+    </provides>
+    <configuration>
+      <jdkHome>/opt/jdk-21.0.4</jdkHome>
+    </configuration>
+  </toolchain>
+</toolchains>
+`
+	assertFileContent(t, toolchainsPath, expected)
+}
+
 func Test_findLatestWithMajor(t *testing.T) {
 	items := []domain.InstalledPackage{
 		{Version: domain.Ver("21.0.1", t), Path: "/opt/jdk-21.0.1"},

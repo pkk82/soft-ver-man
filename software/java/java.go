@@ -36,10 +36,14 @@ func init() {
 		GetAvailableAssets: getAvailableAssets,
 		VerifyChecksum:     verifyChecksum,
 		PostUninstall: func(version domain.Version) error {
-			return nil
+			return unregisterFromToolchains(version)
 		},
 		PostInstall: func(installedPackage domain.InstalledPackage) error {
-			return linkContentsHome(installedPackage.Path)
+			err := linkContentsHome(installedPackage.Path)
+			if err != nil {
+				return err
+			}
+			return registerInToolchains(installedPackage)
 		},
 		CalculateDownloadedFileName: calculateDownloadFileName,
 		ExtractStrategy:             domain.UseCompressedDirOrArchiveName,
